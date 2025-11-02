@@ -1,5 +1,21 @@
 // User Contributions CRUD (Supabase)
 (function(){
+  // Local fallback storage helpers (used when Supabase is unavailable/misconfigured)
+  const LS_PREFIX = 'xaytheon:contribs:';
+  function lsKey(userId){ return LS_PREFIX + (userId || 'guest'); }
+  function lsRead(userId){
+    try { return JSON.parse(localStorage.getItem(lsKey(userId))||'[]') || []; } catch { return []; }
+  }
+  function lsWrite(userId, rows){
+    try { localStorage.setItem(lsKey(userId), JSON.stringify(rows)); } catch {}
+  }
+  function uuid(){
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+    // RFC4122-ish fallback
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8); return v.toString(16);
+    });
+  }
   function supa(){
     try {
       const ensure = window.XAYTHEON_AUTH?.ensureClient;
@@ -46,6 +62,12 @@
     if (error) { console.warn('upload error', error); return null; }
     const { data } = c.storage.from('contrib-screens').getPublicUrl(path);
     return data?.publicUrl || null;
+  }
+
+  async function uploadScreenshotLocal(file){
+    // As a local fallback, store data URL directly for inline display
+    if (!file) return null;
+    try { return await blobToDataUrl(file); } catch { return null; }
   }
 
   // ---------- SVG Card Generation & Upload ----------
@@ -212,7 +234,6 @@
   async function saveContribution(e){
     e.preventDefault();
     const c = supa();
-    if (!c) { status('Supabase not available. Please refresh the page.', 'error'); return; }
     const user = await getUser(); if (!user){ status('Please sign in to save.', 'error'); return; }
 
     const project = document.getElementById('cf-project').value.trim();
@@ -224,29 +245,62 @@
     const tech = document.getElementById('cf-tech').value.trim();
     const file = document.getElementById('cf-shot').files[0] || null;
 
-  status('Saving...');
-  // disable button while saving
-  const btn = (e.submitter && e.submitter.tagName === 'BUTTON') ? e.submitter : document.querySelector('#contrib-form button[type="submit"]');
-  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-    let screenshot_url = null;
-    try { screenshot_url = await uploadScreenshot(file, user.id); } catch {}
+    status('Saving...');
+    // disable button while saving
+    const btn = (e.submitter && e.submitter.tagName === 'BUTTON') ? e.submitter : document.querySelector('#contrib-form button[type="submit"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
 
-    const { data, error } = await c.from('contributions').insert({
-      user_id: user.id,
-      project, link, program, date, type, description, tech, screenshot_url
-    }).select().single();
-    if (error) { status('Save failed: ' + error.message, 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Save Contribution'; } return; }
-    status('Saved. Generating card…');
+    // Try Supabase path first if client is available
+    let savedRow = null;
+    if (c) {
+      let screenshot_url = null;
+      try { screenshot_url = await uploadScreenshot(file, user.id); } catch {}
+      try {
+        const { data, error } = await c.from('contributions').insert({
+          user_id: user.id,
+          project, link, program, date, type, description, tech, screenshot_url
+        }).select().single();
+        if (!error && data) {
+          savedRow = data;
+        } else if (error) {
+          console.warn('Supabase insert failed, using local fallback:', error);
+        }
+      } catch (err) {
+        console.warn('Supabase insert exception, using local fallback:', err);
+      }
+    }
+
+    // Local fallback if Supabase path failed or unavailable
+    if (!savedRow) {
+      let screenshot_url = null;
+      try { screenshot_url = await uploadScreenshotLocal(file); } catch {}
+      savedRow = {
+        id: uuid(),
+        user_id: user.id,
+        project, link, program, date, type, description, tech,
+        screenshot_url,
+        created_at: new Date().toISOString()
+      };
+      const rows = lsRead(user.id);
+      rows.unshift(savedRow);
+      lsWrite(user.id, rows);
+      status('Saved locally (Supabase not configured).');
+    } else {
+      status('Saved. Generating card…');
+    }
+
+    // Generate a card
     try {
-      const res = await uploadCardSvg(data, user.id);
+      const res = c ? await uploadCardSvg(savedRow, user.id) : { url: null, error: 'offline', blob: new Blob([cardSvg(savedRow)], { type: 'image/svg+xml' }) };
       if (res?.url && !res.error) {
         status('Saved and card generated.');
       } else if (res?.url && res.error) {
         status(`Saved. Card uploaded but not publicly accessible: ${res.error}. See setup notes below.`, 'error');
       } else {
-        status('Saved (card generation failed). See console and setup notes below.', 'error');
+        status('Saved. Download the generated SVG from the row if needed.');
       }
-    } catch (e) { status('Saved (card generation exception). See console.', 'error'); }
+    } catch (e2) { console.warn('Card generation exception', e2); }
+
     (document.getElementById('contrib-form')).reset();
     await listContributions();
     if (btn) { btn.disabled = false; btn.textContent = 'Save Contribution'; }
@@ -281,13 +335,33 @@
   function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
 
   async function listContributions(){
-    const c = supa(); if (!c) { status('Supabase not available. Please refresh.', 'error'); return; }
+    const c = supa();
     const list = document.getElementById('contrib-list'); if (!list) return;
     const user = await getUser(); if (!user){ list.innerHTML = ''; return; }
-    const { data, error } = await c.from('contributions').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-    if (error) { list.innerHTML = `<div class="muted">Load failed: ${escapeHtml(error.message)}</div>`; return; }
-    if (!data || !data.length) { list.innerHTML = '<div class="muted">No contributions yet.</div>'; return; }
-  list.innerHTML = data.map(rowHtml).join('');
+
+    let data = [];
+    let loadError = null;
+    if (c) {
+      try {
+        const resp = await c.from('contributions').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+        if (resp.error) { loadError = resp.error; }
+        else data = resp.data || [];
+      } catch (err) { loadError = err; }
+    } else {
+      loadError = new Error('Supabase not available');
+    }
+
+    // If Supabase failed, use local fallback
+    if (loadError) {
+      console.warn('Falling back to local contributions due to load error:', loadError);
+      data = lsRead(user.id);
+      if (!data || !data.length) {
+        list.innerHTML = '<div class="muted">No contributions yet. (Using local storage fallback)</div>';
+        return;
+      }
+    }
+
+    list.innerHTML = data.map(rowHtml).join('');
     // Wire delete buttons
     list.querySelectorAll('.contrib-del').forEach(btn => {
       btn.addEventListener('click', async (e) => {
@@ -308,18 +382,21 @@
         const row = data.find(r => r.id === id);
         if (!row) return;
         status('Generating card…');
-        const res = await uploadCardSvg(row, user.id);
+        let res = null;
+        if (c) {
+          res = await uploadCardSvg(row, user.id);
+        } else {
+          res = { url:null, error:'offline', blob: new Blob([cardSvg(row)], { type: 'image/svg+xml' }) };
+        }
         if (res?.url && !res.error) {
           status('Card generated.');
-          // Update the Open Image link on this row
           const parent = e.currentTarget.closest('[data-id]');
           const openBtn = parent?.querySelector('.contrib-open');
           if (openBtn) openBtn.setAttribute('href', res.url);
         } else if (res?.url && res.error) {
           status(`Card uploaded but not publicly accessible: ${res.error}`, 'error');
         } else {
-          status('Card generation failed: ' + (res?.error || 'unknown error'), 'error');
-          // Provide a download fallback so user can host the SVG elsewhere (e.g., in a GitHub repo)
+          status('Card generated (download locally).');
           const parent = e.currentTarget.closest('[data-id]');
           const openBtn = parent?.querySelector('.contrib-open');
           if (openBtn && res?.blob) {
@@ -334,6 +411,7 @@
     list.querySelectorAll('.contrib-copy').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         const id = e.currentTarget.getAttribute('data-id');
+        if (!c) { status('Card URL copy is unavailable in local mode. Use Download SVG.', 'error'); return; }
         const url = await getCardUrl(user.id, id);
         if (!url) { status('No card found. Generate it first.', 'error'); return; }
         const project = (data.find(r => r.id === id)?.project) || 'Contribution';
@@ -346,6 +424,7 @@
     });
     list.querySelectorAll('.contrib-open').forEach(async (a) => {
       const id = a.getAttribute('data-id');
+      if (!c) { a.setAttribute('href', '#'); return; }
       const url = await getCardUrl(user.id, id);
       if (url) a.setAttribute('href', url); else a.setAttribute('href', '#');
     });
