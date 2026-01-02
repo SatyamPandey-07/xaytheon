@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — XAYTHEON</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    body {
+      font-family: 'Eightgon', 'Researcher', 'OriginTech', sans-serif;
+    }
+    .auth-wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 40px 16px;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      padding: 24px;
+    }
+    .auth-title {
+      font-size: 1.8em;
+      margin-bottom: 8px;
+    }
+    .auth-sub {
+      opacity: 0.7;
+      margin-bottom: 20px;
+    }
+    .auth-form {
+      display: grid;
+      gap: 12px;
+    }
+    .auth-form label {
+      font-weight: 600;
+    }
+    .auth-form input {
+      padding: 12px 14px;
+      border: 1px solid rgba(0,0,0,0.2);
+      border-radius: 8px;
+      outline: none;
+      font-size: 1em;
+    }
+    .auth-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .status {
+      min-height: 1.2em;
+      margin-top: 10px;
+    }
+    .muted {
+      opacity: 0.75;
+      font-size: 0.95em;
+    }
+    .center {
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-title">Create account</div>
+      <div class="auth-sub">Register using your email and password</div>
+
+      <form id="register-form" class="auth-form">
+        <label for="reg-email">Email</label>
+        <input id="reg-email" type="email" required />
+
+        <label for="reg-password">Password</label>
+        <input id="reg-password" type="password" required />
+
+        <div class="auth-actions">
+          <button class="btn btn-primary" type="submit">Register</button>
+          <a class="btn btn-outline" href="login.html">Back</a>
+        </div>
+
+        <div class="center muted" style="margin-top:12px;">
+        Authentication is handled securely by the Xaytheon backend.
+        </div>
+
+        <div id="register-status" class="status muted"></div>
+      </form>
+
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    const form = document.getElementById("register-form");
+    const emailEl = document.getElementById("reg-email");
+    const passwordEl = document.getElementById("reg-password");
+    const statusEl = document.getElementById("register-status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusEl.textContent = "Creating account…";
+
+      try {
+        await window.XAYTHEON_AUTH.register(
+          emailEl.value.trim(),
+          passwordEl.value
+        );
+        statusEl.textContent = "Account created. Redirecting to login…";
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1000);
+      } catch (err) {
+        statusEl.textContent = err.message || "Registration failed";
+      }
+    });
+  </script>
+</body>
+</html>
