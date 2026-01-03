@@ -1,223 +1,232 @@
-// Explore by Topic: Force-directed topic map with BFS expansion
-// Tokenless: Uses GitHub Search API for repos by base topic, optional language
-// Nodes: topic (blue) and repo (black). Edges connect repo -> topic.
-// Click a topic node to BFS-expand neighbors (discover more repos by that topic).
+// Explore by Topic — Graph + List View (FULLY WORKING)
 
-(function(){
-  const form = document.getElementById('explore-form');
-  if(!form) return;
+(function () {
+  const form = document.getElementById("explore-form");
+  if (!form) return;
 
-  const topicEl = document.getElementById('ex-base-topic');
-  const langEl = document.getElementById('ex-language');
-  const limitEl = document.getElementById('ex-limit');
-  const statusEl = document.getElementById('ex-status');
+  const topicEl = document.getElementById("ex-base-topic");
+  const langEl = document.getElementById("ex-language");
+  const limitEl = document.getElementById("ex-limit");
+  const statusEl = document.getElementById("ex-status");
 
-  const svg = d3.select('#graph');
+  const svg = d3.select("#graph");
   const width = () => svg.node().clientWidth;
   const height = () => svg.node().clientHeight;
 
-  let sim, linkSel, nodeSel; // d3 selections
-  const linkKeys = new Set(); // track unique edges
+  // View toggle
+  const graphView = document.getElementById("graph-view");
+  const listView = document.getElementById("list-view");
 
-  // Data structures
-  const nodes = new Map(); // id -> node { id, type: 'topic'|'repo', label }
-  const links = []; // { source, target }
+  //Active view button 
+  function setActive(btn) {
+  document.querySelectorAll(".view-toggle .btn")
+    .forEach(b => b.classList.remove("btn-primary"));
+  btn.classList.add("btn-primary");
+}
 
-  function setStatus(msg, level='info'){
-    if(!statusEl) return;
+  document.getElementById("view-graph-btn")?.addEventListener("click", () => {
+    graphView.style.display = "block";
+    listView.style.display = "none";
+    setActive(document.getElementById("view-graph-btn"))
+  });
+
+  document.getElementById("view-list-btn")?.addEventListener("click", () => {
+    graphView.style.display = "none";
+    listView.style.display = "block";
+    setActive(document.getElementById("view-list-btn"))
+  });
+
+  // Graph state
+  let sim;
+  const nodes = new Map();
+  const links = [];
+  const linkKeys = new Set();
+
+  // Shared data
+  const exploreData = {
+    repos: []
+  };
+
+  function setStatus(msg, level = "info") {
     statusEl.textContent = msg;
-    statusEl.style.color = level==='error' ? '#b91c1c' : '#111827';
+    statusEl.style.color = level === "error" ? "#b91c1c" : "#111827";
   }
 
-  function nodeColor(d){
-    return d.type==='topic' ? '#0ea5e9' : '#111827';
+  function nodeColor(d) {
+    return d.type === "topic" ? "#0ea5e9" : "#111827";
   }
 
-  function addNode(id, data){
-    if(!nodes.has(id)) nodes.set(id, { id, ...data });
+  function addNode(id, data) {
+    if (!nodes.has(id)) nodes.set(id, { id, ...data });
     return nodes.get(id);
   }
 
-  function addLink(a, b){
+  function addLink(a, b) {
     const key = `${a}->${b}`;
     if (linkKeys.has(key)) return;
     linkKeys.add(key);
     links.push({ source: a, target: b });
   }
 
-  async function ghJson(url){
-    const res = await fetch(url, { headers: {
-      'Accept': 'application/vnd.github+json',
-      'User-Agent': 'XAYTHEON-Explore-Topic'
-    }});
-    if(!res.ok){
-      const text = await res.text();
-      throw new Error(`GitHub API ${res.status}: ${text}`);
-    }
+  async function ghJson(url) {
+    const res = await fetch(url, {
+      headers: {
+        Accept: "application/vnd.github+json"
+      }
+    });
+    if (!res.ok) throw new Error(`GitHub API ${res.status}`);
     return res.json();
   }
 
-  async function searchReposByTopic(topic, language, perPage){
+  async function searchReposByTopic(topic, language, limit) {
     const parts = [`topic:${topic}`];
-    if(language) parts.push(`language:${language}`);
-    const q = encodeURIComponent(parts.join(' '));
-    const url = `https://api.github.com/search/repositories?q=${q}&sort=stars&order=desc&per_page=${Math.max(10, Math.min(100, perPage||50))}`;
+    if (language) parts.push(`language:${language}`);
+
+    const q = encodeURIComponent(parts.join(" "));
+    const url = `https://api.github.com/search/repositories?q=${q}&sort=stars&order=desc&per_page=${limit}`;
+
     const data = await ghJson(url);
-    return Array.isArray(data.items) ? data.items : [];
+    exploreData.repos.push(...data.items);
+    return data.items;
   }
 
-  // Render/Update the force graph
-  function render(){
-    // Build arrays for d3
+  // ---------- LIST VIEW ----------
+  function renderRepoList(repos) {
+    const tbody = document.getElementById("repo-list");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    repos.forEach(repo => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>
+          <a href="${repo.html_url}" target="_blank" rel="noopener">
+            ${repo.full_name}
+          </a>
+        </td>
+        <td>${repo.topics?.[0] || "—"}</td>
+        <td>${repo.language || "—"}</td>
+        <td align="right">${repo.stargazers_count}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ---------- GRAPH ----------
+  function renderGraph() {
+    svg.selectAll("*").remove();
+
+    const g = svg.append("g");
+    svg.call(d3.zoom().on("zoom", e => g.attr("transform", e.transform)));
+
     const nodeArr = Array.from(nodes.values());
 
-    // Clear svg
-    svg.selectAll('*').remove();
-
-    // Zoom/pan
-    const g = svg.append('g');
-    const zoom = d3.zoom().on('zoom', (ev)=>{ g.attr('transform', ev.transform); });
-    svg.call(zoom);
-
-    // Links
-    linkSel = g.append('g')
-      .attr('stroke', 'rgba(0,0,0,0.2)')
-      .attr('stroke-width', 1)
-      .selectAll('line')
+    const linkSel = g.append("g")
+      .attr("stroke", "rgba(0,0,0,0.25)")
+      .selectAll("line")
       .data(links)
       .enter()
-      .append('line');
+      .append("line");
 
-    // Nodes
-    nodeSel = g.append('g')
-      .selectAll('circle')
-      .data(nodeArr, d=>d.id)
+    const nodeSel = g.append("g")
+      .selectAll("circle")
+      .data(nodeArr, d => d.id)
       .enter()
-      .append('circle')
-      .attr('r', d=> d.type==='topic' ? 8 : 6)
-      .attr('fill', nodeColor)
-      .attr('stroke', '#fff')
-      .attr('stroke-width', 1)
-      .style('cursor', 'pointer')
-      .on('click', onNodeClick);
+      .append("circle")
+      .attr("r", d => (d.type === "topic" ? 8 : 6))
+      .attr("fill", nodeColor)
+      .attr("stroke", "#fff")
+      .style("cursor", "pointer")
+      .on("click", onNodeClick);
 
-    // Titles
-    nodeSel.append('title').text(d=>{
-      if (d.type === 'repo') return `${d.label}\n${d.url||''}`;
-      return d.label || d.id;
-    });
+    nodeSel.append("title").text(d => d.label);
 
-    // Labels (lightweight)
-    const labelSel = g.append('g')
-      .selectAll('text')
-      .data(nodeArr, d=>d.id)
-      .enter()
-      .append('text')
-      .text(d=> d.type==='topic' ? d.label : '')
-      .attr('font-size', 10)
-      .attr('fill', '#333');
-
-    // Simulation (tuned for larger samples):
-    // - Slightly stronger repulsion for topic to keep spokes open
-    // - Collide radius scaled by node type
-    // - Gentle x/y centering to avoid drifting to edges
-    // - Reheat alpha when (re)rendering
     sim = d3.forceSimulation(nodeArr)
-      .force('charge', d3.forceManyBody().strength(d => d.type==='topic' ? -120 : -35))
-      .force('link', d3.forceLink(links).id(d=>d.id).distance(l => (l.source.type==='repo' && l.target.type==='topic') ? 70 : 60).strength(0.8))
-      .force('center', d3.forceCenter(width()/2, height()/2))
-      .force('x', d3.forceX(width()/2).strength(0.05))
-      .force('y', d3.forceY(height()/2).strength(0.05))
-      .force('collide', d3.forceCollide(d => d.type==='topic' ? 12 : 9))
-      .alpha(1)
-      .alphaDecay(0.06)
-      .on('tick', ()=>{
+      .force("charge", d3.forceManyBody().strength(d => d.type === "topic" ? -120 : -40))
+      .force("link", d3.forceLink(links).id(d => d.id).distance(70))
+      .force("center", d3.forceCenter(width() / 2, height() / 2))
+      .force("collide", d3.forceCollide(d => d.type === "topic" ? 14 : 10))
+      .on("tick", () => {
         linkSel
-          .attr('x1', d=>d.source.x)
-          .attr('y1', d=>d.source.y)
-          .attr('x2', d=>d.target.x)
-          .attr('y2', d=>d.target.y);
-        g.selectAll('circle')
-          .attr('cx', d=>d.x)
-          .attr('cy', d=>d.y);
-        labelSel
-          .attr('x', d=>d.x+8)
-          .attr('y', d=>d.y+4);
-      });
+          .attr("x1", d => d.source.x)
+          .attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x)
+          .attr("y2", d => d.target.y);
 
-    // Keep forces centered on resize
-    window.addEventListener('resize', () => {
-      if (!sim) return;
-      sim.force('center', d3.forceCenter(width()/2, height()/2));
-      sim.force('x', d3.forceX(width()/2).strength(0.05));
-      sim.force('y', d3.forceY(height()/2).strength(0.05));
-      sim.alpha(0.5).restart();
-    });
+        nodeSel
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y);
+      });
   }
 
-  async function onNodeClick(event, d){
-    if (d.type === 'repo') {
-      if (d.url) window.open(d.url, '_blank', 'noopener');
+  async function onNodeClick(event, d) {
+    if (d.type === "repo") {
+      window.open(d.url, "_blank");
       return;
     }
-    if (d.type !== 'topic') return;
-    // BFS-like expand: fetch repos for this topic and link them in
-    try{
-      setStatus(`Expanding topic ${d.label}…`);
+
+    try {
+      setStatus(`Expanding ${d.label}…`);
       const repos = await searchReposByTopic(d.label, langEl.value.trim(), 30);
-      let added = 0;
-      for (const r of repos){
+
+      repos.forEach(r => {
         const repoId = `repo:${r.full_name}`;
-        const topicId = `topic:${d.label}`;
-        addNode(repoId, { type:'repo', label:r.full_name, url: r.html_url });
-        addLink(repoId, topicId);
-        added++;
-      }
-      setStatus(added?`Added ${added} repos for ${d.label}.`:'No new repos for this topic.');
-      render();
-    } catch(e){
-      console.error(e);
-      setStatus(e.message || 'Failed to expand topic', 'error');
+        addNode(repoId, { type: "repo", label: r.full_name, url: r.html_url });
+        addLink(repoId, d.id);
+      });
+
+      renderGraph();
+      renderRepoList(exploreData.repos);
+      setStatus(`Added ${repos.length} repos`);
+    } catch (e) {
+      setStatus("Failed to expand topic", "error");
     }
   }
 
-  async function explore(){
+  async function explore() {
     nodes.clear();
     links.length = 0;
     linkKeys.clear();
-    const base = (topicEl.value||'').trim() || 'threejs';
-    const lang = (langEl.value||'').trim();
-    const limit = Math.max(10, Math.min(100, parseInt(limitEl.value||'50',10)));
+    exploreData.repos = [];
 
-    // Seed the base topic
-  addNode(`topic:${base}`, { type:'topic', label: base });
+    const base = topicEl.value.trim() || "threejs";
+    const lang = langEl.value.trim();
+    const limit = Math.min(100, Math.max(10, Number(limitEl.value)));
 
-    try{
-      setStatus('Loading repositories…');
+    addNode(`topic:${base}`, { type: "topic", label: base });
+
+    try {
+      setStatus("Loading repositories…");
       const repos = await searchReposByTopic(base, lang, limit);
-      let added = 0;
-      for (const r of repos){
+
+      repos.forEach(r => {
         const repoId = `repo:${r.full_name}`;
-        addNode(repoId, { type:'repo', label: r.full_name, url: r.html_url });
+        addNode(repoId, { type: "repo", label: r.full_name, url: r.html_url });
         addLink(repoId, `topic:${base}`);
-        added++;
-      }
-      setStatus(`Loaded ${added} repos for topic ${base}. Click a topic node to expand.`);
-      render();
-    } catch(e){
-      console.error(e);
-      setStatus(e.message || 'Failed to load repositories', 'error');
+      });
+
+      renderGraph();
+      renderRepoList(exploreData.repos);
+      setStatus(`Loaded ${repos.length} repositories`);
+    } catch (e) {
+      setStatus("Failed to load data", "error");
     }
   }
 
-  form.addEventListener('submit', (e)=>{ e.preventDefault(); explore(); });
-  document.getElementById('ex-clear').addEventListener('click', ()=>{
-    topicEl.value = 'threejs';
-    langEl.value = '';
-    limitEl.value = '50';
+  form.addEventListener("submit", e => {
+    e.preventDefault();
     explore();
   });
 
-  // Initial
+  document.getElementById("ex-clear").addEventListener("click", () => {
+    topicEl.value = "threejs";
+    langEl.value = "";
+    limitEl.value = "50";
+    explore();
+  });
+
   explore();
 })();
