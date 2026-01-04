@@ -118,6 +118,7 @@ Features:
 
 The project follows a modular structure, grouping related files by responsibility to keep the codebase organized and easy to maintain.
 
+```plaintext
 xaytheon/
 │
 ├── .github/                 # GitHub configs (issues, workflows)
@@ -158,6 +159,7 @@ xaytheon/
 ├── README.md                # Project overview
 └── package.json (if added later)
 
+```
 
 ## Technical Capabilities
 
