@@ -1020,6 +1020,15 @@ a:hover {
   gap: 20px;
 }
 
+
+/* Navbar typography lock – har page pe same header look */
+.navbar,
+.navbar * {
+  font-family: "Researcher", "OriginTech", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: normal;
+}
+
+
 @media (max-width: 890px) {
   .menu-icon {
     display: block;
