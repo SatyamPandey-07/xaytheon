@@ -19,7 +19,6 @@ const shapes = {
 
 // Initialize the 3D scene
 function init() {
- fix-loader-accessibility
     // Get canvas element
     const canvas = document.getElementById('three-canvas');
     const container = document.querySelector('.canvas-container');
@@ -80,9 +79,6 @@ setTimeout(() => {
     // Start animation loop
     animate();
 
-  // Get canvas element
-  const canvas = document.getElementById("three-canvas");
-  const container = document.querySelector(".canvas-container");
 
   // Create scene
   scene = new THREE.Scene();
@@ -90,7 +86,6 @@ setTimeout(() => {
   // renderer will composite over the white page background
 
   // Create camera
-  const aspectRatio = container.clientWidth / container.clientHeight;
   camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
   camera.position.set(5, 5, 5);
 
@@ -108,17 +103,6 @@ setTimeout(() => {
   // Add lighting
   setupLighting();
 
-  // Load model: allow page to specify a different model via data-model
-  const modelPath =
-    canvas && canvas.dataset.model
-      ? canvas.dataset.model
-      : "assets/models/prism.glb";
-  loadGltfFromUrl(modelPath, undefined, () => {
-    console.warn(
-      "Falling back to primitive shape because prism.glb failed to load."
-    );
-    safeCreatePrimitiveFallback();
-  });
 
   // Setup controls
   setupControls();
