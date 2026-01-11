@@ -223,16 +223,27 @@
 
     <form id="login-form" class="auth-form" autocomplete="on">
       <label for="login-email">Email</label>
-      <input id="login-email" type="email" placeholder="you@example.com" required />
+      <input
+  id="login-email"
+  name="email"
+  type="email"
+  placeholder="you@example.com"
+  autocomplete="email"
+  required
+/>
+
 
       <label for="login-password">Password</label>
       <div class="password-wrapper">
         <input
-          id="login-password"
-          type="password"
-          placeholder="••••••••"
-          required
-        />
+  id="login-password"
+  name="password"
+  type="password"
+  placeholder="••••••••"
+  autocomplete="current-password"
+  required
+/>
+
         <button
           type="button"
           class="toggle-password"
