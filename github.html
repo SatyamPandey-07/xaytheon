@@ -19,13 +19,15 @@
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css" />
     <style>
-        .section-title{
-         font-family:VT323;
- font-size:60px;
- position:relative;
- top:10vh;
- left:25vw;
-         }
+   .section-title{
+  font-family:VT323;
+  font-size:60px;
+  position:relative;
+  top:10vh;
+  left:50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
  .navbar {
    background-color: #000;
  }
@@ -69,15 +71,17 @@
  .profile-card {
    position: relative;
    overflow: hidden;
+   min-height: 320px;
  }
 
  /* --- Base layout (before hover) --- */
- .profile-row {
+.profile-row {
    display: flex;
    flex-direction: column;
    align-items: center;
    text-align: center;
    gap: 10px;
+   padding-bottom: 60px;
 
    transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
    will-change: transform;
@@ -99,6 +103,8 @@
  .profile-bio {
    opacity: 0;
    transform: translateY(6px);
+   max-width: 100%;
+   word-wrap: break-word;
 
    transition:
      opacity 0.45s ease 0.15s,
@@ -129,15 +135,20 @@
     HOVER STATE
     ========================= */
 
- .profile-card:hover .profile-row {
+.profile-card:hover .profile-row {
    flex-direction: row;
    align-items: center;
    text-align: left;
-   transform: translateX(-40px);
+   transform: translateX(0px);
+   padding-bottom: 80px;
+   gap: 30px;
+   padding-left: 20px;
  }
 
  .profile-card:hover .avatar {
    transform: scale(0.6);
+   flex-shrink: 0;
+   margin-top: -20px;
  }
 
  .profile-card:hover .profile-login,
