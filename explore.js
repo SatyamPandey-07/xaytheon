@@ -218,12 +218,18 @@
     }
 
     // Validate limit
-    const limitNum = Number(limitValue);
-    if (isNaN(limitNum) || limitNum < 10 || limitNum > 100) {
-      setStatus("Limit must be a number between 10 and 100.", "error");
-      return;
-    }
+    if (!/^\d+$/.test(limitValue)) {
+  setStatus("Limit must be a whole number between 10 and 100.", "error");
+  return;
+}
 
+const limitNum = Number(limitValue);
+
+// 2️⃣ Range check
+if (limitNum < 10 || limitNum > 100) {
+  setStatus("Limit must be between 10 and 100.", "error");
+  return;
+}
     const limit = Math.min(100, Math.max(10, limitNum));
 
     addNode(`topic:${base}`, { type: "topic", label: base });
