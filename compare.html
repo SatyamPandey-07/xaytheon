@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Repository Comparison — XAYTHEON</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="compare.css" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <!-- Supabase SDK & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
+    <script defer src="auth.js"></script>
+    <script defer src="i18n.js"></script>
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas for export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body class="eightgon-page">
+    <div class="content">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a class="logo" href="index.html" aria-label="Back to Home">
+                    <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo" />
+                </a>
+                <ul class="nav-menu">
+                    <li><a class="nav-link" href="index.html#home" data-i18n="nav.home">Home</a></li>
+                    <li><a class="nav-link" href="github.html" data-i18n="nav.dashboard">GitHub Dashboard</a></li>
+                    <li><a class="nav-link" href="analytics.html" data-i18n="nav.analytics">Analytics</a></li>
+                    <li><a class="nav-link" href="watchlist.html" data-i18n="nav.watchlist">Watchlist</a></li>
+                    <li><a class="nav-link active" href="compare.html" data-i18n="nav.compare">Compare</a></li>
+                    <li><a class="nav-link" href="achievements.html" data-i18n="nav.achievements">Achievements</a></li>
+                    <li><a class="nav-link" href="community.html" data-i18n="nav.community">Community Highlights</a>
+                    </li>
+                    <li><a class="nav-link" href="explore.html" data-i18n="nav.explore">Explore by Topic</a></li>
+                    <li>
+                        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+                            <svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="5" />
+                                <line x1="12" y1="1" x2="12" y2="3" />
+                                <line x1="12" y1="21" x2="12" y2="23" />
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                                <line x1="1" y1="12" x2="3" y2="12" />
+                                <line x1="21" y1="12" x2="23" y2="12" />
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                            </svg>
+                        </button>
+                    </li>
+                    <li id="auth-area"></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="compare-container">
+            <header class="compare-header">
+                <h1 class="compare-title" data-i18n="compare.title">Repository Comparison</h1>
+                <p class="compare-subtitle" data-i18n="compare.subtitle">Compare side-by-side metrics and health
+                    insights</p>
+            </header>
+
+            <div class="compare-controls">
+                <div class="input-grid">
+                    <div class="repo-input-wrapper">
+                        <input type="text" id="repo-1" placeholder="owner/repo (e.g. mrdoob/three.js)"
+                            class="repo-field" />
+                    </div>
+                    <div class="repo-input-wrapper">
+                        <input type="text" id="repo-2" placeholder="owner/repo (e.g. pmndrs/three-fiber)"
+                            class="repo-field" />
+                    </div>
+                    <div class="repo-input-wrapper">
+                        <input type="text" id="repo-3" placeholder="owner/repo (optional)" class="repo-field" />
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button id="compare-btn" class="btn btn-primary">
+                        <i class="ri-arrow-left-right-line"></i> <span data-i18n="compare.analyze">Analyze &
+                            Compare</span>
+                    </button>
+                    <button id="export-pdf" class="btn btn-outline" disabled title="Analyze first to export">
+                        <i class="ri-file-pdf-line"></i> <span data-i18n="compare.export">Export</span>
+                    </button>
+                </div>
+                <div id="compare-status" class="status-message"></div>
+            </div>
+
+            <div id="comparison-results" class="comparison-grid hidden">
+                <!-- Visual Insights Section -->
+                <section class="results-section">
+                    <div class="section-badge" data-i18n="compare.visualInsights">Visual Insights</div>
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h3 data-i18n="compare.healthChart">Health & Activity Radar</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3 data-i18n="compare.statsChart">Key Metrics Comparison</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- side-by-side Data Section -->
+                <section class="results-section">
+                    <div class="section-badge" data-i18n="compare.dataSheet">Data Sheet</div>
+                    <div class="comparison-table-wrapper">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr id="table-head">
+                                    <th data-i18n="compare.metric">Metric</th>
+                                    <!-- Dynamic reponames here -->
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Dynamic rows here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Repository Detailed Cards -->
+                <section class="results-section">
+                    <div class="section-badge" data-i18n="compare.repoProfiles">Repository Profiles</div>
+                    <div id="repo-profiles" class="repo-cards-container">
+                        <!-- Dynamic cards here -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- Skeleton Loading State -->
+            <div id="loading-state" class="comparison-grid hidden">
+                <div class="skeleton-chart"></div>
+                <div class="skeleton-table"></div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <span class="logo-text">XAYTHEON</span>
+                        <p data-i18n="footer.tagline">Empowering the next generation of innovators</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p data-i18n="footer.copyright">&copy; 2026 XAYTHEON. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="compare.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

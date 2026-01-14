@@ -10,6 +10,7 @@ const notificationRoutes = require("./routes/notification.routes");
 const analyticsRoutes = require("./routes/analytics.routes");
 const achievementsRoutes = require("./routes/achievements.routes");
 const pushRoutes = require("./routes/push.routes");
+const compareRoutes = require("./routes/compare.routes");
 
 const app = express();
 
@@ -97,6 +98,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/achievements", achievementsRoutes);
 app.use("/api/push", pushRoutes);
+app.use("/api/compare", compareRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Error:", err);
