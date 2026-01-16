@@ -10,6 +10,7 @@
   <!-- Supabase SDK & Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
   <script defer src="auth.js"></script>
+  <script defer src="i18n.js"></script>
 </head>
 
 <body class="eightgon-page">
@@ -52,7 +53,8 @@
     <main>
       <section class="github-section">
         <div class="container">
-          <h2 class="section-title" style="font-family:'Eightgon',sans-serif;">Your Open Source Contributions</h2>
+          <h2 class="section-title" style="font-family:'Eightgon',sans-serif;" data-i18n="nav.contributions">Your Open
+            Source Contributions</h2>
 
           <!-- Profile Avatar (Fallback) -->
           <div class="profile-header" style="margin:15px 0; display:flex; align-items:center; gap:12px;">
@@ -118,11 +120,11 @@
               <div class="footer-content">
                 <div class="footer-brand">
                   <span class="logo-text">XAYTHEON</span>
-                  <p>Empowering the next generation of innovators</p>
+                  <p data-i18n="footer.tagline">Empowering the next generation of innovators</p>
                 </div>
               </div>
               <div class="footer-bottom">
-                <p>&copy; 2026 XAYTHEON. All rights reserved.</p>
+                <p data-i18n="footer.copyright">&copy; 2026 XAYTHEON. All rights reserved.</p>
               </div>
             </div>
           </footer>

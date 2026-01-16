@@ -18,6 +18,7 @@
   <!-- Supabase SDK & auth bootstrap -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
   <script defer src="auth.js"></script>
+  <script defer src="i18n.js"></script>
 </head>
 
 <body class="eightgon-page">
@@ -65,8 +66,9 @@
           <!-- Header -->
           <div class="analytics-header">
             <div>
-              <h1 class="section-title">📊 Advanced Analytics Dashboard</h1>
-              <p class="section-subtitle">Track your GitHub growth over time with interactive visualizations</p>
+              <h1 class="section-title" data-i18n="analytics.title">📊 Advanced Analytics Dashboard</h1>
+              <p class="section-subtitle" data-i18n="analytics.subtitle">Track your GitHub growth over time with
+                interactive visualizations</p>
             </div>
             <div class="header-actions">
               <div id="connection-status" class="connection-status hidden">
@@ -136,7 +138,7 @@
             <div class="metric-card">
               <div class="metric-icon">⭐</div>
               <div class="metric-content">
-                <div class="metric-label">Total Stars</div>
+                <div class="metric-label" data-i18n="dashboard.stats.stars">Total Stars</div>
                 <div class="metric-value" id="metric-stars">—</div>
                 <div class="metric-change" id="metric-stars-change">—</div>
               </div>
@@ -145,7 +147,7 @@
             <div class="metric-card">
               <div class="metric-icon">👥</div>
               <div class="metric-content">
-                <div class="metric-label">Followers</div>
+                <div class="metric-label" data-i18n="dashboard.stats.followers">Followers</div>
                 <div class="metric-value" id="metric-followers">—</div>
                 <div class="metric-change" id="metric-followers-change">—</div>
               </div>
@@ -163,7 +165,7 @@
             <div class="metric-card">
               <div class="metric-icon">💻</div>
               <div class="metric-content">
-                <div class="metric-label">Total Commits</div>
+                <div class="metric-label" data-i18n="dashboard.stats.commits">Total Commits</div>
                 <div class="metric-value" id="metric-commits">—</div>
                 <div class="metric-change" id="metric-commits-change">—</div>
               </div>
@@ -284,11 +286,11 @@
         <div class="footer-content">
           <div class="footer-brand">
             <span class="logo-text">XAYTHEON</span>
-            <p>Empowering the next generation of innovators</p>
+            <p data-i18n="footer.tagline">Empowering the next generation of innovators</p>
           </div>
         </div>
         <div class="footer-bottom">
-          <p>&copy; 2026 XAYTHEON. All rights reserved.</p>
+          <p data-i18n="footer.copyright">&copy; 2026 XAYTHEON. All rights reserved.</p>
         </div>
       </div>
     </footer>
