@@ -160,10 +160,17 @@
     }
 
     /* Profile card animation */
+
+    .github-grid {
+     display: flex;
+     flex-direction: row;
+   }
+
     .profile-card {
       position: relative;
       overflow: hidden;
       min-height: 320px;
+      width: 100%;
     }
 
     .profile-row {
@@ -200,8 +207,8 @@
 
     .profile-stats {
       position: absolute;
-      bottom: 20px;
-      left: 50%;
+      bottom: 100px;
+      margin-left: 120px;
       transform: translate(-50%, 20px);
       opacity: 0;
       display: flex;
@@ -485,7 +492,8 @@
                 </div>
                 <div class="card-body">
                   <div class="profile-row">
-                    <img id="gh-avatar" alt="Avatar" class="avatar" />
+                    <img id="gh-avatar" src="https://api.dicebear.com/9.x/identicon/svg?seed=Liliana" alt="Avatar"
+                   class="avatar" />
                     <div>
                       <div class="profile-name" id="gh-name">—</div>
                       <div class="profile-login" id="gh-login">—</div>
