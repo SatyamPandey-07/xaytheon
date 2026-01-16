@@ -7,6 +7,7 @@
   <title>Sign in - XAYTHEON</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="style.css" />
+  <script defer src="i18n.js"></script>
 
   <style>
     body {
@@ -192,11 +193,11 @@
         <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo" />
       </a>
       <ul class="nav-menu">
-        <li><a class="nav-link" href="index.html">Home</a></li>
-        <li><a class="nav-link" href="github.html">GitHub Dashboard</a></li>
-        <li><a class="nav-link" href="community.html">Community Highlights</a></li>
-        <li><a class="nav-link" href="explore.html">Explore by Topic</a></li>
-        <li><a class="nav-link" href="contributions.html">Contributions</a></li>
+        <li><a class="nav-link" href="index.html" data-i18n="nav.home">Home</a></li>
+        <li><a class="nav-link" href="github.html" data-i18n="nav.dashboard">GitHub Dashboard</a></li>
+        <li><a class="nav-link" href="community.html" data-i18n="nav.community">Community Highlights</a></li>
+        <li><a class="nav-link" href="explore.html" data-i18n="nav.explore">Explore by Topic</a></li>
+        <li><a class="nav-link" href="contributions.html" data-i18n="nav.contributions">Contributions</a></li>
         <li id="auth-area"></li>
       </ul>
       <button class="theme-toggle-auth" id="theme-toggle-auth" aria-label="Toggle dark mode">
@@ -260,76 +261,63 @@
         </button>
       </div>
 
-      <div class="auth-actions">
-        <button class="btn btn-primary" type="submit">Sign in</button>
-        <a class="btn btn-outline" href="index.html">Back</a>
+      <div class="center muted" style="margin-top:12px;">
+        Authentication is handled securely by the Xaytheon backend.
       </div>
-
-      <div id="login-status" class="status muted" aria-live="polite"></div>
-    </form>
-
-    <div class="center muted" style="margin-top:12px;">
-      New here?
-      <a href="register.html">Create an account</a>
-    </div>
-
-    <div class="center muted" style="margin-top:12px;">
-      Authentication is handled securely by the Xaytheon backend.
     </div>
   </div>
-</div>
 
-<!-- Inline CSS -->
-<style>
-  .password-wrapper {
-    position: relative;
-  }
+  <!-- Inline CSS -->
+  <style>
+    .password-wrapper {
+      position: relative;
+    }
 
-  .password-wrapper input {
-    width: 100%;
-    padding-right: 2.8rem;
-  }
+    .password-wrapper input {
+      width: 100%;
+      padding-right: 2.8rem;
+    }
 
-  .toggle-password {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-  }
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
 
-  .toggle-password img {
-    width: 20px;
-    height: 20px;
-  }
-</style>
+    .toggle-password img {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
 
-<!-- Inline JS -->
-<script>
-  const toggleBtn = document.querySelector(".toggle-password");
-  const passwordInput = document.getElementById("login-password");
-  const eyeIcon = document.getElementById("eye-icon");
+  <!-- Inline JS -->
+  <script>
+    const toggleBtn = document.querySelector(".toggle-password");
+    const passwordInput = document.getElementById("login-password");
+    const eyeIcon = document.getElementById("eye-icon");
 
-  toggleBtn.addEventListener("click", function () {
-    const isHidden = passwordInput.type === "password";
+    toggleBtn.addEventListener("click", function () {
+      const isHidden = passwordInput.type === "password";
 
-    passwordInput.type = isHidden ? "text" : "password";
+      passwordInput.type = isHidden ? "text" : "password";
 
-    eyeIcon.src = isHidden
-      ? "https://img.icons8.com/?size=100&id=7840&format=png&color=000000"
-      : "https://img.icons8.com/?size=100&id=59814&format=png&color=000000";
+      eyeIcon.src = isHidden
+        ? "https://img.icons8.com/?size=100&id=7840&format=png&color=000000"
+        : "https://img.icons8.com/?size=100&id=59814&format=png&color=000000";
 
-    eyeIcon.alt = isHidden ? "Hide password" : "Show password";
-    toggleBtn.setAttribute("aria-pressed", isHidden);
-    toggleBtn.setAttribute(
-      "aria-label",
-      isHidden ? "Hide password" : "Show password"
-    );
-  });
-</script>
+      eyeIcon.alt = isHidden ? "Hide password" : "Show password";
+      toggleBtn.setAttribute("aria-pressed", isHidden);
+      toggleBtn.setAttribute(
+        "aria-label",
+        isHidden ? "Hide password" : "Show password"
+      );
+    });
+  </script>
 
 
   <script src="auth.js"></script>
