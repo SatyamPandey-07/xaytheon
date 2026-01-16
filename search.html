@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="Advanced search across Xaytheon's ecosystem of repositories, users, and community highlights." />
+    <title>Search — XAYTHEON</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="search.css" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.8.0/fonts/remixicon.css" rel="stylesheet" />
+    <!-- Supabase SDK & Auth -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
+    <script defer src="auth.js"></script>
+    <script defer src="i18n.js"></script>
+</head>
+
+<body class="eightgon-page">
+    <div class="content">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a class="logo" href="index.html" aria-label="Back to Home">
+                    <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo" />
+                </a>
+                <ul class="nav-menu">
+                    <li><a class="nav-link" href="index.html#home" data-i18n="nav.home">Home</a></li>
+                    <li><a class="nav-link" href="github.html" data-i18n="nav.dashboard">GitHub Dashboard</a></li>
+                    <li><a class="nav-link" href="analytics.html" data-i18n="nav.analytics">Analytics</a></li>
+                    <li><a class="nav-link" href="community.html" data-i18n="nav.community">Community Highlights</a>
+                    </li>
+                    <li><a class="nav-link" href="explore.html" data-i18n="nav.explore">Explore</a></li>
+                    <li>
+                        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+                            <i class="ri-sun-line theme-icon"></i>
+                        </button>
+                    </li>
+                    <li id="auth-area"></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="search-page-main">
+            <section class="search-hero">
+                <div class="container">
+                    <div class="search-box-wrapper">
+                        <h1 class="search-title" data-i18n="search.pageTitle">Deep Search</h1>
+                        <div class="search-input-group">
+                            <div class="input-glow-container">
+                                <i class="ri-search-2-line search-icon"></i>
+                                <input type="text" id="main-search-input"
+                                    placeholder="Search repositories, users, or topics..." autocomplete="off"
+                                    autofocus />
+                                <button id="clear-search-btn" class="hidden"><i class="ri-close-line"></i></button>
+                                <div id="autocomplete-dropdown" class="autocomplete-dropdown hidden"></div>
+                            </div>
+                            <button id="search-action-btn" class="btn btn-primary">Search</button>
+                        </div>
+
+                        <div class="trending-tags" id="trending-container">
+                            <span class="muted" data-i18n="search.trending">Trending:</span>
+                            <div id="trending-list" class="tags-list">
+                                <!-- Trending tokens will be here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="container search-layout">
+                <!-- Sidebar Filters -->
+                <aside class="search-filters">
+                    <div class="card filter-card">
+                        <div class="card-header">
+                            <h3><i class="ri-filter-3-line"></i> Advanced Filters</h3>
+                            <button id="reset-filters" class="btn-text">Reset</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="filter-group">
+                                <label>Language</label>
+                                <select id="filter-lang">
+                                    <option value="">All Languages</option>
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="typescript">TypeScript</option>
+                                    <option value="python">Python</option>
+                                    <option value="rust">Rust</option>
+                                    <option value="go">Go</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Minimum Stars</label>
+                                <div class="range-wrapper">
+                                    <input type="range" id="filter-stars" min="0" max="10000" step="100" value="0" />
+                                    <span id="stars-value">0+</span>
+                                </div>
+                            </div>
+                            <div class="filter-group">
+                                <label>Category</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" name="type" value="repositories" checked />
+                                        Repositories</label>
+                                    <label><input type="checkbox" name="type" value="users" checked /> Users</label>
+                                    <label><input type="checkbox" name="type" value="highlights" checked />
+                                        Highlights</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card history-card" id="history-section">
+                        <div class="card-header">
+                            <h3><i class="ri-history-line"></i> Recent Searches</h3>
+                            <button id="clear-history" class="btn-text">Clear</button>
+                        </div>
+                        <div class="card-body">
+                            <ul id="history-list" class="history-list">
+                                <!-- History items here -->
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Search Results -->
+                <section class="search-results-area">
+                    <div id="search-status" class="search-status-bar muted">
+                        <!-- Results count will appear here -->
+                    </div>
+
+                    <div class="results-container" id="results-list">
+                        <div class="search-placeholder">
+                            <i class="ri-flashlight-line"></i>
+                            <p>Type something to start searching...</p>
+                        </div>
+                    </div>
+
+                    <div id="search-loader" class="loader-container hidden">
+                        <div class="loader"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <span class="logo-text">XAYTHEON</span>
+                        <p data-i18n="footer.tagline">Empowering the next generation of innovators</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p data-i18n="footer.copyright">&copy; 2026 XAYTHEON. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div class="cursor-container">
+        <span class="cursor-dot"></span>
+        <span class="cursor-dot"></span>
+        <span class="cursor-dot"></span>
+        <span class="cursor-dot"></span>
+        <span class="cursor-dot"></span>
+        <span class="cursor-dot"></span>
+        <span class="cursor-dot"></span>
+        <span class="cursor-dot"></span>
+    </div>
+
+    <script src="search.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

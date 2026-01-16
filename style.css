@@ -448,6 +448,16 @@ body.eightgon-page {
   transform: rotate(15deg);
 }
 
+.nav-search-btn i {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.nav-search-btn:hover i {
+  color: var(--accent-blue);
+  transform: scale(1.1);
+}
+
 /* Language Switcher */
 .lang-switcher {
   position: relative;

@@ -14,10 +14,17 @@
         "community": "Community Highlights",
         "explore": "Explore by Topic",
         "contributions": "Contributions",
+        "search": "Search",
         "login": "Login",
         "signup": "Sign Up",
         "logout": "Logout",
         "profile": "Profile"
+    },
+    "search": {
+        "pageTitle": "Deep Search",
+        "trending": "Trending:",
+        "placeholder": "Search repositories, users, or topics...",
+        "action": "Search"
     },
     "common": {
         "loading": "Loading...",

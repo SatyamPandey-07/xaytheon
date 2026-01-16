@@ -15,6 +15,25 @@ const db = new sqlite3.Database(dbPath);
 console.log("🔄 Starting database migration...\n");
 
 db.serialize(() => {
+  // Create search_history table
+  db.run(`CREATE TABLE IF NOT EXISTS search_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    query TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
+
+  // Create search_logs table
+  db.run(`CREATE TABLE IF NOT EXISTS search_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    query TEXT NOT NULL,
+    results_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+
   // Check if columns already exist
   db.all("PRAGMA table_info(users)", (err, columns) => {
     if (err) {
