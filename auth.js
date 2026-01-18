@@ -113,6 +113,7 @@
       clearAccessToken();
       return false;
     }
+  }
 
   async function authenticatedFetch(url, options = {}) {
     if (isTokenExpired()) {
@@ -122,6 +123,11 @@
         throw { code: "SESSION_EXPIRED" };
       }
     }
+
+    const headers = {
+      ...(options.headers || {}),
+      Authorization: `Bearer ${getAccessToken()}`
+    };
 
     const response = await fetchWithTimeout(url, {
       ...options,
@@ -156,7 +162,7 @@
 
     if (email.length > 254 || password.length > 128) {
       throw new Error('Input data too long');
-    }
+    } 
 
     if (email.length < 3 || password.length < 8) {
       throw new Error('Input data too short');

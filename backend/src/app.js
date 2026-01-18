@@ -104,7 +104,10 @@ app.use((req, res, next) => {
 app.use(cors(corsOptions));
 
 /* ========================
-   BODY PARSING
+   BODY PARSING*/
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 /* ========================
@@ -124,7 +127,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 
 /* ========================
-   ERROR HANDLING
+   ERROR HANDLING*/
 
 app.use((err, req, res, next) => {
   console.error("Error:", err);

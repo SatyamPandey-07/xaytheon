@@ -291,6 +291,21 @@
     emailEl.addEventListener("input", clearErrors);
     passwordEl.addEventListener("input", clearErrors);
 
+    function getAuthErrorMessage(err) {
+  if (!err) return "Something went wrong. Please try again.";
+
+  // If backend sends JSON error
+  if (err.message) return err.message;
+
+  // If using error codes
+  if (err.code === "USER_EXISTS") return "An account with this email already exists.";
+  if (err.code === "INVALID_EMAIL") return "Please enter a valid email address.";
+  if (err.code === "WEAK_PASSWORD") return "Password does not meet security requirements.";
+
+  return "Registration failed. Please try again later.";
+}
+
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       clearErrors();
@@ -336,6 +351,8 @@
         }, 1500);
       } catch (err) {
         setLoading(false);
+        // console.error("Registration error:", err);
+
 
         const message = getAuthErrorMessage(err);
         showError(message);
