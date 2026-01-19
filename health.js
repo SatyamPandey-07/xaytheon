@@ -123,12 +123,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showAiDiagnosis(data) {
-        diagnosisContent.innerHTML = `
-            <div class="diagnosis-header">
-                <strong>Analysis for Build #${data.buildId.split('-').pop()}</strong>
-            </div>
-            <p>${data.aiAnalysis}</p>
-        `;
+        diagnosisContent.style.opacity = '0';
+        setTimeout(() => {
+            diagnosisContent.innerHTML = `
+                <div class="diagnosis-header" style="margin-bottom: 12px; color: #ef4444; display: flex; align-items: center; gap: 8px;">
+                    <i class="ri-alert-fill"></i>
+                    <strong>Diagnosis: Build #${data.buildId.split('-').pop()}</strong>
+                </div>
+                <div class="diagnosis-text" style="background: rgba(239, 68, 68, 0.05); padding: 15px; border-radius: 12px; border-left: 4px solid #ef4444;">
+                    ${data.aiAnalysis}
+                </div>
+            `;
+            diagnosisContent.style.transition = 'opacity 0.5s ease-in';
+            diagnosisContent.style.opacity = '1';
+        }, 100);
     }
 
     // Initial load

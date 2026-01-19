@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Multi-Repository Fleet Dashboard with Cross-Repo Analytics for enterprise DevOps monitoring">
+    <title>Fleet Dashboard — XAYTHEON</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="analytics.css">
+    <link rel="stylesheet" href="features_analytics.css">
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <!-- Supabase SDK & auth bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
+    <script defer src="auth.js"></script>
+</head>
+<body class="eightgon-page">
+    <div class="page-wrapper">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a class="logo" href="index.html" aria-label="Back to Home">
+                    <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo" />
+                </a>
+                <ul class="nav-menu">
+                    <li><a class="nav-link" href="index.html#home">Home</a></li>
+                    <li><a class="nav-link" href="github.html">GitHub Dashboard</a></li>
+                    <li><a class="nav-link" href="analytics.html">Analytics</a></li>
+                    <li><a class="nav-link active" href="fleet.html">Fleet Dashboard</a></li>
+                    <li><a class="nav-link" href="explore.html">Explore</a></li>
+                    <li><a class="nav-link" href="community.html">Community</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    <div id="auth-section">
+                        <a href="login.html" class="btn btn-secondary">Login</a>
+                        <a href="register.html" class="btn btn-primary">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="dashboard-main">
+            <div class="dashboard-container">
+                <!-- Header Section -->
+                <header class="dashboard-header">
+                    <div class="header-content">
+                        <h1 class="dashboard-title">
+                            <span class="title-icon">🚀</span>
+                            Mission Control Dashboard
+                        </h1>
+                        <p class="dashboard-description">
+                            Monitor and compare metrics across your entire repository fleet with enterprise-grade analytics
+                        </p>
+                    </div>
+                    <div class="header-actions">
+                        <button id="refresh-dashboard" class="btn btn-secondary">
+                            <span class="btn-icon">🔄</span>
+                            Refresh Data
+                        </button>
+                        <button id="export-fleet" class="btn btn-primary" disabled>
+                            <span class="btn-icon">📥</span>
+                            Export Report
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Loading State -->
+                <div id="loading-state" class="loading-overlay hidden">
+                    <div class="loading-spinner"></div>
+                    <p>Analyzing your repository fleet...</p>
+                </div>
+
+                <!-- Fleet Configuration -->
+                <section id="fleet-config" class="fleet-config-section">
+                    <div class="section-header">
+                        <h2>Configure Your Fleet</h2>
+                        <p>Add repositories to monitor or use a template</p>
+                    </div>
+                    
+                    <div class="config-options">
+                        <div class="template-selector">
+                            <label for="fleet-template">Quick Start Templates:</label>
+                            <select id="fleet-template" class="form-select">
+                                <option value="">Select a template...</option>
+                            </select>
+                            <button id="apply-template" class="btn btn-secondary" disabled>Apply Template</button>
+                        </div>
+                        
+                        <div class="manual-add">
+                            <h3>Add Repositories Manually</h3>
+                            <div class="repo-input-group">
+                                <input type="text" id="repo-owner" placeholder="Owner/Organization" class="form-input">
+                                <input type="text" id="repo-name" placeholder="Repository Name" class="form-input">
+                                <button id="add-repo" class="btn btn-primary">Add Repository</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="selected-repos">
+                        <h3>Selected Repositories (<span id="repo-count">0</span>)</h3>
+                        <div id="repos-list" class="repos-grid">
+                            <!-- Repositories will be added here dynamically -->
+                        </div>
+                        <div class="config-actions">
+                            <button id="save-config" class="btn btn-secondary" disabled>
+                                <span class="btn-icon">💾</span>
+                                Save Configuration
+                            </button>
+                            <button id="analyze-fleet" class="btn btn-primary btn-large" disabled>
+                                <span class="btn-icon">📊</span>
+                                Analyze Fleet
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Results Section (Hidden initially) -->
+                <section id="fleet-results" class="fleet-results-section hidden">
+                    <!-- Health Score Card -->
+                    <div class="health-score-card">
+                        <div class="card-header">
+                            <h2>Organization Health Score</h2>
+                            <div class="health-score-display">
+                                <div class="score-circle">
+                                    <span id="health-score-value" class="score-value">0</span>
+                                    <span class="score-label">/100</span>
+                                </div>
+                                <div class="score-details">
+                                    <span id="health-level" class="health-level">Calculating...</span>
+                                    <p id="health-description" class="health-description"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="health-recommendations">
+                            <h3>Recommendations:</h3>
+                            <ul id="recommendations-list"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Fleet Summary Cards -->
+                    <div class="summary-metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">⭐</div>
+                            <div class="metric-info">
+                                <h3>Total Stars</h3>
+                                <span id="total-stars" class="metric-value">0</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">👥</div>
+                            <div class="metric-info">
+                                <h3>Active Contributors</h3>
+                                <span id="total-contributors" class="metric-value">0</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">📝</div>
+                            <div class="metric-info">
+                                <h3>Total Commits</h3>
+                                <span id="total-commits" class="metric-value">0</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">⚡</div>
+                            <div class="metric-info">
+                                <h3>Top Performers</h3>
+                                <span id="top-performers" class="metric-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alerts Section -->
+                    <div class="alerts-section">
+                        <h2>Smart Alerts</h2>
+                        <div id="alerts-container" class="alerts-grid">
+                            <!-- Alerts will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Repository Comparison Table -->
+                    <div class="comparison-section">
+                        <h2>Cross-Repository Comparison</h2>
+                        <div class="table-container">
+                            <table id="comparison-table" class="comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>Repository</th>
+                                        <th>Stars</th>
+                                        <th>Contributors</th>
+                                        <th>Commits</th>
+                                        <th>Open Issues</th>
+                                        <th>Velocity (SP/Sprint)</th>
+                                        <th>Health Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="comparison-body">
+                                    <!-- Data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- DORA Metrics Visualization -->
+                    <div class="dora-section">
+                        <h2>DORA Metrics Across Fleet</h2>
+                        <div class="dora-charts-grid">
+                            <div class="chart-container">
+                                <canvas id="deployment-frequency-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="lead-time-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="mttr-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="change-failure-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="fleet.js"></script>
+</body>
+</html>

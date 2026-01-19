@@ -124,6 +124,10 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+
+/* ========================
+   ERROR HANDLING
+   */
 app.use("/api/watchlists", watchlistRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/analytics", analyticsRoutes);
