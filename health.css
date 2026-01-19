@@ -1,0 +1,251 @@
+.health-container {
+    max-width: 1300px;
+    margin: 30px auto;
+    padding: 0 40px;
+}
+
+.health-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.pulse-dot {
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.9);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(0.9);
+        opacity: 1;
+    }
+}
+
+/* Fleet Health */
+.fleet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 20px 0 40px;
+}
+
+.repo-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.repo-info h4 {
+    margin: 0;
+}
+
+.repo-info p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 5px 0 0;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.status-healthy {
+    background: #10b981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.status-warning {
+    background: #f59e0b;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.status-error {
+    background: #ef4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+/* Control Layout */
+.control-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 30px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.feed-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.build-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.2s;
+}
+
+.build-item:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.build-icon {
+    font-size: 1.5rem;
+}
+
+.build-icon.success {
+    color: #10b981;
+}
+
+.build-icon.failure {
+    color: #ef4444;
+}
+
+.build-icon.running {
+    color: #3b82f6;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.build-details h5 {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.build-details p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 3px 0 0;
+}
+
+/* AI Diagnosis */
+.ai-diagnosis {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.diagnosis-card {
+    flex: 1;
+}
+
+.diagnosis-body {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    padding: 0 10px;
+}
+
+.diagnosis-body code {
+    display: block;
+    background: #000;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-family: monospace;
+}
+
+/* Traffic Light */
+.traffic-light-card {
+    text-align: center;
+}
+
+.traffic-light {
+    background: #111;
+    width: 60px;
+    padding: 15px;
+    border-radius: 30px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border: 2px solid #333;
+}
+
+.light {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #222;
+    transition: all 0.3s;
+}
+
+#light-red.active {
+    background: #ef4444;
+    box-shadow: 0 0 20px #ef4444;
+}
+
+#light-yellow.active {
+    background: #f59e0b;
+    box-shadow: 0 0 20px #f59e0b;
+}
+
+#light-green.active {
+    background: #10b981;
+    box-shadow: 0 0 20px #10b981;
+}
+
+.placeholder-text {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+@media (max-width: 1000px) {
+    .control-layout {
+        grid-template-columns: 1fr;
+    }
+}

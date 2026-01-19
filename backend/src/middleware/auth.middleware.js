@@ -1,6 +1,16 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/user.model");
 
-exports.verifyAccessToken = (req, res, next) => {
+/**
+ * ================================
+ * VERIFY ACCESS TOKEN (RBAC READY)
+ * ================================
+ * - Verifies JWT
+ * - Ensures token type is "access"
+ * - Fetches user role from DB
+ * - Attaches req.user = { id, role }
+ */
+exports.verifyAccessToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -20,6 +30,19 @@ exports.verifyAccessToken = (req, res, next) => {
       return res.status(401).json({ message: "Invalid token type" });
     }
 
+    // FETCH USER TO GET ROLE (REQUIRED FOR RBAC)
+    const user = await User.findById(decoded.id).select("role");
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    //THIS IS WHAT RBAC NEEDS
+    req.user = {
+      id: user._id,
+      role: user.role
+    };
+
     req.userId = decoded.id;
     req.user = decoded; // Added for common compatibility
     next();
@@ -35,6 +58,11 @@ exports.verifyAccessToken = (req, res, next) => {
   }
 };
 
+/**
+ * ================================
+ * LOGIN RATE LIMITER
+ * ================================
+ */
 // Alias for common usage
 exports.authenticateToken = exports.verifyAccessToken;
 
@@ -83,7 +111,9 @@ exports.loginRateLimiter = (() => {
     if (recentAttempts.length >= MAX_ATTEMPTS) {
       return res.status(429).json({
         message: "Too many login attempts. Please try again later.",
-        retryAfter: Math.ceil((WINDOW_MS - (now - recentAttempts[0])) / 1000)
+        retryAfter: Math.ceil(
+          (WINDOW_MS - (now - recentAttempts[0])) / 1000
+        )
       });
     }
 
@@ -93,9 +123,14 @@ exports.loginRateLimiter = (() => {
   };
 })();
 
+/**
+ * ================================
+ * GENERAL RATE LIMITER
+ * ================================
+ */
 exports.generalRateLimiter = (() => {
   const requests = new Map();
-  const MAX_REQUESTS = 100; // requests per window
+  const MAX_REQUESTS = 100;
   const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
   return (req, res, next) => {
@@ -112,7 +147,9 @@ exports.generalRateLimiter = (() => {
     if (recentRequests.length >= MAX_REQUESTS) {
       return res.status(429).json({
         message: "Too many requests. Please try again later.",
-        retryAfter: Math.ceil((WINDOW_MS - (now - recentRequests[0])) / 1000)
+        retryAfter: Math.ceil(
+          (WINDOW_MS - (now - recentRequests[0])) / 1000
+        )
       });
     }
 
@@ -121,3 +158,4 @@ exports.generalRateLimiter = (() => {
     next();
   };
 })();
+

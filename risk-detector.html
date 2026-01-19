@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Merge Conflict Detector — XAYTHEON</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="risk.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
+    <script defer src="auth.js"></script>
+</head>
+
+<body class="eightgon-page">
+    <div class="page-wrapper">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a class="logo" href="index.html">
+                    <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo">
+                </a>
+                <ul class="nav-menu">
+                    <li><a class="nav-link" href="index.html#home">Home</a></li>
+                    <li><a class="nav-link" href="github.html">Dashboard</a></li>
+                    <li><a class="nav-link" href="health.html">Health Monitor</a></li>
+                    <li><a class="nav-link active" href="risk-detector.html">Risk Detector</a></li>
+                    <li><a class="nav-link" href="ai-chat.html">AI Assistant</a></li>
+                    <li><a class="nav-link" href="dependency-graph.html">Dep Graph</a></li>
+                    <li><a class="nav-link" href="workflow-builder.html">Workflow</a></li>
+                    <li id="auth-area"></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="risk-container">
+            <header class="risk-header">
+                <div>
+                    <h1 class="page-title">Predictive Conflict Engine</h1>
+                    <p class="page-subtitle">Analyze overlapping PRs and calculate code implementation risks.</p>
+                </div>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <input type="text" id="repo-input" placeholder="owner/repo" value="SatyamPandey-07/xaytheon">
+                        <button id="analyze-btn" class="btn btn-primary">Scan Repository</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="card stat-card">
+                    <div class="stat-value" id="active-prs">0</div>
+                    <div class="stat-label">Active PRs</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value red-text" id="potential-conflicts">0</div>
+                    <div class="stat-label">Potential Conflicts</div>
+                </div>
+                <div class="card stat-card border-orange">
+                    <div class="stat-value yellow-text" id="high-risk-prs">0</div>
+                    <div class="stat-label">High Risk Changes</div>
+                </div>
+            </div>
+
+            <div class="main-layout">
+                <!-- Conflict Map -->
+                <section class="conflict-section card">
+                    <h3>Visual Conflict Map</h3>
+                    <p class="section-desc">Relationships between overlapping PRs.</p>
+                    <div id="conflict-map" class="map-container">
+                        <!-- Dynamic visual map -->
+                        <div class="empty-map">Scan a repository to see dependencies.</div>
+                    </div>
+                </section>
+
+                <!-- Detailed PR List -->
+                <section class="risk-section card">
+                    <h3>PR Risk Analysis</h3>
+                    <div class="table-container">
+                        <table class="risk-table">
+                            <thead>
+                                <tr>
+                                    <th>PR ID</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Files</th>
+                                    <th>Risk Score</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pr-table-body">
+                                <!-- Dynamic dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="risk.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

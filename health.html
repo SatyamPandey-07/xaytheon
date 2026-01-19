@@ -2,199 +2,99 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description"
-        content="Intelligent Open-Source Sustainability Auditor. Assess project health, bus factor, and community resiliency." />
-    <title>Health Auditor — XAYTHEON</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure Health Monitor — XAYTHEON</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="css/health.css" />
-
-    <!-- D3.js for Data Visualization -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-
-    <!-- Supabase SDK & auth bootstrap -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="health.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
     <script defer src="auth.js"></script>
-    <script defer src="i18n.js"></script>
 </head>
 
 <body class="eightgon-page">
     <div class="page-wrapper">
-
         <nav class="navbar">
             <div class="nav-container">
-                <a class="logo" href="index.html" aria-label="Back to Home">
-                    <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo" />
+                <a class="logo" href="index.html">
+                    <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo">
                 </a>
                 <ul class="nav-menu">
-                    <li><a class="nav-link" href="index.html#home" data-i18n="nav.home">Home</a></li>
-                    <li><a class="nav-link" href="github.html" data-i18n="nav.dashboard">GitHub Dashboard</a></li>
-                    <li><a class="nav-link" href="community.html" data-i18n="nav.community">Community Highlights</a>
-                    </li>
-                    <li><a class="nav-link active" href="health.html">Health Auditor</a></li>
-                    <li>
-                        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
-                            <svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="5" />
-                                <line x1="12" y1="1" x2="12" y2="3" />
-                                <line x1="12" y1="21" x2="12" y2="23" />
-                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                                <line x1="1" y1="12" x2="3" y2="12" />
-                                <line x1="21" y1="12" x2="23" y2="12" />
-                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                            </svg>
-                        </button>
-                    </li>
+                    <li><a class="nav-link" href="index.html#home">Home</a></li>
+                    <li><a class="nav-link" href="github.html">Dashboard</a></li>
+                    <li><a class="nav-link active" href="health.html">Health Monitor</a></li>
+                    <li><a class="nav-link" href="risk-detector.html">Risk Detector</a></li>
+                    <li><a class="nav-link" href="ai-chat.html">AI Assistant</a></li>
                     <li id="auth-area"></li>
                 </ul>
             </div>
         </nav>
 
-        <main>
-            <section id="health-auditor" class="health-section">
-                <div class="container">
+        <main class="health-container">
+            <header class="health-header">
+                <div>
+                    <h1 class="page-title">Infrastructure Control Room</h1>
+                    <p class="page-subtitle">Real-time CI/CD status and AI-powered infrastructure diagnosis.</p>
+                </div>
+                <div class="live-indicator">
+                    <div class="pulse-dot"></div>
+                    <span>LIVE STREAM</span>
+                </div>
+            </header>
 
-                    <!-- Header -->
-                    <div class="health-header">
-                        <h1 class="section-title">🩺 Project Health Auditor</h1>
-                        <p class="section-subtitle">Analyze sustainability, bus factor, and community resiliency.</p>
-                    </div>
-
-                    <!-- Search Input -->
-                    <div class="search-container">
-                        <input type="text" id="repo-input" class="search-input"
-                            placeholder="Enter repository (e.g., facebook/react)" />
-                        <button id="audit-btn" class="btn btn-primary">Audit</button>
-                    </div>
-
-                    <!-- Loading State -->
-                    <div id="loading-state" class="hidden" style="text-align: center; margin-bottom: 2rem;">
-                        <div class="loading-pulse">Analyzing Repository Health...</div>
-                    </div>
-
-                    <!-- Error State -->
-                    <div id="error-state" class="hidden error-message"
-                        style="text-align: center; color: var(--color-danger); margin-bottom: 2rem;"></div>
-
-                    <!-- Results Dashboard (Hidden by default) -->
-                    <div id="health-results" class="hidden">
-
-                        <div class="health-grid">
-
-                            <!-- Health Score Card -->
-                            <div class="health-card">
-                                <h3>Project Health Pulse</h3>
-                                <div class="score-display">
-                                    <div class="big-score" id="health-score">--</div>
-                                    <div class="score-label"> Sustainability Score</div>
-                                </div>
-                                <p id="health-summary" style="text-align: center; color: var(--text-secondary);">
-                                    Ready to analyze.
-                                </p>
-                            </div>
-
-                            <!-- Bus Factor Card -->
-                            <div class="health-card">
-                                <h3>Bus Factor Detector</h3>
-                                <div class="score-display">
-                                    <div class="metric-val" id="bus-factor-val" style="font-size: 2.5rem;">--</div>
-                                    <div class="score-label">Estimated Bus Factor</div>
-                                </div>
-                                <ul class="metric-list">
-                                    <li class="metric-item">
-                                        <span class="metric-name">Top Contributor Risk</span>
-                                        <span class="metric-val" id="top-contributor-risk">--</span>
-                                    </li>
-                                    <li class="metric-item">
-                                        <span class="metric-name">Active Maintainers</span>
-                                        <span class="metric-val" id="active-maintainers">--</span>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- Radar Chart Card -->
-                            <div class="health-card" style="grid-column: span 1; min-height: 400px;">
-                                <h3>Health Radar Visualization</h3>
-                                <div id="radar-chart-container" class="visualizer-container">
-                                    <!-- D3 Chart will be injected here -->
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <!-- Detailed Metrics Grid -->
-                        <div class="health-grid">
-                            <div class="health-card">
-                                <h3>Community Resiliency</h3>
-                                <ul class="metric-list">
-                                    <li class="metric-item">
-                                        <span class="metric-name">Decentralization Score</span>
-                                        <span class="metric-val" id="decentralization-score">--</span>
-                                    </li>
-                                    <li class="metric-item">
-                                        <span class="metric-name">New Contributors (Last 30d)</span>
-                                        <span class="metric-val" id="new-contributors">--</span>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="health-card">
-                                <h3>Responsiveness</h3>
-                                <ul class="metric-list">
-                                    <li class="metric-item">
-                                        <span class="metric-name">Median Time to Merge (MTTM)</span>
-                                        <span class="metric-val" id="mttm-val">--</span>
-                                    </li>
-                                    <li class="metric-item">
-                                        <span class="metric-name">Issue Resolution Rate</span>
-                                        <span class="metric-val" id="irr-val">--</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-
+            <!-- Repository Health Cards -->
+            <section class="health-overview">
+                <h3>Global Fleet Health</h3>
+                <div id="repo-fleet" class="fleet-grid">
+                    <!-- Dynamic Health Cards -->
+                    <div class="card skeleton-repo"></div>
+                    <div class="card skeleton-repo"></div>
+                    <div class="card skeleton-repo"></div>
                 </div>
             </section>
-        </main>
 
-        <footer class="footer">
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-brand">
-                        <span class="logo-text">XAYTHEON</span>
-                        <p>Empowering the next generation of innovators</p>
+            <div class="control-layout">
+                <!-- Live Build Feed -->
+                <section class="live-feed card">
+                    <div class="section-header">
+                        <h3>Active Pipelines</h3>
+                        <button id="trigger-demo" class="btn btn-outline btn-sm">Simulate Build</button>
                     </div>
-                </div>
-                <div class="footer-bottom">
-                    <p>&copy; 2026 XAYTHEON. All rights reserved.</p>
-                </div>
+                    <div id="build-feed" class="feed-container">
+                        <div class="empty-feed">Awaiting incoming build webhooks...</div>
+                    </div>
+                </section>
+
+                <!-- AI Diagnosis Column -->
+                <section class="ai-diagnosis">
+                    <div class="card diagnosis-card">
+                        <div class="card-header">
+                            <h3><i class="ri-magic-line"></i> AI Log Summarizer</h3>
+                        </div>
+                        <div id="diagnosis-content" class="diagnosis-body">
+                            <p class="placeholder-text">When a build fails, I'll automatically analyze the console
+                                output to suggest a fix.</p>
+                        </div>
+                    </div>
+
+                    <div class="card traffic-light-card">
+                        <h3>System Status</h3>
+                        <div class="traffic-light">
+                            <div id="light-red" class="light"></div>
+                            <div id="light-yellow" class="light"></div>
+                            <div id="light-green" class="light active"></div>
+                        </div>
+                        <p id="status-text">All systems operational</p>
+                    </div>
+                </section>
             </div>
-        </footer>
-
-        <div class="cursor-container">
-            <span class="cursor-dot"></span>
-            <span class="cursor-dot"></span>
-            <span class="cursor-dot"></span>
-            <span class="cursor-dot"></span>
-            <span class="cursor-dot"></span>
-            <span class="cursor-dot"></span>
-            <span class="cursor-dot"></span>
-            <span class="cursor-dot"></span>
-        </div>
-
+        </main>
     </div>
 
-    <!-- Main app script -->
+    <script src="health.js"></script>
     <script src="script.js"></script>
-    <!-- Health Auditor Script -->
-    <script src="js/health.js"></script>
 </body>
 
 </html>
