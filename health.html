@@ -7,6 +7,7 @@
     <title>Infrastructure Health Monitor — XAYTHEON</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
     <link rel="stylesheet" href="health.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
@@ -122,21 +123,8 @@
 
 <body class="eightgon-page">
     <div class="page-wrapper">
-        <nav class="navbar">
-            <div class="nav-container">
-                <a class="logo" href="index.html">
-                    <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo">
-                </a>
-                <ul class="nav-menu">
-                    <li><a class="nav-link" href="index.html#home">Home</a></li>
-                    <li><a class="nav-link" href="github.html">Dashboard</a></li>
-                    <li><a class="nav-link active" href="health.html">Health Monitor</a></li>
-                    <li><a class="nav-link" href="risk-detector.html">Risk Detector</a></li>
-                    <li><a class="nav-link" href="ai-chat.html">AI Assistant</a></li>
-                    <li id="auth-area"></li>
-                </ul>
-            </div>
-        </nav>
+        <div id="navbar-placeholder"></div>
+
 
         <main class="health-container">
             <header class="health-header">
@@ -201,6 +189,18 @@
 
     <script src="health.js"></script>
     <script src="script.js"></script>
+    <script>
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+
+            // Optional: Re-run JS for menu toggle & theme switch after navbar is loaded
+            if (typeof initNavbar === "function") initNavbar();
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+</script>
+
 </body>
 
 </html>

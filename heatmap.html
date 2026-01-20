@@ -7,7 +7,9 @@
     <title>Contribution Heatmap — XAYTHEON</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css" />
+     <link rel="stylesheet" href="style.css?v=3">
     <link rel="stylesheet" href="heatmap.css" />
+    
 
     <!-- Supabase SDK & Auth -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
@@ -21,46 +23,8 @@
 
 <body class="eightgon-page">
     <div class="page-wrapper">
-        <nav class="navbar">
-            <div class="nav-container">
-                <a class="logo" href="index.html" aria-label="Back to Home">
-                    <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo" />
-                </a>
-                <ul class="nav-menu">
-                    <li><a class="nav-link" href="index.html#home">Home</a></li>
-                    <li><a class="nav-link" href="github.html">GitHub Dashboard</a></li>
-                    <li><a class="nav-link" href="risk-detector.html">Risk Detector</a></li>
-                    <li><a class="nav-link" href="analytics.html">Analytics</a></li>
-                    <li><a class="nav-link" href="ai-chat.html">AI Assistant</a></li>
-                    <li><a class="nav-link active" href="heatmap.html">Activity Map</a></li>
-                    <li><a class="nav-link" href="sentiment.html">Sentiment</a></li>
-                    <li><a class="nav-link" href="workflow-builder.html">Workflow Builder</a></li>
-                    <li><a class="nav-link" href="watchlist.html">Watchlist</a></li>
-                    <li><a class="nav-link" href="compare.html">Compare</a></li>
-                    <li><a class="nav-link" href="achievements.html">Achievements</a></li>
-                    <li><a class="nav-link" href="community.html">Community</a></li>
-                    <li><a class="nav-link" href="explore.html">Explore</a></li>
-                    <li><a class="nav-link" href="contributions.html">Contributions</a></li>
-                    <li>
-                        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
-                            <svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="5" />
-                                <line x1="12" y1="1" x2="12" y2="3" />
-                                <line x1="12" y1="21" x2="12" y2="23" />
-                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                                <line x1="1" y1="12" x2="3" y2="12" />
-                                <line x1="21" y1="12" x2="23" y2="12" />
-                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-                            </svg>
-                        </button>
-                    </li>
-                    <li id="auth-area"></li>
-                </ul>
-            </div>
-        </nav>
+        <div id="navbar-placeholder"></div>
+
 
         <main class="heatmap-container">
             <header class="heatmap-header">
@@ -239,6 +203,18 @@
 
     <script src="heatmap.js"></script>
     <script src="script.js"></script>
+    <script>
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+
+            // Optional: Re-run JS for menu toggle & theme switch after navbar is loaded
+            if (typeof initNavbar === "function") initNavbar();
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+</script>
+
 </body>
 
 </html>
