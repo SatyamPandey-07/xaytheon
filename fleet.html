@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="features_analytics.css">
     
     <!-- Chart.js for data visualization -->
+    <script src="boilerplate/boilerplate-loader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
     <!-- Supabase SDK & auth bootstrap -->
@@ -19,30 +20,7 @@
 </head>
 <body class="eightgon-page">
     <div class="page-wrapper">
-        <nav class="navbar">
-            <div class="nav-container">
-                <a class="logo" href="index.html" aria-label="Back to Home">
-                    <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo" />
-                </a>
-                <ul class="nav-menu">
-                    <li><a class="nav-link" href="index.html#home">Home</a></li>
-                    <li><a class="nav-link" href="github.html">GitHub Dashboard</a></li>
-                    <li><a class="nav-link" href="analytics.html">Analytics</a></li>
-                    <li><a class="nav-link active" href="fleet.html">Fleet Dashboard</a></li>
-                    <li><a class="nav-link" href="explore.html">Explore</a></li>
-                    <li><a class="nav-link" href="community.html">Community</a></li>
-                </ul>
-                <div class="nav-actions">
-                    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
-                        <span class="theme-icon">🌙</span>
-                    </button>
-                    <div id="auth-section">
-                        <a href="login.html" class="btn btn-secondary">Login</a>
-                        <a href="register.html" class="btn btn-primary">Sign Up</a>
-                    </div>
-                </div>
-            </div>
-        </nav>
+        <div id="header-placeholder"></div>
 
         <main class="dashboard-main">
             <div class="dashboard-container">
@@ -229,5 +207,10 @@
     </div>
 
     <script src="fleet.js"></script>
-</body>
+<div id="footer-placeholder"></div>
+
 </html>
+
+
+
+

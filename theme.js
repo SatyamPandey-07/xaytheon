@@ -22,6 +22,11 @@
   // Apply theme to the page
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark-theme');
+    } else {
+      document.documentElement.classList.remove('dark-theme');
+    }
     localStorage.setItem(STORAGE_KEY, theme);
     updateAllIcons(theme);
   }
@@ -53,14 +58,14 @@
 
   // Toggle between light and dark
   function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme');
+    const current = document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light';
     const newTheme = current === 'dark' ? 'light' : 'dark';
     applyTheme(newTheme);
   }
 
   // Initialize theme immediately (before page loads)
   const initialTheme = getSavedTheme();
-  document.documentElement.setAttribute('data-theme', initialTheme);
+  applyTheme(initialTheme);
 
   // Setup theme toggle buttons when DOM is ready
   function setupThemeToggles() {

@@ -34,7 +34,7 @@ const i18n = {
         this.applyTranslations();
 
         // 4. Setup language switcher
-        this.setupLanguageSwitcher();
+        // this.setupLanguageSwitcher();
 
         // 5. Build dynamic language selector in UI if exists
         this.renderLanguageSelector();
