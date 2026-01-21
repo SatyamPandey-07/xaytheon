@@ -243,61 +243,91 @@ class GitHubDashboard {
             chartEl.appendChild(item);
         });
     }
+// ===================================
+// TOP REPOSITORIES - WITH PREMIUM SVG ICONS
+// Replace your displayTopRepositories function with this
+// ===================================
 
-   displayTopRepositories(repos) {
+displayTopRepositories(repos) {
     const listEl = document.getElementById('top-repos-list');
     if (!listEl) return;
-
+    
     listEl.innerHTML = '';
-
+    
+    // Sort by stars and get top 5
     const topRepos = [...repos]
         .sort((a, b) => b.stargazers_count - a.stargazers_count)
         .slice(0, 5);
-
+    
     if (topRepos.length === 0) {
         listEl.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No repositories found</p>';
         return;
     }
-
+    
     topRepos.forEach(repo => {
         const item = document.createElement('div');
         item.className = 'repo-item';
         item.onclick = () => window.open(repo.html_url, '_blank');
-
+        
+        // Build stats HTML with SVG icons
+        let statsHTML = '';
+        
+        // Language with code icon
+        if (repo.language) {
+            statsHTML += `
+                <div class="repo-stat">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 18 22 12 16 6"></polyline>
+                        <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                    <span>${repo.language}</span>
+                </div>`;
+        }
+        
+        // Stars with star icon
+        statsHTML += `
+            <div class="repo-stat">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <span>${this.formatNumber(repo.stargazers_count)}</span>
+            </div>`;
+        
+        // Forks with fork icon
+        statsHTML += `
+            <div class="repo-stat">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="18" r="3"/>
+                    <circle cx="6" cy="6" r="3"/>
+                    <circle cx="18" cy="6" r="3"/>
+                    <path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"/>
+                    <path d="M12 12v3"/>
+                </svg>
+                <span>${this.formatNumber(repo.forks_count)}</span>
+            </div>`;
+        
+        // Size with package icon
+        statsHTML += `
+            <div class="repo-stat">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+                <span>${this.formatSize(repo.size)}</span>
+            </div>`;
+        
         item.innerHTML = `
             <div class="repo-header">
                 <div class="repo-name">${repo.name}</div>
                 <div class="repo-visibility">${repo.private ? 'Private' : 'Public'}</div>
             </div>
-
-            <div class="repo-description">
-                ${repo.description || 'No description available'}
-            </div>
-
+            <div class="repo-description">${repo.description || 'No description available'}</div>
             <div class="repo-stats">
-                ${repo.language ? `
-                <div class="repo-stat">
-                    <i class="fa-solid fa-circle"></i>
-                    <span>${repo.language}</span>
-                </div>` : ''}
-
-                <div class="repo-stat">
-                    <i class="fa-solid fa-star"></i>
-                    <span>${this.formatNumber(repo.stargazers_count)}</span>
-                </div>
-
-                <div class="repo-stat">
-                    <i class="fa-solid fa-code-fork"></i>
-                    <span>${this.formatNumber(repo.forks_count)}</span>
-                </div>
-
-                <div class="repo-stat">
-                    <i class="fa-solid fa-box-archive"></i>
-                    <span>${this.formatSize(repo.size)}</span>
-                </div>
+                ${statsHTML}
             </div>
         `;
-
+        
         listEl.appendChild(item);
     });
 }
