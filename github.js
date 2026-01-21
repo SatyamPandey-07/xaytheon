@@ -1,0 +1,738 @@
+/* ===================================
+   GITHUB DASHBOARD - PREMIUM EDITION
+   Complete Analytics Hub
+   =================================== */
+
+// ===================================
+// Initialize Theme
+// ===================================
+(function initTheme() {
+    const theme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", theme);
+})();
+
+// ===================================
+// Main Dashboard Class
+// ===================================
+class GitHubDashboard {
+    constructor() {
+        this.form = document.getElementById('github-form');
+        this.usernameInput = document.getElementById('gh-username');
+        this.clearBtn = document.getElementById('clear-btn');
+        this.dashboard = document.getElementById('dashboard');
+        this.statusEl = document.getElementById('status-message');
+        
+        this.userData = null;
+        this.reposData = null;
+        this.eventsData = null;
+        
+        this.init();
+    }
+
+    init() {
+        this.form?.addEventListener('submit', (e) => this.handleSubmit(e));
+        this.clearBtn?.addEventListener('click', () => this.clearDashboard());
+        
+        // Theme toggle
+        document.getElementById('theme-toggle')?.addEventListener('click', () => {
+            this.toggleTheme();
+        });
+    }
+
+    toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    }
+
+    showStatus(message, type = 'info') {
+        if (!this.statusEl) return;
+        
+        this.statusEl.textContent = message;
+        this.statusEl.classList.add('show');
+        
+        const colors = {
+            error: { bg: 'rgba(239, 68, 68, 0.1)', text: '#ef4444', border: '#ef4444' },
+            success: { bg: 'rgba(34, 197, 94, 0.1)', text: '#22c55e', border: '#22c55e' },
+            info: { bg: 'rgba(99, 102, 241, 0.1)', text: '#6366f1', border: '#6366f1' }
+        };
+        
+        const color = colors[type] || colors.info;
+        Object.assign(this.statusEl.style, {
+            background: color.bg,
+            color: color.text,
+            border: `1px solid ${color.border}`
+        });
+        
+        setTimeout(() => {
+            this.statusEl.classList.remove('show');
+        }, 5000);
+    }
+
+    async handleSubmit(e) {
+        e.preventDefault();
+        const username = this.usernameInput?.value.trim();
+        
+        if (!username) {
+            this.showStatus('Please enter a GitHub username', 'error');
+            return;
+        }
+        
+        await this.fetchAllData(username);
+    }
+
+    async fetchAllData(username) {
+        try {
+            this.showStatus('🔍 Analyzing GitHub profile...', 'info');
+            
+            // Fetch user data
+            const userResponse = await fetch(`https://api.github.com/users/${username}`);
+            if (!userResponse.ok) throw new Error('User not found');
+            this.userData = await userResponse.json();
+            
+            // Fetch all repositories
+            const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
+            this.reposData = await reposResponse.json();
+            
+            // Fetch events
+            const eventsResponse = await fetch(`https://api.github.com/users/${username}/events/public?per_page=100`);
+            this.eventsData = await eventsResponse.json();
+            
+            // Display all sections
+            this.displayProfile();
+            this.displaySocialMetrics();
+            this.displayRepositoryStats();
+            this.displayContributionActivity();
+            
+            // Show dashboard
+            this.dashboard?.classList.remove('dashboard-hidden');
+            
+            this.showStatus('✅ Profile analysis complete!', 'success');
+            
+        } catch (error) {
+            this.showStatus(`❌ Error: ${error.message}`, 'error');
+            console.error('GitHub API Error:', error);
+        }
+    }
+
+    // ===================================
+    // SECTION 1: PROFILE OVERVIEW
+    // ===================================
+    displayProfile() {
+        const user = this.userData;
+        
+        // Avatar
+        const avatar = document.getElementById('profile-avatar');
+        if (avatar) avatar.src = user.avatar_url;
+        
+        // Name
+        const name = document.getElementById('profile-name');
+        if (name) name.textContent = user.name || user.login;
+        
+        // Username
+        const username = document.getElementById('profile-username');
+        if (username) username.textContent = `@${user.login}`;
+        
+        // Bio
+        const bio = document.getElementById('profile-bio');
+        if (bio) bio.textContent = user.bio || 'No bio available';
+        
+        // Company
+        const company = document.getElementById('profile-company');
+        if (company) company.textContent = user.company || 'No company';
+        
+        // Location
+        const location = document.getElementById('profile-location');
+        if (location) location.textContent = user.location || 'No location';
+    }
+
+    displaySocialMetrics() {
+        const user = this.userData;
+        
+        // Followers
+        const followersEl = document.getElementById('followers-count');
+        if (followersEl) followersEl.textContent = this.formatNumber(user.followers);
+        
+        // Following
+        const followingEl = document.getElementById('following-count');
+        if (followingEl) followingEl.textContent = this.formatNumber(user.following);
+        
+        // Network Ratio
+        const ratio = user.followers / Math.max(user.following, 1);
+        const ratioFill = document.getElementById('ratio-fill');
+        const ratioText = document.getElementById('ratio-text');
+        
+        if (ratioFill && ratioText) {
+            const percentage = Math.min(ratio * 50, 100);
+            ratioFill.style.width = `${percentage}%`;
+            ratioText.textContent = `${ratio.toFixed(2)}:1 ratio`;
+        }
+    }
+
+    // ===================================
+    // SECTION 2: REPOSITORY STATISTICS
+    // ===================================
+    displayRepositoryStats() {
+        const repos = this.reposData;
+        
+        // Public Repos Count
+        const publicRepos = document.getElementById('public-repos');
+        if (publicRepos) publicRepos.textContent = this.formatNumber(this.userData.public_repos);
+        
+        // Calculate total stars
+        const totalStars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+        const starsEl = document.getElementById('total-stars');
+        if (starsEl) starsEl.textContent = this.formatNumber(totalStars);
+        
+        // Calculate total forks
+        const totalForks = repos.reduce((sum, repo) => sum + repo.forks_count, 0);
+        const forksEl = document.getElementById('total-forks');
+        if (forksEl) forksEl.textContent = this.formatNumber(totalForks);
+        
+        // Calculate total size
+        const totalSize = repos.reduce((sum, repo) => sum + repo.size, 0);
+        const sizeEl = document.getElementById('total-size');
+        if (sizeEl) sizeEl.textContent = this.formatSize(totalSize);
+        
+        // Language breakdown
+        this.displayLanguageBreakdown(repos);
+        
+        // Top repositories
+        this.displayTopRepositories(repos);
+    }
+
+    displayLanguageBreakdown(repos) {
+        const languages = {};
+        repos.forEach(repo => {
+            if (repo.language) {
+                languages[repo.language] = (languages[repo.language] || 0) + 1;
+            }
+        });
+        
+        const total = Object.values(languages).reduce((a, b) => a + b, 0);
+        const chartEl = document.getElementById('language-chart');
+        
+        if (!chartEl) return;
+        chartEl.innerHTML = '';
+        
+        if (total === 0) {
+            chartEl.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No language data available</p>';
+            return;
+        }
+        
+        // Sort and get top 7
+        const topLanguages = Object.entries(languages)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 7);
+        
+        topLanguages.forEach(([lang, count]) => {
+            const percent = ((count / total) * 100).toFixed(1);
+            
+            const item = document.createElement('div');
+            item.className = 'language-item';
+            item.innerHTML = `
+                <div class="language-name">${lang}</div>
+                <div class="language-bar-container">
+                    <div class="language-bar" style="width: ${percent}%"></div>
+                </div>
+                <div class="language-percentage">${percent}%</div>
+            `;
+            
+            chartEl.appendChild(item);
+        });
+    }
+
+   displayTopRepositories(repos) {
+    const listEl = document.getElementById('top-repos-list');
+    if (!listEl) return;
+
+    listEl.innerHTML = '';
+
+    const topRepos = [...repos]
+        .sort((a, b) => b.stargazers_count - a.stargazers_count)
+        .slice(0, 5);
+
+    if (topRepos.length === 0) {
+        listEl.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No repositories found</p>';
+        return;
+    }
+
+    topRepos.forEach(repo => {
+        const item = document.createElement('div');
+        item.className = 'repo-item';
+        item.onclick = () => window.open(repo.html_url, '_blank');
+
+        item.innerHTML = `
+            <div class="repo-header">
+                <div class="repo-name">${repo.name}</div>
+                <div class="repo-visibility">${repo.private ? 'Private' : 'Public'}</div>
+            </div>
+
+            <div class="repo-description">
+                ${repo.description || 'No description available'}
+            </div>
+
+            <div class="repo-stats">
+                ${repo.language ? `
+                <div class="repo-stat">
+                    <i class="fa-solid fa-circle"></i>
+                    <span>${repo.language}</span>
+                </div>` : ''}
+
+                <div class="repo-stat">
+                    <i class="fa-solid fa-star"></i>
+                    <span>${this.formatNumber(repo.stargazers_count)}</span>
+                </div>
+
+                <div class="repo-stat">
+                    <i class="fa-solid fa-code-fork"></i>
+                    <span>${this.formatNumber(repo.forks_count)}</span>
+                </div>
+
+                <div class="repo-stat">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>${this.formatSize(repo.size)}</span>
+                </div>
+            </div>
+        `;
+
+        listEl.appendChild(item);
+    });
+}
+
+    // ===================================
+    // SECTION 3: CONTRIBUTION ACTIVITY
+    // ===================================
+    displayContributionActivity() {
+        const events = this.eventsData;
+        
+        // Calculate streaks
+        const streaks = this.calculateStreaks(events);
+        
+        const currentStreak = document.getElementById('current-streak');
+        if (currentStreak) currentStreak.textContent = streaks.current;
+        
+        const longestStreak = document.getElementById('longest-streak');
+        if (longestStreak) longestStreak.textContent = streaks.longest;
+        
+        // Total contributions
+        const totalContrib = document.getElementById('total-contributions');
+        if (totalContrib) totalContrib.textContent = this.formatNumber(events.length);
+        
+        // Average per day
+        const avgDaily = document.getElementById('avg-daily');
+        if (avgDaily) {
+            const avg = (events.length / 365).toFixed(1);
+            avgDaily.textContent = avg;
+        }
+        
+        // Render heatmap
+        this.renderContributionHeatmap(events);
+        
+        // Render activity chart
+        this.renderActivityChart(events);
+    }
+
+    calculateStreaks(events) {
+        if (!events || events.length === 0) return { current: 0, longest: 0 };
+        
+        // Get unique dates
+        const dates = events.map(e => new Date(e.created_at).toDateString());
+        const uniqueDates = [...new Set(dates)].sort((a, b) => new Date(b) - new Date(a));
+        
+        let current = 0;
+        let longest = 0;
+        let tempStreak = 1;
+        
+        // Calculate current streak
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        
+        if (uniqueDates[0] === today || uniqueDates[0] === yesterday) {
+            current = 1;
+            for (let i = 1; i < uniqueDates.length; i++) {
+                const diff = (new Date(uniqueDates[i - 1]) - new Date(uniqueDates[i])) / (1000 * 60 * 60 * 24);
+                if (diff <= 1) {
+                    current++;
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        // Calculate longest streak
+        for (let i = 1; i < uniqueDates.length; i++) {
+            const diff = (new Date(uniqueDates[i - 1]) - new Date(uniqueDates[i])) / (1000 * 60 * 60 * 24);
+            if (diff <= 1) {
+                tempStreak++;
+                longest = Math.max(longest, tempStreak);
+            } else {
+                tempStreak = 1;
+            }
+        }
+        
+        return { current, longest: Math.max(longest, current) };
+    }
+
+   // ===================================
+// CONTRIBUTION HEATMAP - GITHUB OFFICIAL STYLE (FIXED)
+// Replace your existing renderContributionHeatmap function with this
+// ===================================
+// ===================================
+// CONTRIBUTION HEATMAP - GITHUB OFFICIAL STYLE
+// FIXED: Overlapping months & proper sizing
+// Replace your existing renderContributionHeatmap function with this
+// ===================================
+
+renderContributionHeatmap(events) {
+    const gridEl = document.getElementById('contribution-heatmap');
+    const tooltipEl = document.getElementById('heatmap-tooltip');
+    const monthLabelsEl = document.getElementById('month-labels');
+    
+    if (!gridEl) {
+        console.error('Heatmap grid element not found!');
+        return;
+    }
+    
+    console.log('Rendering heatmap with', events.length, 'events');
+    
+    // Clear grid and month labels
+    gridEl.innerHTML = '';
+    if (monthLabelsEl) monthLabelsEl.innerHTML = '';
+    
+    // Create contribution map
+    const contributionMap = {};
+    events.forEach(event => {
+        const date = new Date(event.created_at).toDateString();
+        contributionMap[date] = (contributionMap[date] || 0) + 1;
+    });
+    
+    console.log('Contribution map:', Object.keys(contributionMap).length, 'unique days');
+    
+    // Calculate date range (52 weeks back from today)
+    const today = new Date();
+    const weeksToShow = 52;
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - (weeksToShow * 7));
+    
+    // Adjust to start from Sunday
+    const dayOfWeek = startDate.getDay();
+    startDate.setDate(startDate.getDate() - dayOfWeek);
+    
+    console.log('Date range:', startDate.toDateString(), 'to', today.toDateString());
+    
+    // Calculate contribution levels
+    const counts = Object.values(contributionMap).filter(c => c > 0);
+    const maxCount = Math.max(...counts, 1);
+    
+    const getLevel = (count) => {
+        if (count === 0) return 0;
+        const quartile = maxCount / 4;
+        if (count >= quartile * 3) return 4;
+        if (count >= quartile * 2) return 3;
+        if (count >= quartile) return 2;
+        return 1;
+    };
+    
+    // Track months for labels - FIXED OVERLAP LOGIC
+    const monthPositions = [];
+    let lastMonth = -1;
+    let lastMonthWeek = -1;
+    
+    // Generate weeks
+    for (let week = 0; week < weeksToShow; week++) {
+        const weekDiv = document.createElement('div');
+        weekDiv.className = 'contribution-week';
+        
+        // Check for month change on first day of week (Sunday)
+        const firstDayOfWeek = new Date(startDate);
+        firstDayOfWeek.setDate(startDate.getDate() + (week * 7));
+        const month = firstDayOfWeek.getMonth();
+        
+        // Only add month label if:
+        // 1. Month changed
+        // 2. At least 2 weeks since last month label (prevent overlap)
+        if (month !== lastMonth && (week - lastMonthWeek >= 2 || lastMonthWeek === -1)) {
+            lastMonth = month;
+            lastMonthWeek = week;
+            monthPositions.push({
+                month: firstDayOfWeek.toLocaleDateString('en-US', { month: 'short' }),
+                weekIndex: week
+            });
+        }
+        
+        // Generate 7 days for this week
+        for (let day = 0; day < 7; day++) {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + (week * 7) + day);
+            
+            const dateStr = date.toDateString();
+            const count = contributionMap[dateStr] || 0;
+            const level = getLevel(count);
+            
+            const dayDiv = document.createElement('div');
+            
+            // Don't render future dates
+            if (date > today) {
+                dayDiv.className = 'contribution-day empty';
+                weekDiv.appendChild(dayDiv);
+                continue;
+            }
+            
+            dayDiv.className = `contribution-day level-${level}`;
+            dayDiv.setAttribute('data-date', dateStr);
+            dayDiv.setAttribute('data-count', count);
+            dayDiv.setAttribute('data-level', level);
+            
+            // Tooltip events
+            dayDiv.addEventListener('mouseenter', function(e) {
+                if (!tooltipEl) return;
+                
+                const formatted = date.toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+                
+                const contributionText = count === 0 ? 'No contributions' : 
+                                        count === 1 ? '1 contribution' : 
+                                        `${count} contributions`;
+                
+                tooltipEl.innerHTML = `<strong>${contributionText}</strong>${formatted}`;
+                tooltipEl.style.display = 'block';
+                
+                // Position tooltip
+                const rect = this.getBoundingClientRect();
+                const tooltipRect = tooltipEl.getBoundingClientRect();
+                
+                let left = rect.left + window.scrollX + (rect.width / 2) - (tooltipRect.width / 2);
+                let top = rect.top + window.scrollY - tooltipRect.height - 8;
+                
+                // Keep tooltip on screen
+                if (left < 10) left = 10;
+                if (left + tooltipRect.width > window.innerWidth - 10) {
+                    left = window.innerWidth - tooltipRect.width - 10;
+                }
+                if (top < 10) {
+                    top = rect.bottom + window.scrollY + 8;
+                }
+                
+                tooltipEl.style.left = left + 'px';
+                tooltipEl.style.top = top + 'px';
+            });
+            
+            dayDiv.addEventListener('mouseleave', function() {
+                if (tooltipEl) tooltipEl.style.display = 'none';
+            });
+            
+            weekDiv.appendChild(dayDiv);
+        }
+        
+        gridEl.appendChild(weekDiv);
+    }
+    
+    // Generate month labels - FIXED POSITIONING
+    if (monthLabelsEl && monthPositions.length > 0) {
+        monthPositions.forEach(({ month, weekIndex }) => {
+            const label = document.createElement('span');
+            label.className = 'month-label';
+            label.textContent = month;
+            // Position based on week index (17px = 13px cell + 4px gap)
+            label.style.left = (weekIndex * 17) + 'px';
+            monthLabelsEl.appendChild(label);
+        });
+    }
+    
+    console.log('Heatmap rendered:', weeksToShow, 'weeks,', monthPositions.length, 'month labels');
+}
+    // ===================================
+    // ACTIVITY CHART
+    // ===================================
+    renderActivityChart(events) {
+        const canvasEl = document.getElementById('activity-chart');
+        if (!canvasEl) return;
+        
+        // IMPORTANT: Destroy previous chart instance to prevent growth
+        if (window.activityChart instanceof Chart) {
+            window.activityChart.destroy();
+            window.activityChart = null;
+        }
+        
+        // Clear canvas
+        const ctx = canvasEl.getContext('2d');
+        ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+        
+        // Prepare data for last 30 days
+        const days = [];
+        const counts = [];
+        
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toDateString();
+            
+            days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            
+            const count = events.filter(e => {
+                return new Date(e.created_at).toDateString() === dateStr;
+            }).length;
+            
+            counts.push(count);
+        }
+        
+        // Get theme
+        const theme = document.documentElement.getAttribute('data-theme');
+        const isDark = theme === 'dark' || !theme;
+        
+        // Create new chart with fixed configuration
+        window.activityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: days,
+                datasets: [{
+                    label: 'Daily Activity',
+                    data: counts,
+                    borderColor: isDark ? '#ffffff' : '#000000',
+                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: isDark ? '#ffffff' : '#000000',
+                    pointBorderColor: isDark ? '#ffffff' : '#000000',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+                        titleColor: isDark ? '#ffffff' : '#000000',
+                        bodyColor: isDark ? '#b0b0b0' : '#4a4a4a',
+                        borderColor: isDark ? '#2a2a2a' : '#e0e0e0',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: isDark ? '#b0b0b0' : '#4a4a4a',
+                            font: {
+                                size: 11
+                            },
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: isDark ? '#b0b0b0' : '#4a4a4a',
+                            font: {
+                                size: 10
+                            },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ===================================
+    // UTILITY FUNCTIONS
+    // ===================================
+    formatNumber(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toString();
+    }
+
+    formatSize(kb) {
+        if (kb >= 1024 * 1024) return (kb / (1024 * 1024)).toFixed(1) + ' GB';
+        if (kb >= 1024) return (kb / 1024).toFixed(1) + ' MB';
+        return kb + ' KB';
+    }
+
+    getTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        
+        const intervals = {
+            year: 31536000,
+            month: 2592000,
+            week: 604800,
+            day: 86400,
+            hour: 3600,
+            minute: 60
+        };
+        
+        for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+            const interval = Math.floor(seconds / secondsInUnit);
+            if (interval >= 1) {
+                return `${interval} ${unit}${interval !== 1 ? 's' : ''} ago`;
+            }
+        }
+        
+        return 'Just now';
+    }
+
+    // ===================================
+    // CLEAR DASHBOARD
+    // ===================================
+    clearDashboard() {
+        this.usernameInput.value = '';
+        this.dashboard?.classList.add('dashboard-hidden');
+        
+        // Reset data
+        this.userData = null;
+        this.reposData = null;
+        this.eventsData = null;
+        
+        // Destroy chart properly
+        if (window.activityChart instanceof Chart) {
+            window.activityChart.destroy();
+            window.activityChart = null;
+        }
+        
+        // Clear canvas
+        const canvas = document.getElementById('activity-chart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // Clear heatmap
+        const heatmap = document.getElementById('contribution-heatmap');
+        if (heatmap) {
+            heatmap.innerHTML = '';
+        }
+        
+        this.showStatus('Dashboard cleared', 'info');
+    }
+}
+
+// ===================================
+// Initialize Dashboard
+// ===================================
+document.addEventListener('DOMContentLoaded', () => {
+    new GitHubDashboard();
+});
