@@ -15,7 +15,23 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
     <script defer src="auth.js"></script>
     <script defer src="i18n.js"></script>
-       <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <!-- Preconnect for Google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <style>
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+        }
+    </style>
+
 </head>
 
 <body class="eightgon-page">
@@ -29,16 +45,20 @@
                         <h1 class="search-title" data-i18n="search.pageTitle">Deep Search</h1>
                         <div class="search-input-group">
                             <div class="input-glow-container">
-                                <i class="ri-search-2-line search-icon"></i>
+                                <!-- Added hidden label for screen readers -->
+                                <label for="main-search-input" class="sr-only">Search repositories, users, or topics</label>
+                                <i class="ri-search-2-line search-icon" aria-hidden="true"></i>
                                 <input type="text" id="main-search-input"
                                     placeholder="Search repositories, users, or topics..." autocomplete="off"
                                     autofocus />
-                                <button id="clear-search-btn" class="hidden"><i class="ri-close-line"></i></button>
+                                <!-- Added aria-label to icon-only button -->
+                                <button id="clear-search-btn" class="hidden" aria-label="Clear search">
+                                    <i class="ri-close-line" aria-hidden="true"></i>
+                                </button>
                                 <div id="autocomplete-dropdown" class="autocomplete-dropdown hidden"></div>
                             </div>
                             <button id="search-action-btn" class="btn btn-primary">Search</button>
-                        </div>
-
+                        </div>                     
                         <div class="trending-tags" id="trending-container">
                             <span class="muted" data-i18n="search.trending">Trending:</span>
                             <div id="trending-list" class="tags-list">
@@ -91,7 +111,7 @@
 
                     <div class="card history-card" id="history-section">
                         <div class="card-header">
-                            <h3><i class="ri-history-line"></i> Recent Searches</h3>
+                            <h3><i class="ri-history-line" aria-hidden="true"></i> Recent Searches</h3>
                             <button id="clear-history" class="btn-text">Clear</button>
                         </div>
                         <div class="card-body">
@@ -104,13 +124,15 @@
 
                 <!-- Search Results -->
                 <section class="search-results-area">
-                    <div id="search-status" class="search-status-bar muted">
+                    <!-- aria-live region for dynamic results -->
+                    <div id="search-status" class="search-status-bar muted" role="status" aria-live="polite"
+                        aria-atomic="true">
                         <!-- Results count will appear here -->
                     </div>
 
                     <div class="results-container" id="results-list">
                         <div class="search-placeholder">
-                            <i class="ri-flashlight-line"></i>
+                            <i class="ri-flashlight-line" aria-hidden="true"></i>
                             <p>Type something to start searching...</p>
                         </div>
                     </div>
@@ -121,7 +143,7 @@
                 </section>
             </div>
         </main>
-    <div id="footer-placeholder"></div>
+        <div id="footer-placeholder"></div>
     </div>
 
     <div class="cursor-container">
@@ -141,5 +163,3 @@
 </body>
 
 </html>
-
-

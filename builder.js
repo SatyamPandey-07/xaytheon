@@ -1,282 +1,345 @@
 /**
  * Workflow Builder Logic
  */
-document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('workflow-canvas');
-    const placeholder = document.getElementById('canvas-placeholder');
-    const yamlPreview = document.querySelector('#yaml-preview code');
-    const workflowNameInput = document.getElementById('workflow-name');
-    const triggerSelect = document.getElementById('trigger-select');
-    const validationPill = document.getElementById('validation-pill');
 
-    const exportBtn = document.getElementById('export-yaml-btn');
-    const copyBtn = document.getElementById('copy-yaml');
-
+const elements = {
+    canvas: document.getElementById('workflow-canvas'),
+    placeholder: document.getElementById('canvas-placeholder'),
+    yamlPreview: document.querySelector('#yaml-preview code'),
+    workflowName: document.getElementById('workflow-name'),
+    triggerSelect: document.getElementById('trigger-select'),
+    validationPill: document.getElementById('validation-pill'),
+    exportBtn: document.getElementById('export-yaml-btn'),
+    copyBtn: document.getElementById('copy-yaml'),
+    
     // Modals
-    const editModal = document.getElementById('edit-modal');
-    const saveEditBtn = document.getElementById('save-edit');
-    const cancelEditBtn = document.getElementById('cancel-edit');
+    editModal: document.getElementById('edit-modal'),
+    editName: document.getElementById('edit-step-name'),
+    editUses: document.getElementById('edit-step-uses'),
+    editRun: document.getElementById('edit-step-run'),
+    saveEditBtn: document.getElementById('save-edit'),
+    cancelEditBtn: document.getElementById('cancel-edit'),
+};
 
     let workflowSteps = [];
     let editingStepId = null;
     let draggedStepId = null;
 
     /* -------------------- Utilities -------------------- */
+    function generateStepId() {
+        return 'step-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    }
 
-    const debounce = (fn, delay = 400) => {
-        let t;
-        return (...args) => {
-            clearTimeout(t);
-            t = setTimeout(() => fn(...args), delay);
+    function getStepDataFromElement(el) {
+        return {
+            name: el.getAttribute('data-name'),
+            type: el.getAttribute('data-type'),
+            uses: el.getAttribute('data-uses') || null,
+            run: el.getAttribute('data-run') || null,
         };
-    };
-
-    const debouncedYamlUpdate = debounce(updateYamlPreview);
+    }
 
     /* -------------------- Library Drag -------------------- */
 
-    document.querySelectorAll('.draggable-step').forEach(step => {
-        step.addEventListener('dragstart', (e) => {
-            const data = {
-                name: step.getAttribute('data-name'),
-                type: step.getAttribute('data-type'),
-                uses: step.getAttribute('data-uses') || null,
-                run: step.getAttribute('data-run') || null
-            };
-            e.dataTransfer.effectAllowed = 'copy';
-            e.dataTransfer.setData('application/json', JSON.stringify(data));
+    function initializeDraggableSteps() {
+        document.querySelectorAll('.draggable-step').forEach(step => {
+            // Accessibility
+            step.setAttribute('tabindex', '0');
+            step.setAttribute('role', 'button');
+            step.setAttribute('aria-label', `Add step: ${step.getAttribute('data-name')}`);
+
+            // Drag
+            step.addEventListener('dragstart', e => {
+                const data = getStepDataFromElement(step);
+                e.dataTransfer.setData('application/json', JSON.stringify(data));
+            });
+
+            // Keyboard activation
+            step.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    addStep(getStepDataFromElement(step));
+                }
+            });
         });
-    });
+    }
 
     /* -------------------- Canvas Drag -------------------- */
 
-    canvas.addEventListener('dragover', (e) => {
+    function setupCanvasDropZone() 
+    {
+    elements.canvas.addEventListener('dragover', e => {
         e.preventDefault();
-        canvas.classList.add('drag-over');
+        elements.canvas.classList.add('drag-over');
     });
 
-    canvas.addEventListener('dragleave', () => {
-        canvas.classList.remove('drag-over');
+    elements.canvas.addEventListener('dragleave', () => {
+        elements.canvas.classList.remove('drag-over');
     });
 
-    canvas.addEventListener('drop', (e) => {
+    elements.canvas.addEventListener('drop', e => {
         e.preventDefault();
-        canvas.classList.remove('drag-over');
+        elements.canvas.classList.remove('drag-over');
 
         try {
-            const json = e.dataTransfer.getData('application/json');
-            if (!json) return;
-
-            const stepData = JSON.parse(json);
-            addStep(stepData);
-        } catch (err) {
-            console.error('Drop error:', err);
+            const data = JSON.parse(e.dataTransfer.getData('application/json'));
+            addStep(data);
+        } catch (err) 
+        {
+            console.error('Invalid drop data', err);
         }
     });
+
+        // Accessibility - make canvas focusable
+        elements.canvas.setAttribute('tabindex', '-1');
+    }
 
     /* -------------------- Workflow Management -------------------- */
 
-    function addStep(data, index = null) {
-        const id = crypto.randomUUID();
-        const step = { id, ...data };
+    function addStep(stepData) {
+        const step = {
+            id: generateStepId(),
+            ...stepData,
+        };
+        workflowSteps.push(step);
+        renderSteps();
+        updatePreviewAndValidation();
+    }
 
-        if (index === null) {
-            workflowSteps.push(step);
-        } else {
-            workflowSteps.splice(index, 0, step);
+    function removeStep(stepId) {
+        workflowSteps = workflowSteps.filter(s => s.id !== stepId);
+        renderSteps();
+        updatePreviewAndValidation();
+    }
+
+    function updateStep(stepId, updates) {
+        const step = workflowSteps.find(s => s.id === stepId);
+        if (step) {
+            Object.assign(step, updates);
+            renderSteps();
+            updatePreviewAndValidation();
         }
-
-        renderCanvas();
-        debouncedYamlUpdate();
     }
 
-    function removeStep(id) {
-        workflowSteps = workflowSteps.filter(s => s.id !== id);
-        renderCanvas();
-        debouncedYamlUpdate();
-    }
-
-    function moveStep(fromIndex, toIndex) {
-        if (fromIndex === toIndex) return;
-        const [item] = workflowSteps.splice(fromIndex, 1);
-        workflowSteps.splice(toIndex, 0, item);
-    }
-
-    function renderCanvas() {
-        canvas.querySelectorAll('.step-block').forEach(b => b.remove());
+    function renderSteps() {
+        // Clear previous step blocks
+        elements.canvas.querySelectorAll('.step-block').forEach(el => el.remove());
 
         if (workflowSteps.length === 0) {
-            placeholder.style.display = 'block';
+            elements.placeholder.style.display = 'flex';
             return;
         }
 
-        placeholder.style.display = 'none';
+        elements.placeholder.style.display = 'none';
 
-        workflowSteps.forEach((step, index) => {
+        workflowSteps.forEach(step => {
             const block = document.createElement('div');
             block.className = 'step-block';
-            block.draggable = true;
-            block.dataset.id = step.id;
-            block.dataset.index = index;
+            block.dataset.stepId = step.id;
 
             block.innerHTML = `
                 <div class="step-info">
                     <h5>${step.name}</h5>
-                    <p>${step.uses ? step.uses : step.run}</p>
+                    <p class="step-detail">${step.uses ? step.uses : step.run}</p>
                 </div>
                 <div class="step-actions">
-                    <button class="icon-btn edit" type="button">
+                    <button type="button" class="icon-btn edit" aria-label="Edit step">
                         <i class="ri-edit-line"></i>
                     </button>
-                    <button class="icon-btn delete" type="button">
+                    <button type="button" class="icon-btn delete" aria-label="Delete step">
                         <i class="ri-delete-bin-line"></i>
                     </button>
                 </div>
             `;
 
-            // Step drag reorder
-            block.addEventListener('dragstart', () => {
-                draggedStepId = step.id;
-                block.classList.add('dragging');
-            });
-
-            block.addEventListener('dragend', () => {
-                draggedStepId = null;
-                block.classList.remove('dragging');
-            });
-
-            block.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                const targetIndex = Number(block.dataset.index);
-                const sourceIndex = workflowSteps.findIndex(s => s.id === draggedStepId);
-                if (sourceIndex !== -1 && sourceIndex !== targetIndex) {
-                    moveStep(sourceIndex, targetIndex);
-                    renderCanvas();
-                }
-            });
-
-            // Actions
-            block.querySelector('.edit').addEventListener('click', () => {
-                window.builder.openEdit(step.id);
-            });
-
-            block.querySelector('.delete').addEventListener('click', () => {
-                window.builder.remove(step.id);
-            });
-
-            canvas.appendChild(block);
+            elements.canvas.appendChild(block);
         });
+    }
+
+    /* -------------------- Edit Modals -------------------- */
+    const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    function trapModalFocus(e) {
+        const focusable = elements.editModal.querySelectorAll(focusableSelector);
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.key === 'Tab') {
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
+
+        if (e.key === 'Escape') {
+            closeEditModal();
+        }
+    }
+
+    function openEditModal(stepId) {
+        editingStepId = stepId;
+        const step = workflowSteps.find(s => s.id === stepId);
+        if (!step) return;
+
+        elements.editName.value = step.name;
+        const usesField = document.getElementById('uses-field');
+        const runField = document.getElementById('run-field');
+
+        if (step.uses) {
+            usesField.style.display = 'block';
+            runField.style.display = 'none';
+            elements.editUses.value = step.uses;
+        } else {
+            usesField.style.display = 'none';
+            runField.style.display = 'block';
+            elements.editRun.value = step.run || '';
+        }
+
+        previousFocusedElement = document.activeElement;
+        elements.editModal.classList.remove('hidden');
+        elements.editName.focus();
+        elements.editModal.addEventListener('keydown', trapModalFocus);
+    }
+    function closeEditModal() {
+        elements.editModal.classList.add('hidden');
+        elements.editModal.removeEventListener('keydown', trapModalFocus);
+        if (previousFocusedElement && document.body.contains(previousFocusedElement)) {
+            previousFocusedElement.focus();
+        }
+        previousFocusedElement = null;
+        editingStepId = null;
     }
 
     /* -------------------- YAML Preview -------------------- */
 
-    async function updateYamlPreview() {
-        const workflowData = {
-            name: workflowNameInput.value,
-            on: triggerSelect.value,
-            jobs: {
-                build: {
-                    runsOn: 'ubuntu-latest',
-                    steps: workflowSteps.map(({ name, uses, run }) =>
-                        uses ? { name, uses } : { name, run }
-                    )
-                }
-            }
-        };
+    function updatePreviewAndValidation() {
+        // Update UI validation state + export button
+        const { valid, errors } = validateCurrentWorkflow(workflowSteps, {
+            name: elements.workflowName.value.trim(),
+            trigger: elements.triggerSelect.value,
+        });
 
+        elements.exportBtn.disabled = !valid;
+
+        if (valid) {
+            elements.validationPill.className = 'pill status-pill valid';
+            elements.validationPill.textContent = 'Valid';
+        } else {
+            elements.validationPill.className = 'pill status-pill invalid';
+            elements.validationPill.textContent = `Invalid (${errors?.length || '?'})`;
+        }
+
+        // Update preview
         try {
-            const res = await fetch('/api/workflow/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ workflowData })
+            const yaml = getWorkflowYaml(workflowSteps, {
+                name: elements.workflowName.value.trim(),
+                trigger: elements.triggerSelect.value,
             });
-
-            const data = await res.json();
-            yamlPreview.textContent = data.yaml;
-
-            if (data.validation === 'Workflow is valid.') {
-                validationPill.className = 'pill valid';
-                validationPill.textContent = 'Valid';
-                validationPill.title = '';
-            } else {
-                validationPill.className = 'pill error';
-                validationPill.textContent = 'Warning';
-                validationPill.title = data.validation;
-            }
+            elements.yamlPreview.textContent = yaml;
         } catch (err) {
-            console.error('Preview error:', err);
+            elements.yamlPreview.textContent = `# Error generating preview!\n# ${err.message}`;
+        }
+
+        if (typeof triggerUIUpdate === 'function') {
+            triggerUIUpdate();
         }
     }
 
-    /* -------------------- Modal Logic -------------------- */
-
-    window.builder = {
-        remove: removeStep,
-        openEdit: (id) => {
-            editingStepId = id;
-            const step = workflowSteps.find(s => s.id === id);
-            if (!step) return;
-
-            document.getElementById('edit-step-name').value = step.name;
-
-            const usesField = document.getElementById('uses-field');
-            const runField = document.getElementById('run-field');
-
-            if (step.uses) {
-                usesField.style.display = 'block';
-                runField.style.display = 'none';
-                document.getElementById('edit-step-uses').value = step.uses;
-            } else {
-                usesField.style.display = 'none';
-                runField.style.display = 'block';
-                document.getElementById('edit-step-run').value = step.run;
-            }
-
-            editModal.classList.remove('hidden');
-        }
-    };
-
-    saveEditBtn.addEventListener('click', () => {
-        const idx = workflowSteps.findIndex(s => s.id === editingStepId);
-        if (idx === -1) return;
-
-        workflowSteps[idx].name = document.getElementById('edit-step-name').value;
-
-        if (workflowSteps[idx].uses) {
-            workflowSteps[idx].uses = document.getElementById('edit-step-uses').value;
-        } else {
-            workflowSteps[idx].run = document.getElementById('edit-step-run').value;
-        }
-
-        editModal.classList.add('hidden');
-        renderCanvas();
-        debouncedYamlUpdate();
-    });
-
-    cancelEditBtn.addEventListener('click', () => {
-        editModal.classList.add('hidden');
-    });
-
     /* -------------------- Actions -------------------- */
 
-    exportBtn.addEventListener('click', () => {
-        const blob = new Blob([yamlPreview.textContent], { type: 'text/yaml' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = workflowNameInput.value || 'main.yml';
-        a.click();
-        URL.revokeObjectURL(url);
+    function initEventListeners() {
+        // Canvas actions (edit/delete)
+        elements.canvas.addEventListener('click', e => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+
+            const stepBlock = btn.closest('.step-block');
+            if (!stepBlock) return;
+
+            const stepId = stepBlock.dataset.stepId;
+
+            if (btn.classList.contains('edit')) {
+                openEditModal(stepId);
+            } else if (btn.classList.contains('delete')) {
+                if (confirm('Remove this step?')) {
+                    removeStep(stepId);
+                }
+            }
+        });
+        // Search filter
+        const searchInput = document.getElementById('step-search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', e => {
+                const q = e.target.value.toLowerCase().trim();
+                document.querySelectorAll('.draggable-step').forEach(el => {
+                    const name = (el.dataset.name || '').toLowerCase();
+                    el.style.display = name.includes(q) ? '' : 'none';
+                });
+            });
+        }
+        // Modal Logic
+        elements.saveEditBtn.addEventListener('click', () => {
+            const updates = {
+                name: elements.editName.value.trim(),
+            };
+
+            if (workflowSteps.find(s => s.id === editingStepId)?.uses) {
+                updates.uses = elements.editUses.value.trim();
+            } else {
+                updates.run = elements.editRun.value.trim();
+            }
+
+            updateStep(editingStepId, updates);
+            closeEditModal();
+        });
+        elements.cancelEditBtn.addEventListener('click', closeEditModal);
+        elements.editModal.addEventListener('click', e => {
+            if (e.target === elements.editModal) closeEditModal();
+        });
+        // Trigger preview updates
+        elements.workflowName.addEventListener('input', updatePreviewAndValidation);
+        elements.triggerSelect.addEventListener('change', updatePreviewAndValidation);
+        // Export (already has validation guard in HTML + disabled state)
+        elements.exportBtn.addEventListener('click', () => {
+            const yaml = getWorkflowYaml(workflowSteps, {
+                name: elements.workflowName.value.trim() || 'workflow',
+                trigger: elements.triggerSelect.value,
+            });
+
+            const filename = (elements.workflowName.value.trim() || 'workflow')
+                .replace(/\.ya?ml$/i, '') + '.yml';
+            const blob = new Blob([yaml], { type: 'text/yaml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+        elements.copyBtn.addEventListener('click', () => {
+            const text = elements.yamlPreview.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                elements.copyBtn.innerHTML = '<i class="ri-check-line"></i>';
+                setTimeout(() => {
+                    elements.copyBtn.innerHTML = '<i class="ri-file-copy-line"></i>';
+                }, 1800);
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeDraggableSteps();
+        setupCanvasDropZone();
+        initEventListeners();
+        // First render
+        renderSteps();
+        updatePreviewAndValidation();
     });
 
-    copyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(yamlPreview.textContent);
-        copyBtn.innerHTML = '<i class="ri-check-line"></i>';
-        setTimeout(() => {
-            copyBtn.innerHTML = '<i class="ri-file-copy-line"></i>';
-        }, 2000);
-    });
-
-    workflowNameInput.addEventListener('change', debouncedYamlUpdate);
-    triggerSelect.addEventListener('change', debouncedYamlUpdate);
-});
+    export function refreshWorkflowUI() {
+        renderSteps();
+        updatePreviewAndValidation();
+    }
