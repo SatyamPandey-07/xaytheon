@@ -93,15 +93,17 @@
   background: var(--bg-primary);
   padding: var(--space-3xl) 0;
 }
-
 .github-container {
   max-width: 1400px;
   margin: 0 auto;
-    padding: var(--space-3xl) var(--space-lg);
-#github.github-section {
-    margin-top: var(--space-5xl);
-    padding: var(--space-4xl) 0;
+  padding: var(--space-3xl) var(--space-lg);
 }
+
+#github.github-section {
+  margin-top: var(--space-5xl);
+  padding: var(--space-4xl) 0;
+}
+
 
 /* ===================================
    HERO SECTION
@@ -111,6 +113,7 @@
     margin-bottom: var(--space-4xl);
     margin-top: var(--space-3xl);
     padding: var(--space-3xl) 0;
+}
 .hero-title {
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
@@ -276,7 +279,7 @@
     padding: var(--space-3xl) 0;
     border-top: 2px solid var(--border-primary);
     padding-top: var(--space-4xl);
-
+}
 .section-header {
   margin-bottom: var(--space-xl);
 }
@@ -957,6 +960,7 @@
   padding: var(--space-xl);
     margin-bottom: var(--space-4xl);
     margin-top: var(--space-3xl);
+}
 .contribution-heatmap-card .heatmap-header {
   display: flex;
   justify-content: space-between;
