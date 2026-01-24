@@ -612,7 +612,27 @@ main {
   margin-bottom: 15px;
   opacity: 0.8;
   letter-spacing: 1px;
+  /* color: #f0ebeb; */
+  font-family: monospace;
+  overflow: hidden; 
+  border-right: .15em solid rgb(227, 222, 213); 
+  white-space: nowrap;  
+  width: 0; /* Start hidden */
+  animation: 
+    typing 3.5s steps(30, end) forwards,
+    blink-caret .75s step-end infinite;
 }
+
+@keyframes typing {
+  from { width:0 }
+  to { width:100% } /* Animates to the full width of the text */
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: rgb(56, 46, 26); }
+}
+
 
 .title-main {
   display: block;
@@ -1416,6 +1436,11 @@ body.dark #scrollTopBtn:hover {
   padding: 0 0 5px 0;
 }
 
+[data-theme="dark"] .github-status {
+  color: #e5e7eb !important;
+}
+
+
 /* ===================================
    FOOTER STYLES - BLACK THEME
    =================================== */
@@ -1967,3 +1992,4 @@ body.dark #scrollTopBtn:hover {
     font-size: 12px;
   }
 }
+
