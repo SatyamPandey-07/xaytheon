@@ -58,6 +58,9 @@
   <script defer src="auth.js"></script>
   <script defer src="i18n.js"></script>
   <script>
+    const them = localStorage.getItem("theme")
+    if (them) {
+      document.documentElement.setAttribute("data-theme", them)
     const theme = localStorage.getItem("theme")
     if (theme) {
       document.documentElement.setAttribute("data-theme", theme)

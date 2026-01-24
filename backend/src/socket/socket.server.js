@@ -39,48 +39,67 @@ function initializeSocket(server) {
         }
         userSockets.get(socket.userId).add(socket.id);
 
-        // Join watchlist room
-        socket.on("join_watchlist", (watchlistId) => {
-            socket.join(`watchlist:${watchlistId}`);
+        // Join collaboration room (e.g., specific watchlist or page)
+        socket.on("join_collab", ({ roomId, userMetadata }) => {
+            socket.join(`collab:${roomId}`);
+            socket.userMetadata = userMetadata || { name: `User ${socket.userId.slice(-4)}` };
 
-            if (!watchlistRooms.has(watchlistId)) {
-                watchlistRooms.set(watchlistId, new Set());
+            if (!watchlistRooms.has(roomId)) {
+                watchlistRooms.set(roomId, new Set());
             }
-            watchlistRooms.get(watchlistId).add(socket.userId);
+            watchlistRooms.get(roomId).add(socket.userId);
 
-            // Broadcast user joined
-            socket.to(`watchlist:${watchlistId}`).emit("user_joined", {
+            // Broadcast join with metadata
+            socket.to(`collab:${roomId}`).emit("user_joined_collab", {
                 userId: socket.userId,
-                watchlistId,
+                metadata: socket.userMetadata
             });
 
-            // Send current viewers
-            const viewers = Array.from(watchlistRooms.get(watchlistId) || []);
-            socket.emit("presence_update", { watchlistId, viewers });
+            // Send current presence list to the new user
+            const viewers = Array.from(watchlistRooms.get(roomId)).map(id => ({
+                userId: id,
+                // In a real app, you'd fetch metadata from a service/DB
+                metadata: { name: `User ${id.slice(-4)}` }
+            }));
+            socket.emit("presence_update", { roomId, viewers });
         });
 
-        // Leave watchlist room
-        socket.on("leave_watchlist", (watchlistId) => {
-            socket.leave(`watchlist:${watchlistId}`);
-
-            if (watchlistRooms.has(watchlistId)) {
-                watchlistRooms.get(watchlistId).delete(socket.userId);
-            }
-
-            socket.to(`watchlist:${watchlistId}`).emit("user_left", {
+        // Live Cursor Tracking
+        socket.on("cursor_move", ({ roomId, x, y }) => {
+            socket.to(`collab:${roomId}`).emit("cursor_update", {
                 userId: socket.userId,
-                watchlistId,
+                x,
+                y,
+                metadata: socket.userMetadata
             });
         });
 
-        // Analytics rooms
-        socket.on("join_analytics", () => {
-            socket.join("analytics_watchers");
-            // console.log(`User ${socket.userId} joined analytics watchers`);
+        // Typing Indicators
+        socket.on("typing_status", ({ roomId, isTyping }) => {
+            socket.to(`collab:${roomId}`).emit("user_typing", {
+                userId: socket.userId,
+                isTyping,
+                metadata: socket.userMetadata
+            });
         });
 
-        socket.on("leave_analytics", () => {
-            socket.leave("analytics_watchers");
+        // Real-time Edits (Conflict Resolution Placeholder)
+        socket.on("edit_content", ({ roomId, change, version }) => {
+            // In a real app, apply OT/CRDT logic here via collabService
+            socket.to(`collab:${roomId}`).emit("content_synced", {
+                userId: socket.userId,
+                change,
+                version
+            });
+        });
+
+        // Leave collaboration
+        socket.on("leave_collab", (roomId) => {
+            socket.leave(`collab:${roomId}`);
+            if (watchlistRooms.has(roomId)) {
+                watchlistRooms.get(roomId).delete(socket.userId);
+            }
+            socket.to(`collab:${roomId}`).emit("user_left_collab", { userId: socket.userId });
         });
 
         // Handle disconnect
@@ -94,14 +113,11 @@ function initializeSocket(server) {
                 }
             }
 
-            // Remove from all watchlist rooms
-            watchlistRooms.forEach((viewers, watchlistId) => {
+            // Remove from all collaborative rooms
+            watchlistRooms.forEach((viewers, roomId) => {
                 if (viewers.has(socket.userId)) {
                     viewers.delete(socket.userId);
-                    io.to(`watchlist:${watchlistId}`).emit("user_left", {
-                        userId: socket.userId,
-                        watchlistId,
-                    });
+                    io.to(`collab:${roomId}`).emit("user_left_collab", { userId: socket.userId });
                 }
             });
         });
