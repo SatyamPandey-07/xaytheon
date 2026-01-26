@@ -1,6 +1,7 @@
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 const { startRealTimeSimulation } = require("../services/analytics.socket.service");
+const globeController = require("../controllers/globe.controller");
 
 let io;
 const userSockets = new Map(); // userId -> Set of socket IDs
@@ -124,6 +125,9 @@ function initializeSocket(server) {
     });
 
     console.log("🔌 WebSocket server initialized");
+
+    // Initialize globe services with Socket.IO
+    globeController.initializeServices(io);
 
     // Start analytics simulation
     startRealTimeSimulation(io);

@@ -17,246 +17,145 @@
 
 <body class="eightgon-page">
     <div class="page-wrapper">
-    <nav class="navbar">
-        <div class="nav-container">
-            <a class="logo" href="index.html">
-                <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo">
-            </a>
-            <ul class="nav-menu">
-                <li><a class="nav-link" href="index.html#home">Home</a></li>
-                <li><a class="nav-link" href="github.html">Dashboard</a></li>
-                <li><a class="nav-link" href="risk-detector.html">Risk Detector</a></li>
-                <li><a class="nav-link" href="ai-chat.html">AI Assistant</a></li>
-                <li><a class="nav-link active" href="workflow-builder.html">Workflow Builder</a></li>
-                <li><a class="nav-link" href="compare.html">Compare</a></li>
-                <li><a class="nav-link" href="sentiment.html">Sentiment</a></li>
-                <li><a class="nav-link" href="heatmap.html">Heatmap</a></li>
-                <li id="theme-toggle-li">
-                    <button class="theme-toggle" id="theme-toggle">
-                        <i class="ri-sun-line"></i>
-                    </button>
-                </li>
-                <li id="auth-area"></li>
-            </ul>
-        </div>
-    </nav>
-
-    <main class="builder-container">
-        <header class="builder-header">
-            <div>
-                <h1 class="page-title">Actions Visual Builder</h1>
-                <p class="page-subtitle">Design your CI/CD pipelines without writing YAML</p>
-            </div>
-            <div class="header-actions">
-                <button type="button" id="export-yaml-btn" class="btn btn-outline" disabled>Export YAML</button>
-                <button id="save-workflow-btn" class="btn btn-primary">
-                    <i class="ri-save-line"></i> Save Template
-                </button>
-            </div>
-        </header>
-
-
-    <div class="builder-layout">
-        <!-- Sidebar: Step Library -->
-        <aside class="step-library" aria-label="Step Library">
-            <h3>Step Library</h3>
-
-            <div class="library-search">
-                <label for="step-search-input" class="sr-only">
-                    Search available workflow steps
-                </label>
-                <input
-                    id="step-search-input"
-                    type="search"
-                    placeholder="Search steps..."
-                    aria-label="Search steps by name or type"
-                >
-            </div>
-
-            <div class="steps-list">
-                <div class="step-category">
-                    <h4>Standard</h4>
-
-                    <div
-                        class="draggable-step"
-                        draggable="true"
-                        role="button"
-                        tabindex="0"
-                        aria-grabbed="false"
-                        title="Checkout repository code"
-                        data-type="uses"
-                        data-uses="actions/checkout@v4"
-                        data-name="Checkout Code"
-                    >
-                        <i class="ri-git-branch-line" aria-hidden="true"></i>
-                        Checkout Code
-                    </div>
-
-                    <div
-                        class="draggable-step"
-                        draggable="true"
-                        role="button"
-                        tabindex="0"
-                        aria-grabbed="false"
-                        title="Run a custom shell command"
-                        data-type="run"
-                        data-name="Run Shell Script"
-                    >
-                        <i class="ri-terminal-box-line" aria-hidden="true"></i>
-                        Shell Command
-                    </div>
+        <div id="header-placeholder"></div>
+        <main class="builder-container">
+            <header class="builder-header">
+                <div>
+                    <h1 class="page-title">Actions Visual Builder</h1>
+                    <p class="page-subtitle">Design your CI/CD pipelines without writing YAML</p>
                 </div>
-
-                <div class="step-category">
-                    <h4>Build & Test</h4>
-
-                    <div
-                        class="draggable-step"
-                        draggable="true"
-                        role="button"
-                        tabindex="0"
-                        aria-grabbed="false"
-                        title="Setup Node.js environment"
-                        data-type="uses"
-                        data-uses="actions/setup-node@v4"
-                        data-name="Setup Node.js"
-                    >
-                        <i class="ri-nodejs-line" aria-hidden="true"></i>
-                        Setup Node.js
-                    </div>
-
-                    <div
-                        class="draggable-step"
-                        draggable="true"
-                        role="button"
-                        tabindex="0"
-                        aria-grabbed="false"
-                        title="Setup Python environment"
-                        data-type="uses"
-                        data-uses="actions/setup-python@v5"
-                        data-name="Setup Python"
-                    >
-                        <i class="ri-python-line" aria-hidden="true"></i>
-                        Setup Python
-                    </div>
-
-                    <div
-                        class="draggable-step"
-                        draggable="true"
-                        role="button"
-                        tabindex="0"
-                        aria-grabbed="false"
-                        title="Install dependencies"
-                        data-type="run"
-                        data-name="Install Deps"
-                        data-run="npm ci"
-                    >
-                        <i class="ri-install-line" aria-hidden="true"></i>
-                        Install Deps
-                    </div>
-
-                    <div
-                        class="draggable-step"
-                        draggable="true"
-                        role="button"
-                        tabindex="0"
-                        aria-grabbed="false"
-                        title="Run test suite"
-                        data-type="run"
-                        data-name="Run Tests"
-                        data-run="npm test"
-                    >
-                        <i class="ri-test-tube-line" aria-hidden="true"></i>
-                        Run Tests
-                    </div>
-                </div>
-
-                <div class="step-category">
-                    <h4>Deployment</h4>
-
-                    <div
-                        class="draggable-step"
-                        draggable="true"
-                        role="button"
-                        tabindex="0"
-                        aria-grabbed="false"
-                        title="Deploy to GitHub Pages"
-                        data-type="uses"
-                        data-uses="JamesIves/github-pages-deploy-action@v4"
-                        data-name="GitHub Pages"
-                    >
-                        <i class="ri-pages-line" aria-hidden="true"></i>
-                        GH Pages
-                    </div>
-
-                    <div
-                        class="draggable-step"
-                        draggable="true"
-                        role="button"
-                        tabindex="0"
-                        aria-grabbed="false"
-                        title="Deploy to Vercel"
-                        data-type="uses"
-                        data-uses="vercel/gh-actions@v0.1.0"
-                        data-name="Vercel Deploy"
-                    >
-                        <i class="ri-cloud-line" aria-hidden="true"></i>
-                        Vercel
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Canvas -->
-            <section class="canvas-area">
-                <div class="canvas-toolbar">
-                    <div class="workflow-meta">
-                        <input 
-                            type="text" 
-                            id="workflow-name" 
-                            value="ci.yml" 
-                            placeholder="e.g. ci.yml, release.yml, deploy.yaml" 
-                            pattern="^[a-zA-Z0-9._-]+\.ya?ml$" 
-                            required 
-                            title="Must end with .yml or .yaml. Allowed: letters, numbers, dots, dashes, underscores."
-                        >
-                        <select id="trigger-select">
-                            <option value="push">Trigger: on Push</option>
-                            <option value="pull_request">Trigger: on Pull Request</option>
-                            <option value="schedule">Trigger: Schedule</option>
-                        </select>
-                    </div>
-                    <div id="validation-pill" class="pill status-pill checking" aria-live="polite">
-                        Checking...
-                    </div>
-                </div>
-
-                <div id="workflow-canvas" class="workflow-canvas">
-                    <div class="canvas-placeholder" id="canvas-placeholder">
-                        <i class="ri-drag-drop-line"></i>
-                        <p>Drag steps here to start building your workflow</p>
-                    </div>
-                <!-- Step blocks injected here -->
-                </div>
-            </section>
-
-        <!-- Sidebar: Live YAMl Preview -->
-            <aside class="code-preview-area">
-                <div class="preview-header">
-                    <h3>YAML Preview</h3>
-                    <button id="copy-yaml" class="icon-btn" title="Copy to clipboard" disabled>
-                        <i class="ri-file-copy-line"></i>
+                <div class="header-actions">
+                    <button type="button" id="export-yaml-btn" class="btn btn-outline" disabled>Export YAML</button>
+                    <button id="save-workflow-btn" class="btn btn-primary">
+                        <i class="ri-save-line"></i> Save Template
                     </button>
                 </div>
-                <pre id="yaml-preview"><code># Your workflow YAML will appear here...</code></pre>
-            </aside>
-        </div>
-    </main>
+            </header>
 
-    <footer class="footer">
-        <!-- ... footer content remains the same as original ... -->
-    </footer>
-</div>
+
+            <div class="builder-layout">
+                <!-- Sidebar: Step Library -->
+                <aside class="step-library" aria-label="Step Library">
+                    <h3>Step Library</h3>
+
+                    <div class="library-search">
+                        <label for="step-search-input" class="sr-only">
+                            Search available workflow steps
+                        </label>
+                        <input id="step-search-input" type="search" placeholder="Search steps..."
+                            aria-label="Search steps by name or type">
+                    </div>
+
+                    <div class="steps-list">
+                        <div class="step-category">
+                            <h4>Standard</h4>
+
+                            <div class="draggable-step" draggable="true" role="button" tabindex="0" aria-grabbed="false"
+                                title="Checkout repository code" data-type="uses" data-uses="actions/checkout@v4"
+                                data-name="Checkout Code">
+                                <i class="ri-git-branch-line" aria-hidden="true"></i>
+                                Checkout Code
+                            </div>
+
+                            <div class="draggable-step" draggable="true" role="button" tabindex="0" aria-grabbed="false"
+                                title="Run a custom shell command" data-type="run" data-name="Run Shell Script">
+                                <i class="ri-terminal-box-line" aria-hidden="true"></i>
+                                Shell Command
+                            </div>
+                        </div>
+
+                        <div class="step-category">
+                            <h4>Build & Test</h4>
+
+                            <div class="draggable-step" draggable="true" role="button" tabindex="0" aria-grabbed="false"
+                                title="Setup Node.js environment" data-type="uses" data-uses="actions/setup-node@v4"
+                                data-name="Setup Node.js">
+                                <i class="ri-nodejs-line" aria-hidden="true"></i>
+                                Setup Node.js
+                            </div>
+
+                            <div class="draggable-step" draggable="true" role="button" tabindex="0" aria-grabbed="false"
+                                title="Setup Python environment" data-type="uses" data-uses="actions/setup-python@v5"
+                                data-name="Setup Python">
+                                <i class="ri-python-line" aria-hidden="true"></i>
+                                Setup Python
+                            </div>
+
+                            <div class="draggable-step" draggable="true" role="button" tabindex="0" aria-grabbed="false"
+                                title="Install dependencies" data-type="run" data-name="Install Deps" data-run="npm ci">
+                                <i class="ri-install-line" aria-hidden="true"></i>
+                                Install Deps
+                            </div>
+
+                            <div class="draggable-step" draggable="true" role="button" tabindex="0" aria-grabbed="false"
+                                title="Run test suite" data-type="run" data-name="Run Tests" data-run="npm test">
+                                <i class="ri-test-tube-line" aria-hidden="true"></i>
+                                Run Tests
+                            </div>
+                        </div>
+
+                        <div class="step-category">
+                            <h4>Deployment</h4>
+
+                            <div class="draggable-step" draggable="true" role="button" tabindex="0" aria-grabbed="false"
+                                title="Deploy to GitHub Pages" data-type="uses"
+                                data-uses="JamesIves/github-pages-deploy-action@v4" data-name="GitHub Pages">
+                                <i class="ri-pages-line" aria-hidden="true"></i>
+                                GH Pages
+                            </div>
+
+                            <div class="draggable-step" draggable="true" role="button" tabindex="0" aria-grabbed="false"
+                                title="Deploy to Vercel" data-type="uses" data-uses="vercel/gh-actions@v0.1.0"
+                                data-name="Vercel Deploy">
+                                <i class="ri-cloud-line" aria-hidden="true"></i>
+                                Vercel
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Canvas -->
+                <section class="canvas-area">
+                    <div class="canvas-toolbar">
+                        <div class="workflow-meta">
+                            <input type="text" id="workflow-name" value="ci.yml"
+                                placeholder="e.g. ci.yml, release.yml, deploy.yaml" pattern="^[a-zA-Z0-9._-]+\.ya?ml$"
+                                required
+                                title="Must end with .yml or .yaml. Allowed: letters, numbers, dots, dashes, underscores.">
+                            <select id="trigger-select">
+                                <option value="push">Trigger: on Push</option>
+                                <option value="pull_request">Trigger: on Pull Request</option>
+                                <option value="schedule">Trigger: Schedule</option>
+                            </select>
+                        </div>
+                        <div id="validation-pill" class="pill status-pill checking" aria-live="polite">
+                            Checking...
+                        </div>
+                    </div>
+
+                    <div id="workflow-canvas" class="workflow-canvas">
+                        <div class="canvas-placeholder" id="canvas-placeholder">
+                            <i class="ri-drag-drop-line"></i>
+                            <p>Drag steps here to start building your workflow</p>
+                        </div>
+                        <!-- Step blocks injected here -->
+                    </div>
+                </section>
+
+                <!-- Sidebar: Live YAMl Preview -->
+                <aside class="code-preview-area">
+                    <div class="preview-header">
+                        <h3>YAML Preview</h3>
+                        <button id="copy-yaml" class="icon-btn" title="Copy to clipboard" disabled>
+                            <i class="ri-file-copy-line"></i>
+                        </button>
+                    </div>
+                    <pre id="yaml-preview"><code># Your workflow YAML will appear here...</code></pre>
+                </aside>
+            </div>
+        </main>
+
+    </div>
 
     <!-- Edit Step Modal -->
     <div id="edit-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
@@ -280,8 +179,11 @@
             </div>
         </div>
     </div>
+    <div id="footer-placeholder"></div>
 
-<script type="module" src="./app.js"></script>  
+    <script type="module" src="./app.js"></script>
+    <script src="boilerplate/boilerplate-loader.js"></script>
 
 </body>
+
 </html>
