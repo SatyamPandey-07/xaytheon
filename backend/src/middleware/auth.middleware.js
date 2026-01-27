@@ -31,7 +31,7 @@ exports.verifyAccessToken = async (req, res, next) => {
     }
 
     // FETCH USER TO GET ROLE (REQUIRED FOR RBAC)
-    const user = await User.findById(decoded.id).select("role");
+    const user = await User.findById(decoded.id);
 
     if (!user) {
       return res.status(401).json({ message: "User not found" });
@@ -39,12 +39,12 @@ exports.verifyAccessToken = async (req, res, next) => {
 
     //THIS IS WHAT RBAC NEEDS
     req.user = {
-      id: user._id,
-      role: user.role
+      id: user.id,
+      role: user.role || 'user' // Default to user if column missing
     };
 
     req.userId = decoded.id;
-    req.user = decoded; // Added for common compatibility
+    // req.user = decoded; // Avoid overwriting req.user
     next();
   } catch (err) {
     if (err.name === "TokenExpiredError") {

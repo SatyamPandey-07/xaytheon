@@ -1,17 +1,9 @@
-/**
- * Boilerplate Loader
- * Dynamically loads header and footer components into pages
- * Uses XMLHttpRequest for compatibility with file:// protocol
- */
 
 (function () {
     'use strict';
 
-    /**
-     * Load HTML content from a file and inject it into a target element
-     * Using XMLHttpRequest instead of fetch for file:// protocol support
-     */
-    function loadComponent(url, targetId) {
+   
+    function loadComponent(url, targetId, callback) {
         const xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
 
@@ -20,6 +12,12 @@
                 const target = document.getElementById(targetId);
                 if (target) {
                     target.innerHTML = xhr.responseText;
+                    
+                    // Call callback after content is loaded
+                    if (callback && typeof callback === 'function') {
+                        // Small delay to ensure DOM is updated
+                        setTimeout(callback, 50);
+                    }
                 } else {
                     console.warn(`Target element #${targetId} not found`);
                 }
@@ -35,12 +33,15 @@
         xhr.send();
     }
 
-    /**
-     * Initialize boilerplate components when DOM is ready
-     */
+  
     function initBoilerplate() {
-        // Load header
-        loadComponent('boilerplate/header.html', 'header-placeholder');
+        // Load header and re-initialize theme toggles after it loads
+        loadComponent('boilerplate/header.html', 'header-placeholder', function() {
+            // Re-setup theme toggles after header is loaded
+            if (typeof window.setupThemeToggles === 'function') {
+                window.setupThemeToggles();
+            }
+        });
 
         // Load footer
         loadComponent('boilerplate/footer.html', 'footer-placeholder');

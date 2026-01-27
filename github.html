@@ -1,118 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#000000">
-  <title>GitHub Dashboard — XAYTHEON</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-    rel="stylesheet">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="github.css">
-
-  <!-- External Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
   <title>GitHub Dashboard — XAYTHEON</title>
-
-  <!-- Supabase SDK & auth bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
-  <script defer src="auth.js"></script>
-  <script>
-    const theme = localStorage.getItem("xaytheon-theme")
-    if (theme === 'dark') {
-      document.documentElement.classList.add("dark-theme")
-    }
-  </script>
-  <!--Styling -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Press+Start+2P&display=swap"
+    rel="stylesheet"
+  />
   <link rel="stylesheet" href="style.css" />
-
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#6366f1" />
-  <title>GitHub Dashboard — XAYTHEON</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
-
-  <!-- Supabase SDK & auth bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
-  <script defer src="auth.js"></script>
-  <script defer src="i18n.js"></script>
+  <link rel="stylesheet" href="github.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
   <script>
-    const theme = localStorage.getItem("theme")
-    if (theme) {
-      document.documentElement.setAttribute("data-theme", theme)
-    }
+
   </script>
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"
+  ></script>
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css" />
-  <script src="theme.js"></script>
+  <script
+    defer
+    src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"
+  ></script>
 
-
+  <!-- Three.js (Mini Viewer / 3D Stuff) -->
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"
+  ></script>
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"
+  ></script>
 </head>
 
 <body class="eightgon-page">
   <div class="page-wrapper">
 
-
     <div id="header-placeholder"></div>
+
     <main class="github-main">
       <div class="github-container">
-        <div class="hero-section">
-          <h1 class="hero-title">Personal GitHub Analytics </h1>
-          <p class="hero-subtitle">Comprehensive insights into your GitHub presence and activity patterns</p>
-        </div>
-        <div class="search-card">
-          <form id="github-form" class="search-form">
+
+        <!-- HERO -->
+        <section class="hero-section">
+          <h1 class="hero-title">Personal GitHub Analytics</h1>
+          <p class="hero-subtitle">
+            Comprehensive insights into your GitHub presence and activity patterns
+          </p>
+        </section>
+
+        <!-- SEARCH -->
+        <section class="search-card">
+          <form id="github-form" class="search-form" autocomplete="off">
             <div class="search-wrapper">
-              <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
+              <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
               </svg>
-              <input type="text" id="gh-username" class="search-input"
-                placeholder="Enter GitHub username (e.g., octocat)" autocomplete="off" />
+              <input
+                type="text"
+                id="gh-username"
+                class="search-input"
+                placeholder="Enter GitHub username (e.g., octocat)"
+              />
             </div>
+
             <div class="search-actions">
               <button type="submit" class="btn-search">
                 <span>Analyze Profile</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
+                <svg width="16" height="16" viewBox="0 0 24 24">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
               </button>
-              <button type="button" id="clear-btn" class="btn-clear">Clear</button>
+
+              <button type="button" id="clear-btn" class="btn-clear">
+                Clear
+              </button>
             </div>
           </form>
+
           <div id="status-message" class="status-message"></div>
-        </div>
+        </section>
 
-        <!-- Dashboard Grid -->
         <div id="dashboard" class="dashboard-hidden">
-
-          <!-- Section 1: Profile Overview -->
           <section class="dashboard-section">
             <div class="section-header">
               <h2 class="section-title">Profile Overview</h2>
@@ -399,26 +381,100 @@
               </div>
             </div>
           </section>
+
+              <!-- Average Per Day -->
+              <div class="activity-stat-card">
+                <div class="activity-icon avg">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18" />
+                    <path d="m19 9-5 5-4-4-3 3" />
+                  </svg>
+                </div>
+                <div class="activity-value" id="avg-daily">0.0</div>
+                <div class="activity-label">Avg Per Day</div>
+              </div>
+            </div>
+            <!-- Contribution Heatmap -->
+
+            <div class="contribution-heatmap-card">
+              <div class="heatmap-header">
+                <h4 class="card-title">Contribution Activity</h4>
+                <div class="heatmap-legend">
+                  <span class="legend-label">Less</span>
+                  <div class="legend-box level-0"></div>
+                  <div class="legend-box level-1"></div>
+                  <div class="legend-box level-2"></div>
+                  <div class="legend-box level-3"></div>
+                  <div class="legend-box level-4"></div>
+                  <span class="legend-label">More</span>
+                </div>
+              </div>
+
+              <div class="heatmap-container">
+                <div class="heatmap-wrapper">
+                  <!-- Weekday Labels -->
+                  <div class="weekday-labels">
+                    <div class="weekday-label">Mon</div>
+                    <div class="weekday-label"></div>
+                    <div class="weekday-label">Wed</div>
+                    <div class="weekday-label"></div>
+                    <div class="weekday-label">Fri</div>
+                    <div class="weekday-label"></div>
+                    <div class="weekday-label"></div>
+                  </div>
+
+                  <!-- Month Labels -->
+                  <div id="month-labels" class="month-labels"></div>
+
+    <!-- Scripts -->
+    <script defer src="auth.js"></script>
+    <script defer src="i18n.js"></script>
+    <script src="theme.js"></script>
+    <script src="github.js"></script>
+    <script src="boilerplate/boilerplate-loader.js"></script>
+      </section>
+    </main>
+                  <!-- Grid Container -->
+                  <div class="grid-container">
+                    <div id="contribution-heatmap" class="contribution-grid"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="heatmap-tooltip" class="heatmap-tooltip"></div>
+            </div>
+
+            <!-- Activity Patterns -->
+
+            <div class="activity-patterns-card">
+              <h4 class="card-title">Activity Patterns</h4>
+              <div class="chart-container">
+                <canvas id="activity-chart" class="activity-chart"></canvas>
+              </div>
+            </div>
+          </section>
         </div>
+
       </div>
     </main>
   </div>
 
+  <!-- =====================================================
+  FOOTER
+  ====================================================== -->
   <div id="footer-placeholder"></div>
 
-  <!-- Scripts -->
+  <!-- =====================================================
+  APP SCRIPTS (ORDER MATTERS)
+  ====================================================== -->
+  <script defer src="boilerplate/boilerplate-loader.js"></script>
+
   <script defer src="auth.js"></script>
   <script defer src="i18n.js"></script>
   <script defer src="theme.js"></script>
-  <script src="github.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-  <!-- Contributions module -->
-  <script src="contributions.js"></script>
-  <!-- Three.js for mini viewer -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-  <!-- Auth & app scripts -->
-  <script src="boilerplate/boilerplate-loader.js"></script>
-</body>
 
+  <script defer src="github.js"></script>
+  <script defer src="contributions.js"></script>
+</body>
 </html>

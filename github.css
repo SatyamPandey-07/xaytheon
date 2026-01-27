@@ -93,15 +93,17 @@
   background: var(--bg-primary);
   padding: var(--space-3xl) 0;
 }
-
 .github-container {
   max-width: 1400px;
   margin: 0 auto;
-    padding: var(--space-3xl) var(--space-lg);
-#github.github-section {
-    margin-top: var(--space-5xl);
-    padding: var(--space-4xl) 0;
+  padding: var(--space-3xl) var(--space-lg);
 }
+
+#github.github-section {
+  margin-top: var(--space-5xl);
+  padding: var(--space-4xl) 0;
+}
+
 
 /* ===================================
    HERO SECTION
@@ -111,6 +113,7 @@
     margin-bottom: var(--space-4xl);
     margin-top: var(--space-3xl);
     padding: var(--space-3xl) 0;
+}
 .hero-title {
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
@@ -276,7 +279,7 @@
     padding: var(--space-3xl) 0;
     border-top: 2px solid var(--border-primary);
     padding-top: var(--space-4xl);
-
+}
 .section-header {
   margin-bottom: var(--space-xl);
 }
@@ -383,6 +386,9 @@
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent)
     border-box;
   -webkit-mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+  mask:
     linear-gradient(#fff 0 0) padding-box,
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -690,8 +696,11 @@
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
-    margin-bottom: var(--space-4xl);
-    margin-top: var(--space-3xl);
+  margin-bottom: var(--space-4xl);
+  margin-top: var(--space-3xl);
+}
+
+.language-breakdown-card h4 {
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: var(--space-lg);
@@ -821,8 +830,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-lg);
-    margin-bottom: var(--space-4xl);
-    margin-top: var(--space-3xl);
+  margin-bottom: var(--space-4xl);
+  margin-top: var(--space-3xl);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
@@ -936,8 +945,8 @@
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
   box-shadow: var(--shadow-md);
-    margin-top: var(--space-3xl);
-    margin-bottom: var(--space-5xl);
+  margin-top: var(--space-3xl);
+  margin-bottom: var(--space-5xl);
 }
 
 .activity-chart {
@@ -957,6 +966,7 @@
   padding: var(--space-xl);
     margin-bottom: var(--space-4xl);
     margin-top: var(--space-3xl);
+}
 .contribution-heatmap-card .heatmap-header {
   display: flex;
   justify-content: space-between;
@@ -1187,4 +1197,7 @@
 .repo-stat {
   font-family: inherit;
   letter-spacing: 0.01em;
+}
+}
+}  padding: var(--space-lg);
 }

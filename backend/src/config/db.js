@@ -17,6 +17,8 @@ db.run(`
     view_history TEXT DEFAULT '[]',
     password_reset_token TEXT,
     password_reset_expires DATETIME,
+    preferred_language TEXT DEFAULT 'en',
+    preferences TEXT DEFAULT '{}',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )

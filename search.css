@@ -45,6 +45,29 @@
     font-size: 1.4rem;
     color: var(--text-muted);
 }
+.search-input-group input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.search-input-group:focus-within input::placeholder {
+    opacity: 0.4;
+    transform: translateY(-2px);
+}
+
+.autocomplete-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+}
+
+.autocomplete-item .match {
+    font-weight: bold;
+    color: var(--accent-color);
+}
 
 .autocomplete-panel {
     position: absolute;
@@ -70,6 +93,44 @@
 .autocomplete-item:hover {
     background: rgba(99, 102, 241, 0.1);
     color: var(--accent-color);
+}
+
+.hint-btn:hover {
+    transform: scale(1.05);
+}
+
+.filter-chip {
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.filter-chip.removing {
+    opacity: 0;
+    transform: scale(0.8);
+}
+.repo-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+.repo-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-color);
+    box-shadow: 0 15px 40px rgba(99, 102, 241, 0.25);
+}
+.search-input-group {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1), inset 0 0 3px rgba(255, 255, 255, 0.05);
+}
+
+.lang-tag {
+    background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(99,102,241,0.05));
+}
+.autocomplete-panel {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .search-hints {
@@ -235,5 +296,16 @@
 @media (max-width: 900px) {
     .search-layout {
         grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 600px) {
+    .filter-group select,
+    .filter-group input {
+        padding: 12px;
+    }
+
+    .filter-chip {
+        font-size: 0.75rem;
+        padding: 4px 8px;
     }
 }

@@ -1,0 +1,10 @@
+node_modules/
+.env
+.DS_Store
+*.log
+TODO.md
+.idea/
+dist/
+build/
+*.db
+users.db

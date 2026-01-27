@@ -83,17 +83,47 @@ exports.getSnapshots = async (req, res) => {
 exports.getLatestSnapshot = async (req, res) => {
     try {
         const userId = req.userId;
+        const { githubUsername } = req.query;
+
         const snapshot = await analyticsModel.getLatestSnapshot(userId);
 
+        // Check if data is stale (older than 1 hour)
+        const STALE_THRESHOLD = 60 * 60 * 1000;
+        const isStale = !snapshot || ((new Date() - new Date(snapshot.snapshot_date + 'Z')) > STALE_THRESHOLD); // Append Z for UTC if needed, or assume local
+
+        const targetUsername = githubUsername || (snapshot ? snapshot.github_username : null);
+
+        if (isStale && targetUsername) {
+            console.log(`[Analytics] Data stale for ${targetUsername}, enqueueing job...`);
+            const { addAnalyticsJob } = require('../queue/analytics.queue');
+
+            try {
+                await addAnalyticsJob(userId, targetUsername);
+            } catch (err) {
+                console.error("Failed to enqueue job (Redis might be down):", err.message);
+                // Continue to return stale data if available
+            }
+        }
+
         if (!snapshot) {
+            if (targetUsername) {
+                return res.json({
+                    success: true,
+                    status: 'processing',
+                    message: 'Analytics calculation started in background.',
+                    snapshot: null
+                });
+            }
+
             return res.status(404).json({
                 success: false,
-                message: "No snapshots found",
+                message: "No snapshots found. Provide githubUsername to start tracking.",
             });
         }
 
         res.json({
             success: true,
+            status: isStale ? 'refreshing' : 'fresh',
             snapshot,
         });
     } catch (error) {

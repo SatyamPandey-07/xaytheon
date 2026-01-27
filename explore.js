@@ -230,6 +230,9 @@ import { calculateTrendScore } from "./trendScore.js";
         html_url: repo.html_url
       }).replace(/"/g, "&quot;");
 
+      const isFavorited = window.favoritesManager && window.favoritesManager.isFavorited(repo.id);
+      const starIcon = isFavorited ? '⭐' : '☆';
+
       tr.innerHTML = `
         <td>
           <a href="${repo.html_url}" target="_blank" rel="noopener" onclick='window.trackRepoView && window.trackRepoView(${safeRepo})'>
@@ -240,9 +243,43 @@ import { calculateTrendScore } from "./trendScore.js";
         <td>${repo.topics?.[0] || "—"}</td>
         <td>${repo.language || "—"}</td>
         <td align="right">${repo.stargazers_count}</td>
+        <td align="center">
+          <button class="favorite-btn" data-repo-id="${repo.id}" title="${isFavorited ? 'Remove from favorites' : 'Add to favorites'}" style="background:none;border:none;font-size:18px;cursor:pointer;">
+            ${starIcon}
+          </button>
+        </td>
       `;
 
       tbody.appendChild(tr);
+
+      // Add event listener for favorite button
+      const favBtn = tr.querySelector('.favorite-btn');
+      if (favBtn && window.favoritesManager) {
+        favBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const repoData = {
+            id: repo.id,
+            name: repo.name,
+            owner: repo.owner.login,
+            url: repo.html_url,
+            description: repo.description,
+            stars: repo.stargazers_count,
+            language: repo.language
+          };
+
+          if (window.favoritesManager.isFavorited(repo.id)) {
+            window.favoritesManager.removeFavorite(repo.id);
+            favBtn.textContent = '☆';
+            favBtn.title = 'Add to favorites';
+          } else {
+            window.favoritesManager.addFavorite(repoData);
+            favBtn.textContent = '⭐';
+            favBtn.title = 'Remove from favorites';
+          }
+        });
+      }
     });
   }
 

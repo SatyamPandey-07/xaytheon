@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Analytics - Xaytheon</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="predictive.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@3.0.0/index.min.js"></script>
+</head>
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="container predictive-dashboard">
+        <header class="dashboard-header">
+            <h1>📊 Predictive Analytics Dashboard</h1>
+            <p>Forecast milestones, track velocity, and detect burnout risk</p>
+        </header>
+
+        <!-- Repository Selection -->
+        <div class="card repo-selector">
+            <h2>🎯 Select Repository</h2>
+            <div class="form-group">
+                <input type="text" id="repo-owner" placeholder="Repository Owner (e.g., facebook)" required>
+                <input type="text" id="repo-name" placeholder="Repository Name (e.g., react)" required>
+                <button id="load-analytics" class="btn btn-primary">Load Analytics</button>
+            </div>
+        </div>
+
+        <!-- Project Health Overview -->
+        <div class="card project-health" id="project-health" style="display:none;">
+            <h2>🏥 Project Health</h2>
+            <div class="health-metrics">
+                <div class="metric-card">
+                    <div class="metric-icon">⚡</div>
+                    <div class="metric-content">
+                        <h3>Current Velocity</h3>
+                        <div class="metric-value" id="velocity-current">--</div>
+                        <div class="metric-trend" id="velocity-trend">--</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🎯</div>
+                    <div class="metric-content">
+                        <h3>Confidence Score</h3>
+                        <div class="metric-value" id="velocity-confidence">--</div>
+                        <div class="metric-subtitle">Data reliability</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🚧</div>
+                    <div class="metric-content">
+                        <h3>Active Bottlenecks</h3>
+                        <div class="metric-value" id="bottleneck-count">--</div>
+                        <div class="metric-subtitle" id="bottleneck-status">--</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🔥</div>
+                    <div class="metric-content">
+                        <h3>Burnout Risk</h3>
+                        <div class="metric-value" id="burnout-risk">--</div>
+                        <div class="metric-subtitle">Team wellbeing</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Velocity Tracking -->
+        <div class="card velocity-section" id="velocity-section" style="display:none;">
+            <h2>📈 Team Velocity Tracking</h2>
+            <div class="chart-container">
+                <canvas id="velocity-chart"></canvas>
+            </div>
+            <div class="velocity-insights" id="velocity-insights">
+                <h3>AI Insights</h3>
+                <ul id="velocity-insights-list"></ul>
+            </div>
+        </div>
+
+        <!-- Milestone Forecasting -->
+        <div class="card milestone-section" id="milestone-section" style="display:none;">
+            <h2>🎯 Milestone Forecasting</h2>
+            <div class="forecast-form">
+                <div class="form-group">
+                    <label for="milestone-name">Milestone Name</label>
+                    <input type="text" id="milestone-name" placeholder="e.g., v2.0 Release" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="remaining-issues">Remaining Issues</label>
+                        <input type="number" id="remaining-issues" placeholder="e.g., 25" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="remaining-points">Remaining Story Points (Optional)</label>
+                        <input type="number" id="remaining-points" placeholder="e.g., 150" min="0">
+                    </div>
+                </div>
+                <button id="forecast-btn" class="btn btn-primary">Forecast Completion</button>
+            </div>
+            <div class="forecast-result" id="forecast-result" style="display:none;">
+                <div class="gantt-chart">
+                    <h3>📅 Projected Timeline</h3>
+                    <canvas id="gantt-chart"></canvas>
+                </div>
+                <div class="forecast-details">
+                    <div class="forecast-card">
+                        <h4>Estimated Completion</h4>
+                        <div class="forecast-date" id="eta-date">--</div>
+                        <div class="forecast-range">
+                            <span id="eta-optimistic">--</span> to <span id="eta-pessimistic">--</span>
+                        </div>
+                    </div>
+                    <div class="forecast-card">
+                        <h4>Estimated Duration</h4>
+                        <div class="forecast-duration" id="eta-weeks">--</div>
+                    </div>
+                    <div class="forecast-card">
+                        <h4>Confidence Level</h4>
+                        <div class="forecast-confidence">
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="forecast-confidence-bar"></div>
+                            </div>
+                            <span id="forecast-confidence-text">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- What-If Simulator -->
+        <div class="card simulator-section" id="simulator-section" style="display:none;">
+            <h2>🔮 What-If Scenario Simulator</h2>
+            <div id="simulation-panel"></div>
+        </div>
+
+        <!-- Burnout Heatmap -->
+        <div class="card burnout-section" id="burnout-section" style="display:none;">
+            <h2>🔥 Developer Burnout Heatmap</h2>
+            <div class="heatmap-container" id="burnout-heatmap">
+                <p class="loading-message">Loading burnout analysis...</p>
+            </div>
+            <div class="burnout-legend">
+                <div class="legend-item">
+                    <span class="legend-color risk-high"></span>
+                    <span>High Risk</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color risk-medium"></span>
+                    <span>Medium Risk</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color risk-low"></span>
+                    <span>Low Risk</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sprint Burndown -->
+        <div class="card burndown-section" id="burndown-section" style="display:none;">
+            <h2>📉 Sprint Burndown Chart</h2>
+            <div class="burndown-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sprint-start">Sprint Start Date</label>
+                        <input type="date" id="sprint-start" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sprint-end">Sprint End Date</label>
+                        <input type="date" id="sprint-end" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="total-points">Total Story Points</label>
+                        <input type="number" id="total-points" placeholder="e.g., 100" min="1" required>
+                    </div>
+                </div>
+                <button id="burndown-btn" class="btn btn-primary">Generate Burndown</button>
+            </div>
+            <div class="burndown-result" id="burndown-result" style="display:none;">
+                <canvas id="burndown-chart"></canvas>
+                <div class="burndown-status" id="burndown-status"></div>
+            </div>
+        </div>
+
+        <!-- Bottleneck Analysis -->
+        <div class="card bottleneck-section" id="bottleneck-section" style="display:none;">
+            <h2>🚧 Workflow Bottleneck Analysis</h2>
+            <div class="bottleneck-grid" id="bottleneck-grid"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Xaytheon Predictive Analytics © 2024</p>
+    </footer>
+
+    <script src="i18n.js"></script>
+    <script src="theme.js"></script>
+    <script src="auth.js"></script>
+    <script src="SimulationPanel.js"></script>
+    <script src="predictive.js"></script>
+</body>
+</html>

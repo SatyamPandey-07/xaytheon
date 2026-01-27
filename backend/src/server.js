@@ -17,4 +17,7 @@ server.listen(PORT, () => {
 
   // Start mock service for demo
   mockGithubService.start();
+
+  // Start Analytics Queue Worker
+  require('./worker/analytics.worker');
 });
