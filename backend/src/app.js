@@ -24,8 +24,9 @@ const dependencyRoutes = require("./routes/dependency.routes");
 const aiRoutes = require("./routes/ai.routes");
 const riskRoutes = require("./routes/risk.routes");
 const analyzerRoutes = require("./routes/analyzer.routes");
-const releaseRoutes = require("./routes/release.routes");
 const predictiveRoutes = require("./routes/predictive.routes");
+const refactorRoutes = require("./routes/refactor.routes");
+const diffRoutes = require("./routes/diff.routes");
 
 const app = express();
 
@@ -152,7 +153,6 @@ app.use("/api/dependency", dependencyRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/risk", riskRoutes);
 app.use("/api/analyzer", analyzerRoutes);
-app.use("/api/release", releaseRoutes);
 app.use("/api/predictive", predictiveRoutes);
 app.use("/api/refactor", refactorRoutes);
 app.use("/api/diff", diffRoutes);
