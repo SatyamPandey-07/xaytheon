@@ -1,8 +1,10 @@
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 const { startRealTimeSimulation } = require("../services/analytics.socket.service");
+const WarRoomSocket = require("./war-room.socket");
 
 let io;
+let warRoomSocketHandler;
 const userSockets = new Map(); // userId -> Set of socket IDs
 const watchlistRooms = new Map(); // watchlistId -> Set of userIds
 
@@ -14,7 +16,10 @@ function initializeSocket(server) {
         },
     });
 
-    // Authentication middleware
+    // Initialize War-Room socket handler
+    warRoomSocketHandler = new WarRoomSocket(io);
+
+    // Authentication middleware for main namespace
     io.use((socket, next) => {
         const token = socket.handshake.auth.token;
         if (!token) {

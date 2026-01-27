@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps War-Room | Xaytheon</title>
+    <link rel="stylesheet" href="war-room.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <div id="war-room-container" class="war-room">
+        <!-- Header -->
+        <header class="war-room-header">
+            <div class="header-left">
+                <h1>⚔️ DevOps War-Room</h1>
+                <span class="status-badge" id="connection-status">CONNECTING...</span>
+            </div>
+            <div class="header-center">
+                <div class="stats-panel">
+                    <div class="stat">
+                        <span class="stat-value" id="events-count">0</span>
+                        <span class="stat-label">Events</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value critical" id="critical-count">0</span>
+                        <span class="stat-label">Critical</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="incidents-count">0</span>
+                        <span class="stat-label">Incidents</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="mttr-stat">0s</span>
+                        <span class="stat-label">Avg MTTR</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="users-online">
+                    <span id="users-count">0</span> Engineer(s) Online
+                </div>
+                <button id="emergency-btn" class="btn-emergency">🚨 EMERGENCY</button>
+            </div>
+        </header>
+
+        <!-- Main War-Room Layout -->
+        <div class="war-room-main">
+            <!-- Left Sidebar: Event Stream -->
+            <aside class="events-sidebar">
+                <div class="sidebar-header">
+                    <h3>📡 Live Event Stream</h3>
+                    <div class="stream-controls">
+                        <button id="pause-stream" class="btn-control">⏸ Pause</button>
+                        <button id="filter-critical" class="btn-control">🔴 Critical Only</button>
+                    </div>
+                </div>
+                <div id="event-stream" class="event-stream"></div>
+            </aside>
+
+            <!-- Center Stage: Pinned Incident -->
+            <main class="incident-stage">
+                <div id="no-incident" class="no-incident-state">
+                    <div class="empty-state">
+                        <h2>🎯 No Active Incident</h2>
+                        <p>Pin an event from the stream to analyze it here</p>
+                        <div class="simulate-controls">
+                            <button id="simulate-deploy-fail" class="btn-simulate">⚠️ Simulate Deployment Failure</button>
+                            <button id="simulate-prod-error" class="btn-simulate">🔥 Simulate Production Error</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pinned-incident" class="pinned-incident hidden">
+                    <div class="incident-header">
+                        <div class="incident-title-row">
+                            <h2 id="incident-title">Incident Title</h2>
+                            <button id="unpin-btn" class="btn-unpin">✖ Unpin</button>
+                        </div>
+                        <div class="incident-meta">
+                            <span class="incident-id" id="incident-id">INC-000</span>
+                            <span class="severity-badge" id="incident-severity">CRITICAL</span>
+                            <span class="status-badge" id="incident-status">OPEN</span>
+                            <span class="incident-time" id="incident-time">2 minutes ago</span>
+                        </div>
+                    </div>
+
+                    <div class="incident-body">
+                        <!-- AI Root Cause Analysis -->
+                        <div class="analysis-section">
+                            <h3>🤖 AI Root Cause Analysis</h3>
+                            <div id="ai-analysis" class="analysis-content">
+                                <div class="loading">Analyzing...</div>
+                            </div>
+                            <div class="confidence-meter">
+                                <span>Confidence:</span>
+                                <div class="meter">
+                                    <div id="confidence-bar" class="meter-fill" style="width: 0%"></div>
+                                </div>
+                                <span id="confidence-value">0%</span>
+                            </div>
+                        </div>
+
+                        <!-- Related PRs -->
+                        <div class="related-section">
+                            <h3>📝 Suspect Pull Requests</h3>
+                            <div id="related-prs" class="related-list"></div>
+                        </div>
+
+                        <!-- Related Developers -->
+                        <div class="related-section">
+                            <h3>👥 Related Developers</h3>
+                            <div id="related-devs" class="related-list"></div>
+                        </div>
+
+                        <!-- Suggested Actions -->
+                        <div class="actions-section">
+                            <h3>✅ Suggested Actions</h3>
+                            <ul id="suggested-actions" class="actions-list"></ul>
+                        </div>
+
+                        <!-- Timeline -->
+                        <div class="timeline-section">
+                            <h3>📋 Incident Timeline</h3>
+                            <div id="incident-timeline" class="timeline"></div>
+                        </div>
+
+                        <!-- Collaboration -->
+                        <div class=" collab-section">
+                            <h3>💬 Collaboration</h3>
+                            <div id="collab-feed" class="collab-feed"></div>
+                            <div class="comment-input">
+                                <textarea id="comment-text" placeholder="Add comment..."></textarea>
+                                <button id="add-comment-btn" class="btn-primary">Send</button>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="incident-actions">
+                            <button id="assign-btn" class="btn-action">👤 Assign</button>
+                            <button id="acknowledge-btn" class="btn-action">✓ Acknowledge</button>
+                            <button id="resolve-btn" class="btn-action btn-success">✅ Mark Resolved</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Right Sidebar: Incidents List -->
+            <aside class="incidents-sidebar">
+                <div class="sidebar-header">
+                    <h3>📊 All Incidents</h3>
+                    <select id="incident-filter" class="filter-select">
+                        <option value="all">All Status</option>
+                        <option value="open" selected>Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
+                <div id="incidents-list" class="incidents-list"></div>
+            </aside>
+        </div>
+
+        <!-- Audio Alert (hidden) -->
+        <audio id="alert-sound" preload="auto">
+            <!-- Will use Web Audio API for generated sounds -->
+        </audio>
+
+        <!-- Emergency Overlay -->
+        <div id="emergency-overlay" class="emergency-overlay hidden">
+            <div class="emergency-content">
+                <h1>🚨 EMERGENCY MODE ACTIVATED</h1>
+                <p>All critical incidents will be prioritized</p>
+                <button id="exit-emergency" class="btn-emergency-exit">Exit Emergency Mode</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="war-room.js"></script>
+</body>
+</html>
