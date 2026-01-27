@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code DNA Analyzer - Xaytheon</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="code-dna.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="container code-dna-dashboard">
+        <header class="dashboard-header">
+            <h1>🧬 Code DNA Duplication & Plagiarism Engine</h1>
+            <p>Structural analysis • AST fingerprinting • Cross-repo logic mapping</p>
+        </header>
+
+        <!-- Analysis Mode Selection -->
+        <div class="card mode-selector">
+            <h2>Select Analysis Mode</h2>
+            <div class="mode-buttons">
+                <button class="mode-btn active" data-mode="single">
+                    📁 Single Repository
+                </button>
+                <button class="mode-btn" data-mode="cross">
+                    🔄 Cross-Repository
+                </button>
+                <button class="mode-btn" data-mode="snippet">
+                    📝 Code Snippet
+                </button>
+            </div>
+        </div>
+
+        <!-- Single Repository Analysis -->
+        <div class="card analysis-section" id="single-repo-section">
+            <h2>📁 Single Repository Analysis</h2>
+            <div class="form-group">
+                <label for="repo-path">Repository Path</label>
+                <input type="text" id="repo-path" placeholder="e.g., /path/to/repository or C:\projects\myrepo" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="similarity-threshold">Similarity Threshold (%)</label>
+                    <input type="range" id="similarity-threshold" min="50" max="100" value="70" step="5">
+                    <span class="threshold-value">70%</span>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button id="analyze-repo-btn" class="btn btn-primary">
+                    🔍 Analyze Repository
+                </button>
+                <button id="extract-libs-btn" class="btn btn-secondary" disabled>
+                    📦 Suggest Library Extractions
+                </button>
+            </div>
+        </div>
+
+        <!-- Cross Repository Analysis -->
+        <div class="card analysis-section" id="cross-repo-section" style="display:none;">
+            <h2>🔄 Cross-Repository Analysis</h2>
+            <div class="repo-list-container">
+                <h3>Repositories to Analyze</h3>
+                <div id="repo-list"></div>
+                <button id="add-repo-btn" class="btn btn-secondary">+ Add Repository</button>
+            </div>
+            <div class="action-buttons">
+                <button id="index-repos-btn" class="btn btn-primary">
+                    📊 Index Repositories
+                </button>
+                <button id="find-duplicates-btn" class="btn btn-secondary" disabled>
+                    🔍 Find Duplicates
+                </button>
+            </div>
+        </div>
+
+        <!-- Code Snippet Comparison -->
+        <div class="card analysis-section" id="snippet-section" style="display:none;">
+            <h2>📝 Code Snippet Comparison</h2>
+            <div class="snippet-container">
+                <div class="snippet-editor">
+                    <label>Code Snippet 1</label>
+                    <textarea id="snippet1" rows="15" placeholder="Paste your first code snippet here..."></textarea>
+                </div>
+                <div class="snippet-editor">
+                    <label>Code Snippet 2</label>
+                    <textarea id="snippet2" rows="15" placeholder="Paste your second code snippet here..."></textarea>
+                </div>
+            </div>
+            <button id="compare-snippets-btn" class="btn btn-primary">
+                ⚖️ Compare Snippets
+            </button>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="card stats-section" id="stats-section" style="display:none;">
+            <h2>📊 Analysis Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📄</div>
+                    <div class="stat-content">
+                        <h3>Files Analyzed</h3>
+                        <div class="stat-value" id="stat-files">0</div>
+                    </div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-icon">🔴</div>
+                    <div class="stat-content">
+                        <h3>Exact Duplicates</h3>
+                        <div class="stat-value" id="stat-duplicates">0</div>
+                    </div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-icon">🟡</div>
+                    <div class="stat-content">
+                        <h3>Similar Code</h3>
+                        <div class="stat-value" id="stat-similar">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💾</div>
+                    <div class="stat-content">
+                        <h3>Potential Savings</h3>
+                        <div class="stat-value" id="stat-savings">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Similarity Map Visualization -->
+        <div class="card viz-section" id="viz-section" style="display:none;">
+            <h2>🗺️ Code Similarity Map</h2>
+            <div class="viz-controls">
+                <button class="viz-btn active" data-filter="all">Show All</button>
+                <button class="viz-btn" data-filter="duplicate">Exact Duplicates</button>
+                <button class="viz-btn" data-filter="similar">Similar Code</button>
+                <button class="viz-btn" id="reset-viz">Reset View</button>
+            </div>
+            <div id="similarity-graph"></div>
+            <div class="graph-legend">
+                <div class="legend-item">
+                    <span class="legend-circle exact"></span>
+                    <span>Exact Duplicate (≥95%)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-circle near"></span>
+                    <span>Near Duplicate (85-94%)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-circle similar"></span>
+                    <span>Similar (70-84%)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Duplicate List -->
+        <div class="card duplicates-section" id="duplicates-section" style="display:none;">
+            <h2>🔍 Detected Duplicates</h2>
+            <div class="duplicate-filters">
+                <button class="filter-btn active" data-type="all">All</button>
+                <button class="filter-btn" data-type="exact-duplicate">Exact</button>
+                <button class="filter-btn" data-type="near-duplicate">Near</button>
+                <button class="filter-btn" data-type="similar">Similar</button>
+            </div>
+            <div id="duplicates-list"></div>
+        </div>
+
+        <!-- Library Extraction Suggestions -->
+        <div class="card extraction-section" id="extraction-section" style="display:none;">
+            <h2>📦 Library Extraction Suggestions</h2>
+            <div class="extraction-summary" id="extraction-summary"></div>
+            <div id="extraction-list"></div>
+        </div>
+
+        <!-- Comparison Result -->
+        <div class="card comparison-section" id="comparison-section" style="display:none;">
+            <h2>⚖️ Comparison Result</h2>
+            <div id="comparison-result"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Xaytheon Code DNA Analyzer © 2026</p>
+    </footer>
+
+    <script src="i18n.js"></script>
+    <script src="theme.js"></script>
+    <script src="auth.js"></script>
+    <script src="code-dna.js"></script>
+</body>
+</html>
