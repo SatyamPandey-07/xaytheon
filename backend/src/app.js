@@ -27,6 +27,10 @@ const analyzerRoutes = require("./routes/analyzer.routes");
 const predictiveRoutes = require("./routes/predictive.routes");
 const refactorRoutes = require("./routes/refactor.routes");
 const diffRoutes = require("./routes/diff.routes");
+const releaseRoutes = require("./routes/release.routes");
+const warRoomRoutes = require("./routes/war-room.routes");
+const securityFuzzerRoutes = require("./routes/security-fuzzer.routes");
+const codeDnaRoutes = require("./routes/code-dna.routes");
 
 const app = express();
 
@@ -156,6 +160,10 @@ app.use("/api/analyzer", analyzerRoutes);
 app.use("/api/predictive", predictiveRoutes);
 app.use("/api/refactor", refactorRoutes);
 app.use("/api/diff", diffRoutes);
+app.use("/api/release", releaseRoutes);
+app.use("/api/war-room", warRoomRoutes);
+app.use("/api/security-fuzzer", securityFuzzerRoutes);
+app.use("/api/code-dna", codeDnaRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Error:", err);
