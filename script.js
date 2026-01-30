@@ -613,31 +613,30 @@ const menuIcon = document.querySelector(".menu-icon");
 const menuCloseIcon = document.querySelector(".menu-close-icon");
 const navMenu = document.querySelector(".nav-menu");
 
-// Open Menu
-menuIcon.addEventListener("click", () => {
-  navMenu.classList.add("active");
-  menuIcon.style.display = "none";
-  menuCloseIcon.style.display = "block";
-});
-
-// Close Menu
-menuCloseIcon.addEventListener("click", () => {
-  navMenu.classList.remove("active");
-  menuIcon.style.display = "block";
-  menuCloseIcon.style.display = "none";
-});
-
-window.addEventListener("resize", () => {
-  if (window.innerWidth > 890) {
-    navMenu.classList.remove("active");
+if (menuIcon && menuCloseIcon && navMenu) {
+  menuIcon.addEventListener("click", () => {
+    navMenu.classList.add("active");
     menuIcon.style.display = "none";
+    menuCloseIcon.style.display = "block";
+  });
+
+  menuCloseIcon.addEventListener("click", () => {
+    navMenu.classList.remove("active");
+    menuIcon.style.display = "block";
     menuCloseIcon.style.display = "none";
-  } else {
-    if (!navMenu.classList.contains("active")) {
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 890) {
+      navMenu.classList.remove("active");
+      menuIcon.style.display = "none";
+      menuCloseIcon.style.display = "none";
+    } else if (!navMenu.classList.contains("active")) {
       menuIcon.style.display = "block";
     }
-  }
-});
+  });
+}
+
 
 
 // ===================== Recommendation Engine =====================

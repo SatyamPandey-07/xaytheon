@@ -1,6 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Dashboard — XAYTHEON</title>
+
+    <!-- Supabase SDK & auth bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
+    <script defer src="auth.js"></script>
+    <script>
+        const theme = localStorage.getItem("theme")
+        if (theme) {
+          document.documentElement.setAttribute("data-theme", theme)
+        }
+    </script>
+    <!--Styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      
+ .section-title{
+ font-family:VT323;
+ font-size:60px;
+ top:10vh;
+ }
+ .navbar {
+   background-color: #000;
+ }
+
+ .navbar a,
+ .navbar .theme-toggle {
+   color: #fff;
+ }
+ .navbar .theme-toggle svg {
+   stroke: #fff;
+ }
+ .navbar .logo-img {
+   filter: brightness(0) invert(1);
+ }
+
+ #gh-username::placeholder {
+   color: rgba(0, 0, 0, 0.6);
+ }
+
+ #gh-username:focus {
+   border-color: rgba(0, 0, 0, 0.6);
+   box-shadow:
+     0 0 0 3px rgba(0, 0, 0, 0.1),
+     0 12px 28px rgba(0, 0, 0, 0.12);
+ }
+ #gh-username {
+   background: rgba(99, 102, 241, 0.12); /* accent tint */
+   backdrop-filter: blur(14px);
+   -webkit-backdrop-filter: blur(14px);
+
+   border: 1px solid rgba(99, 102, 241, 0.25);
+   border-radius: 14px;
+
+   color: #000;
+ }
+
+ /* =========================
+    PROFILE CARD ANIMATION
+    ========================= */
+
+ .profile-card {
+   position: relative;
+   overflow: hidden;
+ }
+
+ /* --- Base layout (before hover) --- */
+ .profile-row {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   text-align: center;
+   gap: 10px;
+
+   transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+   will-change: transform;
+ }
+
+ /* Avatar */
+ .avatar {
+   width: 96px;
+   height: 96px;
+   border-radius: 50%;
+   object-fit: cover;
+
+   transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+   will-change: transform;
+ }
+
+ /* Hide secondary text initially */
+ .profile-login,
+ .profile-bio {
+   opacity: 0;
+   transform: translateY(6px);
+
+   transition:
+     opacity 0.45s ease 0.15s,
+     transform 0.45s ease 0.15s;
+
+   will-change: opacity, transform;
+ }
+
+ /* Stats hidden & removed from flow */
+ .profile-stats {
+   position: absolute;
+   bottom: 20px;
+   left: 50%;
+   transform: translate(-50%, 20px);
+   opacity: 0;
+
+   display: flex;
+   gap: 28px;
+
+   transition:
+     opacity 0.6s ease 0.2s,
+     transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+
+   will-change: opacity, transform;
+ }
+
+ /* =========================
+    HOVER STATE
+    ========================= */
+
+ .profile-card:hover .profile-row {
+   flex-direction: row;
+   align-items: center;
+   text-align: left;
+   transform: translateX(-40px);
+ }
+
+ .profile-card:hover .avatar {
+   transform: scale(0.6);
+ }
+
+ .profile-card:hover .profile-login,
+ .profile-card:hover .profile-bio {
+   opacity: 1;
+   transform: translateY(0);
+ }
+
+ .profile-card:hover .profile-stats {
+   opacity: 1;
+   transform: translate(-50%, 0);
+ }
+
+    </style>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#000000" />
@@ -42,6 +194,7 @@
     defer
     src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"
   ></script>
+
 </head>
 
 <body class="eightgon-page">

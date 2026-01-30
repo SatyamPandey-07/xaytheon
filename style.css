@@ -787,6 +787,218 @@ a,
   padding: 16px;
 }
 
+a:hover {
+  color: var(--link-hover);
+}
+
+/* Repo and activity links have specific styling */
+.repo-name a,
+.activity-item a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.repo-name a:hover,
+.activity-item a:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+}
+
+/* Projects Section */
+/* GitHub Dashboard */
+.github-section {
+  background: transparent;
+  /* allow 3D background to show through */
+}
+
+.github-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  position: relative;
+  /* anchor for floating 3D */
+}
+
+.mini-3d {
+  width: 400px;
+  height: 400px;
+  position: absolute;
+  /* float over header */
+  top: -90px;
+  /* move further up toward the corner */
+  right: -80px;
+  /* move further right toward the edge */
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  background: transparent;
+  pointer-events: none;
+  /* purely decorative */
+}
+
+
+
+
+
+
+.mini-3d canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.78;
+  transition: opacity 0.3s ease;
+}
+
+.mini-3d:hover canvas {
+  opacity: 0.88;
+}
+
+.mini-3d-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.9em;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 900px) {
+  .github-header {
+    flex-direction: column;
+  }
+
+  .mini-3d {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    top: auto;
+    right: auto;
+  }
+}
+
+.github-form {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  margin-top: 60px;
+  align-items: end;
+  margin-bottom: 30px;
+}
+
+.github-form .field-group {
+  grid-column: span 4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.github-form label {
+  font-weight: 600;
+}
+
+.github-form input[type="text"],
+.github-form input[type="password"] {
+  padding: 12px 14px;
+  border: 1px solid var(--border-color-strong);
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.95em;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* Community form fields */
+.github-form select,
+.github-form input[type="number"],
+.github-form input[type="url"],
+.github-form input[type="date"] {
+  padding: 12px 14px;
+  border: 1px solid var(--border-color-strong);
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.95em;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.github-form input:focus {
+  border-color: var(--text-primary);
+}
+
+.github-form .btn {
+  grid-column: span 2;
+  width: 100%;
+}
+
+.github-form .remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+.github-form .field-hint,
+.muted {
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+.muted.small {
+  font-size: 0.8em;
+}
+
+.github-status {
+  grid-column: 1 / -1;
+  min-height: 1.2em;
+}
+
+.github-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+}
+
+.card {
+  grid-column: span 6;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.card.profile-card {
+  grid-column: span 5;
+}
+
+.card.contributions-card {
+  grid-column: span 7;
+}
+
+.card.repos-card {
+  grid-column: span 7;
+}
+
+.card.activity-card {
+  grid-column: span 5;
+}
+
+.card-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.card-body {
+  padding: 16px;
+}
+
+
 .avatar {
   width: 72px;
   height: 72px;
