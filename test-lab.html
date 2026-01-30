@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Test Lab — XAYTHEON</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="test-lab.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+
+<body class="dark-theme">
+    <div id="header-placeholder"></div>
+
+    <main class="test-lab-container">
+        <!-- 3D Viewport for Logic Tree -->
+        <div id="logic-tree-viewport"></div>
+
+        <!-- Control Panel -->
+        <div class="test-hud">
+            <div class="side-panel">
+                <div class="card glass animate-in">
+                    <h3><i class="ri-test-tube-line"></i> AI Test Lab</h3>
+                    <p class="subtitle">Autonomous logic analysis & boundary testing</p>
+
+                    <div class="search-box">
+                        <input type="text" id="file-input" placeholder="Enter file path (e.g. auth.service.js)..."
+                            value="auth.service.js">
+                        <button class="btn btn-primary" onclick="analyzeCode()">Analyze</button>
+                    </div>
+                </div>
+
+                <div class="card glass branch-details hidden" id="branch-card">
+                    <div class="card-header">
+                        <h4>Branch Identified</h4>
+                        <span id="coverage-status" class="status-badge">UNTESTED</span>
+                    </div>
+                    <div class="branch-logic">
+                        <code>if (<span id="branch-condition">condition</span>)</code>
+                    </div>
+
+                    <div class="boundary-list" id="boundary-list">
+                        <!-- Boundaries will be listed here -->
+                    </div>
+
+                    <button class="btn btn-accent full-width" onclick="generateTest()">
+                        <i class="ri-magic-line"></i> Generate Edge-Case Test
+                    </button>
+                </div>
+            </div>
+
+            <div class="test-results glass hidden" id="test-results">
+                <div class="results-header">
+                    <h4>Generated Test Suite</h4>
+                    <button class="close-btn" onclick="hideResults()"><i class="ri-close-line"></i></button>
+                </div>
+                <div class="code-preview">
+                    <pre><code id="generated-code">// AI generated test cases...</code></pre>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="copyCode()">Copy to Clipboard</button>
+                    <button class="btn btn-primary">Save to _tests_/</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend Overlay -->
+        <div class="legend-overlay glass">
+            <div class="legend-item"><span class="dot green"></span> Tested Path</div>
+            <div class="legend-item"><span class="dot red"></span> Untested Gap</div>
+            <div class="legend-item"><span class="dot yellow"></span> Boundary Detected</div>
+        </div>
+    </main>
+
+    <script src="boilerplate/boilerplate-loader.js"></script>
+    <script src="test-lab.js"></script>
+</body>
+
+</html>

@@ -26,6 +26,7 @@ const riskRoutes = require("./routes/risk.routes");
 const analyzerRoutes = require("./routes/analyzer.routes");
 const archDriftRoutes = require("./routes/arch-drift.routes");
 const bundleRoutes = require("./routes/bundle.routes");
+const testLabRoutes = require("./routes/test-lab.routes");
 
 const app = express();
 
@@ -154,6 +155,7 @@ app.use("/api/risk", riskRoutes);
 app.use("/api/analyzer", analyzerRoutes);
 app.use("/api/arch-drift", archDriftRoutes);
 app.use("/api/bundle", bundleRoutes);
+app.use("/api/test-lab", testLabRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Error:", err);
