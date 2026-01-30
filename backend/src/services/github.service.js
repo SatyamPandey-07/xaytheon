@@ -19,6 +19,46 @@ class GithubService {
         }
     }
 
+    async exchangeCodeForToken(code) {
+        try {
+            const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } = process.env;
+            // Use local defaults if env vars not set (for testing purposes only)
+            const clientId = GITHUB_CLIENT_ID || "YOUR_GITHUB_CLIENT_ID";
+            const clientSecret = GITHUB_CLIENT_SECRET || "YOUR_GITHUB_CLIENT_SECRET";
+
+            const response = await axios.post(
+                'https://github.com/login/oauth/access_token',
+                {
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    code,
+                },
+                {
+                    headers: { Accept: 'application/json' }
+                }
+            );
+            return response.data;
+        } catch (error) {
+            console.error('Error exchanging code for token:', error.message);
+            throw error;
+        }
+    }
+
+    async fetchUserProfile(accessToken) {
+        try {
+            const response = await axios.get(`${this.baseUrl}/user`, {
+                headers: {
+                    ...this.headers,
+                    Authorization: `token ${accessToken}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user profile:', error.message);
+            throw error;
+        }
+    }
+
     async fetchUserRepos(username) {
         try {
             // Fetch top 100 repos sorted by updated
@@ -38,7 +78,7 @@ class GithubService {
 
         const stars = repos.reduce((acc, repo) => acc + repo.stargazers_count, 0);
         const forkCount = repos.reduce((acc, repo) => acc + repo.forks_count, 0);
-        
+
         // Calculate language stats
         const languages = {};
         repos.forEach(repo => {

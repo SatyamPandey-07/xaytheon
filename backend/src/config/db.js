@@ -12,7 +12,10 @@ db.run(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
+    password TEXT,
+    github_id TEXT UNIQUE,
+    username TEXT,
+    avatar_url TEXT,
     refresh_token TEXT,
     view_history TEXT DEFAULT '[]',
     password_reset_token TEXT,
@@ -23,5 +26,16 @@ db.run(`
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `);
+
+// Migration for existing tables
+db.run("ALTER TABLE users ADD COLUMN github_id TEXT UNIQUE", (err) => {
+  // Ignore error if column exists
+});
+db.run("ALTER TABLE users ADD COLUMN username TEXT", (err) => {
+  // Ignore error if column exists
+});
+db.run("ALTER TABLE users ADD COLUMN avatar_url TEXT", (err) => {
+  // Ignore error if column exists
+});
 
 module.exports = db;
