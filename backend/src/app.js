@@ -24,11 +24,9 @@ const dependencyRoutes = require("./routes/dependency.routes");
 const aiRoutes = require("./routes/ai.routes");
 const riskRoutes = require("./routes/risk.routes");
 const analyzerRoutes = require("./routes/analyzer.routes");
-const predictiveRoutes = require("./routes/predictive.routes");
-const refactorRoutes = require("./routes/refactor.routes");
-const diffRoutes = require("./routes/diff.routes");
-const releaseRoutes = require("./routes/release.routes");
-const greenCodeRoutes = require("./routes/green-code.routes");
+const archDriftRoutes = require("./routes/arch-drift.routes");
+const bundleRoutes = require("./routes/bundle.routes");
+const testLabRoutes = require("./routes/test-lab.routes");
 
 const app = express();
 
@@ -155,11 +153,9 @@ app.use("/api/dependency", dependencyRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/risk", riskRoutes);
 app.use("/api/analyzer", analyzerRoutes);
-app.use("/api/predictive", predictiveRoutes);
-app.use("/api/refactor", refactorRoutes);
-app.use("/api/diff", diffRoutes);
-app.use("/api/release", releaseRoutes);
-app.use("/api/green-code", greenCodeRoutes);
+app.use("/api/arch-drift", archDriftRoutes);
+app.use("/api/bundle", bundleRoutes);
+app.use("/api/test-lab", testLabRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Error:", err);

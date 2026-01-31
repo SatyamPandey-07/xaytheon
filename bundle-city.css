@@ -1,0 +1,246 @@
+:root {
+    --js-color: #f7df1e;
+    --css-color: #264de4;
+    --img-color: #4caf50;
+    --font-color: #9c27b0;
+    --bg-dark: #0a0a0f;
+}
+
+.bundle-city-container {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-dark);
+}
+
+#city-viewport {
+    width: 100%;
+    height: 100%;
+}
+
+.ui-overlay {
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sidebar {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    pointer-events: auto;
+}
+
+.glass {
+    background: rgba(15, 15, 25, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.city-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-item .label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.stat-item .value {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.suggestions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.suggestion-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 4px solid var(--accent-color);
+    padding: 12px;
+    border-radius: 4px;
+    transition: transform 0.2s;
+}
+
+.suggestion-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+.suggestion-item.critical {
+    border-left-color: #ef4444;
+}
+
+.suggestion-item.high {
+    border-left-color: #f59e0b;
+}
+
+.suggestion-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.impact-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.suggestion-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+}
+
+.bottom-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: auto;
+}
+
+.legend {
+    display: flex;
+    gap: 15px;
+    padding: 10px 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.dot.js {
+    background: var(--js-color);
+}
+
+.dot.css {
+    background: var(--css-color);
+}
+
+.dot.img {
+    background: var(--img-color);
+}
+
+.dot.font {
+    background: var(--font-color);
+}
+
+.info-bubble {
+    padding: 15px 25px;
+    max-width: 300px;
+}
+
+.info-bubble h4 {
+    margin: 0 0 5px 0;
+    color: var(--accent-color);
+}
+
+.info-bubble div {
+    font-size: 0.85rem;
+    margin-bottom: 3px;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    max-width: 400px;
+    text-align: center;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.loading-shimmer {
+    height: 100px;
+    background: linear-gradient(90deg, #1a1a24 25%, #2a2a34 50%, #1a1a24 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
