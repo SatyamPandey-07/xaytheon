@@ -6,13 +6,21 @@
     <title>Predictive Analytics - Xaytheon</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="predictive.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/date-fns@3.0.0/index.min.js"></script>
+    <!-- Secure CDN scripts with valid SRI -->
+    <script defer 
+            src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+            integrity="sha384-vsrfeLOOY6KuIYKDlmVH5UiBmgIdB1oEf7p01YgWHuqmOHfZr374+odEv96n9tNC"
+            crossorigin="anonymous"></script>
+
+    <script defer
+            src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/cdn.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
 </head>
 <body>
     <div id="navbar-container"></div>
 
-    <div class="container predictive-dashboard">
+    <main class="container predictive-dashboard">
         <header class="dashboard-header">
             <h1>📊 Predictive Analytics Dashboard</h1>
             <p>Forecast milestones, track velocity, and detect burnout risk</p>
@@ -22,7 +30,9 @@
         <div class="card repo-selector">
             <h2>🎯 Select Repository</h2>
             <div class="form-group">
+                <label for="repo-owner">Repository Owner (e.g., facebook)</label>
                 <input type="text" id="repo-owner" placeholder="Repository Owner (e.g., facebook)" required>
+                <label for="repo-name">Repository Name (e.g., react)</label>
                 <input type="text" id="repo-name" placeholder="Repository Name (e.g., react)" required>
                 <button id="load-analytics" class="btn btn-primary">Load Analytics</button>
             </div>
@@ -188,16 +198,17 @@
             <h2>🚧 Workflow Bottleneck Analysis</h2>
             <div class="bottleneck-grid" id="bottleneck-grid"></div>
         </div>
-    </div>
+    </main>
 
     <footer>
         <p>Xaytheon Predictive Analytics © 2024</p>
     </footer>
 
-    <script src="i18n.js"></script>
-    <script src="theme.js"></script>
-    <script src="auth.js"></script>
-    <script src="SimulationPanel.js"></script>
-    <script src="predictive.js"></script>
+    <!-- App scripts (deferred, DOM-safe) -->
+    <script defer src="i18n.js"></script>
+    <script defer src="theme.js"></script>
+    <script defer src="auth.js"></script>
+    <script defer src="SimulationPanel.js"></script>
+    <script defer src="predictive.js"></script>
 </body>
 </html>
