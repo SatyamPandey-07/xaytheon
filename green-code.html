@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Green Code Optimizer - Xaytheon</title>
+    <link rel="stylesheet" href="green-code.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="navbar-placeholder"></div>
+
+    <div class="container">
+      <header class="header">
+        <h1>🌱 Green Code Optimizer</h1>
+        <p class="subtitle">
+          Analyze your code's carbon footprint and discover energy-efficient refactors
+        </p>
+      </header>
+
+      <div class="input-section">
+        <div class="input-group">
+          <input
+            type="text"
+            id="ownerInput"
+            placeholder="Repository Owner"
+            value="facebook"
+          />
+          <input
+            type="text"
+            id="repoInput"
+            placeholder="Repository Name"
+            value="react"
+          />
+        </div>
+        <div class="config-group">
+          <select id="regionSelect">
+            <option value="us-east-1">US East (Virginia) - High Carbon</option>
+            <option value="us-west-2" selected>US West (Oregon) - Low Carbon</option>
+            <option value="eu-north-1">EU Stockholm - Low Carbon</option>
+            <option value="eu-west-1">EU Ireland - Medium Carbon</option>
+            <option value="ap-southeast-2">Asia Pacific (Sydney) - High Carbon</option>
+          </select>
+          <select id="pipelineSizeSelect">
+            <option value="small">Small Pipeline (10 builds/day)</option>
+            <option value="medium" selected>Medium Pipeline (50 builds/day)</option>
+            <option value="large">Large Pipeline (200 builds/day)</option>
+          </select>
+        </div>
+        <button id="analyzeBtn" class="primary-btn">
+          <span class="btn-icon">🔍</span>
+          <span class="btn-text">Analyze Repository</span>
+        </button>
+      </header>
+
+      <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Analyzing carbon footprint...</p>
+      </div>
+
+      <div id="results" class="results-container hidden">
+        <!-- Sustainability Rating Card -->
+        <div class="rating-card">
+          <div class="rating-header">
+            <h2>Sustainability Rating</h2>
+            <div id="ratingBadge" class="rating-badge">
+              <span class="rating-icon">🌟</span>
+              <span class="rating-grade">A+</span>
+              <span class="rating-score">95/100</span>
+            </div>
+          </div>
+          <p id="ratingDescription" class="rating-description"></p>
+          <div id="achievements" class="achievements"></div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+          <!-- Carbon Footprint -->
+          <div class="card carbon-card">
+            <h3>🌍 Carbon Footprint</h3>
+            <div class="metric-large">
+              <span id="carbonTotal">0</span>
+              <span class="unit">kg CO₂/year</span>
+            </div>
+            <div class="breakdown">
+              <div class="breakdown-item">
+                <span class="breakdown-label">Runtime</span>
+                <div class="breakdown-bar">
+                  <div id="runtimeBar" class="bar" style="width: 0%"></div>
+                </div>
+                <span id="runtimePercent" class="breakdown-value">0%</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-label">CI/CD</span>
+                <div class="breakdown-bar">
+                  <div id="cicdBar" class="bar" style="width: 0%"></div>
+                </div>
+                <span id="cicdPercent" class="breakdown-value">0%</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-label">Transfer</span>
+                <div class="breakdown-bar">
+                  <div id="transferBar" class="bar" style="width: 0%"></div>
+                </div>
+                <span id="transferPercent" class="breakdown-value">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Equivalents -->
+          <div class="card equivalents-card">
+            <h3>📊 Carbon Equivalents</h3>
+            <div class="equivalents-grid">
+              <div class="equivalent-item">
+                <span class="equivalent-icon">🌳</span>
+                <span id="treesEquivalent" class="equivalent-value">0</span>
+                <span class="equivalent-label">Trees Needed</span>
+              </div>
+              <div class="equivalent-item">
+                <span class="equivalent-icon">🚗</span>
+                <span id="carMiles" class="equivalent-value">0</span>
+                <span class="equivalent-label">Car Miles</span>
+              </div>
+              <div class="equivalent-item">
+                <span class="equivalent-icon">✈️</span>
+                <span id="flights" class="equivalent-value">0</span>
+                <span class="equivalent-label">Flight Hours</span>
+              </div>
+              <div class="equivalent-item">
+                <span class="equivalent-icon">📱</span>
+                <span id="smartphones" class="equivalent-value">0</span>
+                <span class="equivalent-label">Phone Charges</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Code Complexity -->
+          <div class="card complexity-card">
+            <h3>⚡ Code Complexity</h3>
+            <div class="score-circle">
+              <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" class="score-bg"></circle>
+                <circle
+                  id="complexityCircle"
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  class="score-fill"
+                  style="stroke-dashoffset: 251.2"
+                ></circle>
+              </svg>
+              <div class="score-text">
+                <span id="complexityScore" class="score-value">0</span>
+                <span class="score-label">Score</span>
+              </div>
+            </div>
+            <div class="complexity-details">
+              <div class="detail-row">
+                <span>Average Energy Score:</span>
+                <span id="avgEnergyScore" class="detail-value">0</span>
+              </div>
+              <div class="detail-row">
+                <span>Worst Complexity:</span>
+                <span id="worstComplexity" class="detail-value badge">O(n)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bundle Size -->
+          <div class="card bundle-card">
+            <h3>📦 Bundle Size</h3>
+            <div class="metric-medium">
+              <span id="bundleSize">0</span>
+              <span class="unit">KB</span>
+            </div>
+            <div class="savings-info">
+              <div class="savings-item">
+                <span class="savings-label">Potential Savings:</span>
+                <span id="bundleSavings" class="savings-value">0 KB</span>
+              </div>
+              <div class="savings-item">
+                <span class="savings-label">Heavy Libraries:</span>
+                <span id="heavyLibs" class="savings-value">0</span>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div id="bundleProgress" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Region Comparison -->
+        <div class="card region-comparison">
+          <h3>🌐 Cloud Region Impact</h3>
+          <div id="regionGrid" class="region-grid"></div>
+        </div>
+
+        <!-- Green Refactors -->
+        <div class="card refactors-card">
+          <div class="card-header">
+            <h3>♻️ Green Refactor Suggestions</h3>
+            <div class="refactor-stats">
+              <span id="refactorCount" class="stat-badge">0 suggestions</span>
+              <span id="refactorSavings" class="stat-badge savings">0 kg CO₂ savings</span>
+            </div>
+          </div>
+          <div class="refactor-tabs">
+            <button class="tab-btn active" data-tab="all">All</button>
+            <button class="tab-btn" data-tab="library">Libraries</button>
+            <button class="tab-btn" data-tab="algorithm">Algorithms</button>
+            <button class="tab-btn" data-tab="pattern">Patterns</button>
+          </div>
+          <div id="refactorsList" class="refactors-list"></div>
+        </div>
+
+        <!-- Improvement Roadmap -->
+        <div class="card roadmap-card">
+          <h3>🗺️ Improvement Roadmap</h3>
+          <div class="roadmap-phases">
+            <div class="phase">
+              <h4>🚀 Immediate Actions</h4>
+              <div id="immediateActions" class="action-list"></div>
+            </div>
+            <div class="phase">
+              <h4>📅 Short Term (1-2 weeks)</h4>
+              <div id="shortTermActions" class="action-list"></div>
+            </div>
+            <div class="phase">
+              <h4>🎯 Long Term (1+ months)</h4>
+              <div id="longTermActions" class="action-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Score Breakdown -->
+        <div class="card scores-card">
+          <h3>📈 Score Breakdown</h3>
+          <div id="scoreBreakdown" class="score-breakdown"></div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="export-section">
+          <button id="exportBadgeBtn" class="secondary-btn">
+            <span class="btn-icon">🏅</span>
+            <span class="btn-text">Get Badge Markdown</span>
+          </button>
+          <button id="exportReportBtn" class="secondary-btn">
+            <span class="btn-icon">📄</span>
+            <span class="btn-text">Export Full Report</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Badge Code -->
+    <div id="badgeModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>📛 Sustainability Badge</h3>
+        <div class="badge-preview" id="badgePreview"></div>
+        <div class="badge-code">
+          <h4>Markdown:</h4>
+          <pre id="badgeMarkdown"><code></code></pre>
+          <button class="copy-btn" data-target="badgeMarkdown">Copy</button>
+        </div>
+        <div class="badge-code">
+          <h4>HTML:</h4>
+          <pre id="badgeSVG"><code></code></pre>
+          <button class="copy-btn" data-target="badgeSVG">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="boilerplate/boilerplate-loader.js"></script>
+    <script src="green-code.js"></script>
+  </body>
+</html>

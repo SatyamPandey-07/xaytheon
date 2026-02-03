@@ -1,0 +1,325 @@
+/**
+ * Globe CSS - Styling for Global Pulse 3D Globe Interface
+ */
+
+/* Additional Globe-specific styles */
+.globe-tooltip {
+    position: fixed;
+    background: rgba(10, 20, 40, 0.95);
+    border: 1px solid rgba(68, 136, 255, 0.5);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.globe-tooltip.visible {
+    opacity: 1;
+}
+
+.tooltip-repo {
+    font-weight: 600;
+    color: #4488ff;
+    margin-bottom: 6px;
+}
+
+.tooltip-details {
+    color: #8899bb;
+    font-size: 12px;
+}
+
+/* Heatmap Legend */
+.heatmap-legend {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    background: rgba(10, 20, 40, 0.9);
+    border: 1px solid rgba(68, 136, 255, 0.3);
+    border-radius: 12px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.legend-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4488ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.legend-gradient {
+    width: 200px;
+    height: 20px;
+    background: linear-gradient(to right, 
+        rgba(0, 255, 136, 0.2),
+        rgba(0, 255, 136, 0.5),
+        rgba(0, 255, 136, 0.8),
+        rgba(0, 255, 136, 1)
+    );
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #8899bb;
+}
+
+/* Performance Indicator */
+.performance-indicator {
+    position: absolute;
+    top: 100px;
+    right: 30px;
+    background: rgba(10, 20, 40, 0.9);
+    border: 1px solid rgba(68, 136, 255, 0.3);
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 11px;
+    backdrop-filter: blur(10px);
+    display: none; /* Hidden by default */
+}
+
+.performance-indicator.show {
+    display: block;
+}
+
+.fps-meter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fps-value {
+    font-weight: 600;
+    color: #00ff88;
+}
+
+.fps-bar {
+    width: 60px;
+    height: 4px;
+    background: rgba(68, 136, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.fps-fill {
+    height: 100%;
+    background: linear-gradient(to right, #00ff88, #4488ff);
+    transition: width 0.3s ease;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 20px;
+    }
+
+    .toggle-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .ui-overlay {
+        padding: 10px;
+    }
+}
+
+/* High DPI Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .filter-btn,
+    .toggle-btn {
+        border-width: 0.5px;
+    }
+}
+
+/* Dark Mode Support (already dark, but for consistency) */
+@media (prefers-color-scheme: dark) {
+    /* Already optimized for dark mode */
+}
+
+/* Accessibility */
+.filter-btn:focus,
+.toggle-btn:focus {
+    outline: 2px solid #4488ff;
+    outline-offset: 2px;
+}
+
+.event-feed:focus-within {
+    border-color: #4488ff;
+}
+
+/* Animation Performance */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Custom Context Menu for Globe */
+.globe-context-menu {
+    position: fixed;
+    background: rgba(10, 20, 40, 0.95);
+    border: 1px solid rgba(68, 136, 255, 0.5);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 180px;
+    z-index: 200;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.globe-context-menu.visible {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.context-menu-item {
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.context-menu-item:hover {
+    background: rgba(68, 136, 255, 0.3);
+}
+
+.context-menu-item:active {
+    background: rgba(68, 136, 255, 0.5);
+}
+
+.context-menu-separator {
+    height: 1px;
+    background: rgba(68, 136, 255, 0.2);
+    margin: 4px 0;
+}
+
+/* Notification System */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(10, 20, 40, 0.95);
+    border: 1px solid rgba(68, 136, 255, 0.5);
+    border-radius: 8px;
+    padding: 16px 20px;
+    max-width: 300px;
+    z-index: 300;
+    backdrop-filter: blur(10px);
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification.success {
+    border-left: 4px solid #00ff88;
+}
+
+.notification.error {
+    border-left: 4px solid #ff4444;
+}
+
+.notification.warning {
+    border-left: 4px solid #ff8844;
+}
+
+.notification-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #ffffff;
+}
+
+.notification-message {
+    font-size: 12px;
+    color: #8899bb;
+}
+
+/* Loading States */
+.loading-spinner-small {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(68, 136, 255, 0.3);
+    border-top-color: #4488ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Event Type Colors */
+.event-color-push { color: #00ff88; }
+.event-color-pr { color: #4488ff; }
+.event-color-issue { color: #ff8844; }
+.event-color-star { color: #ffff00; }
+.event-color-release { color: #ff00ff; }
+
+/* Glow Effects */
+.glow-text {
+    text-shadow: 0 0 10px currentColor;
+}
+
+.glow-green {
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+.glow-blue {
+    box-shadow: 0 0 20px rgba(68, 136, 255, 0.5);
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Print Styles */
+@media print {
+    .ui-overlay,
+    .loading-overlay {
+        display: none !important;
+    }
+}

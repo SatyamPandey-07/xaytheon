@@ -6,12 +6,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code Quality Analyzer — XAYTHEON</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style.css?v=3">
-
     <link rel="stylesheet" href="analyzer.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
+    
+    <!-- Supabase with fallback handling -->
+    <script>
+        window.supabaseFallback = function() {
+            const script = document.createElement('script');
+            script.src = 'assets/fallback/supabase.min.js';
+            script.onerror = () => console.error('Supabase completely failed to load');
+            document.head.appendChild(script);
+        };
+
+        const supabaseScript = document.createElement('script');
+        supabaseScript.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js";
+        supabaseScript.onerror = window.supabaseFallback;
+        document.head.appendChild(supabaseScript);
+    </script>
+    
     <script defer src="auth.js"></script>
 </head>
 
@@ -88,13 +103,16 @@
                 </section>
             </div>
         </main>
+
+        <!-- Footer placeholder -->
+        <div id="footer-placeholder"></div>
     </div>
 
+    <!-- Scripts -->
     <script src="analyzer.js"></script>
     <script src="boilerplate/boilerplate-loader.js"></script>
-    
-<div id="footer-placeholder"></div>
-
+    <script src="theme.js"></script>
+</body>
 
 </html>
 

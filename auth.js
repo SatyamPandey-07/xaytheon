@@ -4,6 +4,16 @@
 
   const REQUEST_TIMEOUT = 30000;
 
+  function enforceHttps() {
+    if (window.location.protocol !== 'https:' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1') {
+      // Allow file protocol for local testing
+      if (window.location.protocol === 'file:') return;
+      window.location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+    }
+  }
+
   async function fetchWithTimeout(url, options = {}, timeout = REQUEST_TIMEOUT) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -162,7 +172,7 @@
 
     if (email.length > 254 || password.length > 128) {
       throw new Error('Input data too long');
-    } 
+    }
 
     if (email.length < 3 || password.length < 8) {
       throw new Error('Input data too short');
@@ -236,7 +246,7 @@
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
-     if (!res.ok) {
+      if (!res.ok) {
         // 1. Handle specific HTTP status codes first
         if (res.status === 409) throw { code: "USER_EXISTS" };
         if (res.status === 429) throw { code: "TOO_MANY_ATTEMPTS" };
@@ -401,6 +411,26 @@
   // --- Init ---
 
   window.addEventListener("DOMContentLoaded", async () => {
+    // Check for tokens in URL (OAuth callback)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlAccessToken = urlParams.get("accessToken");
+    const urlRefreshToken = urlParams.get("refreshToken");
+
+    if (urlAccessToken && urlRefreshToken) {
+      // Decode minimal user info if needed or just fetch user profile
+      // For now, we set the token. We might not have the full user object immediately available
+      // unless we decode the token or fetch /verify.
+      // Let's rely on restoreSession or a verify call to get the user details properly if missing.
+      // Or simply set what we have and let the app cycle refresh/fetch user.
+
+      localStorage.setItem("x_refresh_token", urlRefreshToken);
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      // We will let restoreSession pick it up from localStorage or trigger a refresh/verify immediately
+      // Actually, restoreSession uses the stored refresh token.
+    }
+
     enforceHttps();
     await restoreSession();
     renderAuthArea();

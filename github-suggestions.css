@@ -1,0 +1,57 @@
+/* ===================================
+   SUGGESTED REPOSITORIES
+   =================================== */
+.suggested-repos-card {
+    background: var(--bg-elevated);
+    /* Slightly different bg to distinguish */
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+    margin-top: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+    /* Subtle glow */
+}
+
+/* Add a subtle highlight border/gradient */
+.suggested-repos-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-primary);
+}
+
+.highlight-text {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.card-subtitle-small {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: none;
+    display: block;
+}
+
+.card-subtitle-small #primary-lang-label {
+    color: var(--accent-primary);
+    font-weight: 700;
+}
+
+.suggestion-item {
+    background: var(--bg-secondary);
+}
+
+.suggestion-item:hover {
+    transform: translateY(-2px) translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

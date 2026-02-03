@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Mind-Map | Xaytheon</title>
+    <link rel="stylesheet" href="knowledge-map.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <div class="knowledge-map-container">
+        <!-- Header -->
+        <header class="km-header">
+            <div class="header-left">
+                <h1>🧠 Knowledge Mind-Map</h1>
+                <p class="subtitle">Multi-Dimensional Expertise Galaxy & Silo Discovery</p>
+            </div>
+            <div class="header-right">
+                <div class="repo-selector">
+                    <input type="text" id="owner-input" placeholder="Owner" value="owner">
+                    <input type="text" id="repo-input" placeholder="Repository" value="repo">
+                    <button id="analyze-btn" class="btn-primary">🔍 Analyze</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="km-main">
+            <!-- Left Sidebar: Stats & Insights -->
+            <aside class="km-sidebar-left">
+                <div class="stats-section">
+                    <h3>📊 Repository Insights</h3>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Bus Factor</div>
+                        <div class="stat-value" id="bus-factor">-</div>
+                        <div class="stat-badge" id="bus-factor-risk">Unknown</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Knowledge Silos</div>
+                        <div class="stat-value" id="silo-count">-</div>
+                        <div class="stat-sublabel"><span id="critical-silos">0</span> Critical</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Contributors</div>
+                        <div class="stat-value" id="contributor-count">-</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Analyzed Files</div>
+                        <div class="stat-value" id="file-count">-</div>
+                    </div>
+                </div>
+
+                <div class="silos-section">
+                    <h3>⚠️ Critical Silos</h3>
+                    <div id="silos-list" class="silos-list"></div>
+                </div>
+
+                <div class="experts-section">
+                    <h3>⭐ Top Experts</h3>
+                    <div id="experts-list" class="experts-list"></div>
+                </div>
+            </aside>
+
+            <!-- Center: 3D Visualization -->
+            <main class="km-galaxy">
+                <div id="galaxy-container" class="galaxy-container"></div>
+                
+                <div class="galaxy-controls">
+                    <button id="reset-camera" class="btn-control">🎥 Reset View</button>
+                    <button id="toggle-labels" class="btn-control active">🏷️ Labels</button>
+                    <button id="toggle-connections" class="btn-control active">🔗 Connections</button>
+                    <button id="filter-silos" class="btn-control">🚨 Silos Only</button>
+                </div>
+
+                <div class="legend">
+                    <h4>Legend</h4>
+                    <div class="legend-item">
+                        <span class="legend-icon author">⭐</span>
+                        <span>Authors (Stars)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon file">🌍</span>
+                        <span>Files (Planets)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon silo">🔴</span>
+                        <span>Knowledge Silo</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon shared">🟢</span>
+                        <span>Shared Knowledge</span>
+                    </div>
+                </div>
+
+                <div id="node-tooltip" class="node-tooltip hidden"></div>
+            </main>
+
+            <!-- Right Sidebar: Details & Recommendations -->
+            <aside class="km-sidebar-right">
+                <div class="detail-panel">
+                    <h3>📋 Selection Details</h3>
+                    <div id="selection-details" class="selection-details">
+                        <p class="empty-state">Click on a node to view details</p>
+                    </div>
+                </div>
+
+                <div class="recommendations-panel">
+                    <h3>💡 Recommendations</h3>
+                    <div id="recommendations-list" class="recommendations-list"></div>
+                </div>
+
+                <div class="pairing-panel">
+                    <h3>👥 Pair Programming</h3>
+                    <div id="pairing-suggestions" class="pairing-list"></div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay hidden">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <h2>Analyzing Knowledge Graph...</h2>
+                <p id="loading-status">Fetching repository data</p>
+            </div>
+        </div>
+
+        <!-- Modal: Expertise Profile -->
+        <div id="expertise-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <h2 id="modal-title">Developer Profile</h2>
+                <div id="modal-body" class="modal-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="knowledge-map.js"></script>
+</body>
+</html>

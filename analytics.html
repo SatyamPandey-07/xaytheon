@@ -22,7 +22,7 @@
   <!-- jsPDF & html2canvas for PDF Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
   <!-- Supabase SDK & auth bootstrap -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
   <script defer src="auth.js"></script>
@@ -32,7 +32,7 @@
 
 <body class="eightgon-page">
   <div class="page-wrapper">
-    <div id="navbar-placeholder"></div>
+  
 
     <div id="header-placeholder"></div>
 
@@ -71,13 +71,13 @@
                 Refresh
               </button>
               <button class="btn btn-primary" id="export-data-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                Export Data
-              </button>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+                  Export Data
+                </button>
             </div>
           </div>
 
@@ -279,67 +279,35 @@
 
   <!-- Export Modal -->
   <div id="export-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Export Analytics Data</h3>
-        <button class="modal-close" id="close-export-modal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p>Choose your preferred export format:</p>
-        <div class="export-options">
-          <button class="btn btn-primary export-option" data-format="json">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-            </svg>
-            Export as JSON
-          </button>
-          <button class="btn btn-primary export-option" data-format="csv">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-            </svg>
-            Export as CSV
-          </button>
-          <button class="btn btn-primary export-option" data-format="pdf">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <path d="M16 13H8"></path>
-              <path d="M16 17H8"></path>
-              <path d="M10 9H8"></path>
-            </svg>
-            Export as PDF
-          </button>
-        </div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Export Analytics Data</h3>
+      <button class="modal-close" id="close-export-modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Choose your preferred export format:</p>
+      <div class="export-options" style="display: flex; gap: 10px; margin-top: 15px;">
+        <button class="btn btn-primary export-option" data-format="json">JSON</button>
+        <button class="btn btn-primary export-option" data-format="csv">CSV</button>
       </div>
     </div>
   </div>
+</div>
 
   <div id="footer-placeholder"></div>
 
   <!-- Boilerplate Loader -->
   <script src="boilerplate/boilerplate-loader.js"></script>
 
-  <!-- Main app script -->
+  <!-- Main app script --> 
   <script src="script.js"></script>
   <!-- Offline Manager -->
   <script src="offline-manager.js"></script>
   <!-- Analytics-specific script -->
-  <script src="analytics.js"></script>
-  <script>
-    fetch('navbar.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('navbar-placeholder').innerHTML = data;
+  <script src="js/cacheManager.js"></script>
+<script src="analytics.js"></script>
 
-            // Optional: Re-run JS for menu toggle & theme switch after navbar is loaded
-            if (typeof initNavbar === "function") initNavbar();
-        })
-        .catch(error => console.error('Error loading navbar:', error));
-</script>
+<script src="theme.js"></script>
 
 </body>
 

@@ -18,6 +18,9 @@
   --space-4xl: 128px;
   --space-5xl: 160px;
 
+  --accent-primary: #6366f1;
+  /* Indigo matching the theme */
+
   /* Border Radius */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -97,20 +100,25 @@
 .github-container {
   max-width: 1400px;
   margin: 0 auto;
-    padding: var(--space-3xl) var(--space-lg);
-#github.github-section {
-    margin-top: var(--space-5xl);
-    padding: var(--space-4xl) 0;
+  padding: var(--space-3xl) var(--space-lg);
 }
+
+#github.github-section {
+  margin-top: var(--space-5xl);
+  padding: var(--space-4xl) 0;
+}
+
 
 /* ===================================
    HERO SECTION
    =================================== */
 .hero-section {
   text-align: center;
-    margin-bottom: var(--space-4xl);
-    margin-top: var(--space-3xl);
-    padding: var(--space-3xl) 0;
+  margin-bottom: var(--space-4xl);
+  margin-top: var(--space-3xl);
+  padding: var(--space-3xl) 0;
+}
+
 .hero-title {
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
@@ -140,8 +148,8 @@
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-2xl);
   padding: var(--space-xl);
-    margin-bottom: var(--space-4xl);
-    margin-top: var(--space-3xl);
+  margin-bottom: var(--space-4xl);
+  margin-top: var(--space-3xl);
   border-color: var(--border-hover);
   box-shadow: var(--shadow-xl);
   transform: translateY(-2px);
@@ -271,11 +279,12 @@
 }
 
 .dashboard-section {
-    margin-bottom: var(--space-5xl);
-    margin-top: var(--space-5xl);
-    padding: var(--space-3xl) 0;
-    border-top: 2px solid var(--border-primary);
-    padding-top: var(--space-4xl);
+  margin-bottom: var(--space-5xl);
+  margin-top: var(--space-5xl);
+  padding: var(--space-3xl) 0;
+  border-top: 2px solid var(--border-primary);
+  padding-top: var(--space-4xl);
+}
 
 .section-header {
   margin-bottom: var(--space-xl);
@@ -303,8 +312,8 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: var(--space-lg);
-    margin-bottom: var(--space-4xl);
-    margin-top: var(--space-3xl);
+  margin-bottom: var(--space-4xl);
+  margin-top: var(--space-3xl);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-2xl);
   overflow: hidden;
@@ -336,11 +345,9 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.05) 1px,
-    transparent 1px
-  );
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 1px);
   background-size: 30px 30px;
   animation: gridScroll 20s linear infinite;
 }
@@ -349,6 +356,7 @@
   0% {
     transform: translate(0, 0);
   }
+
   100% {
     transform: translate(30px, 30px);
   }
@@ -380,9 +388,11 @@
   inset: -4px;
   border-radius: 50%;
   border: 2px solid transparent;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent)
-    border-box;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent) border-box;
   -webkit-mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+  mask:
     linear-gradient(#fff 0 0) padding-box,
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -580,8 +590,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-lg);
-    margin-bottom: var(--space-4xl);
-    margin-top: var(--space-3xl);
+  margin-bottom: var(--space-4xl);
+  margin-top: var(--space-3xl);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
@@ -690,8 +700,11 @@
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
-    margin-bottom: var(--space-4xl);
-    margin-top: var(--space-3xl);
+  margin-bottom: var(--space-4xl);
+  margin-top: var(--space-3xl);
+}
+
+.language-breakdown-card h4 {
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: var(--space-lg);
@@ -746,8 +759,8 @@
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
-    margin-top: var(--space-3xl);
-    margin-bottom: var(--space-4xl);
+  margin-top: var(--space-3xl);
+  margin-bottom: var(--space-4xl);
   flex-direction: column;
   gap: var(--space-md);
 }
@@ -821,8 +834,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-lg);
-    margin-bottom: var(--space-4xl);
-    margin-top: var(--space-3xl);
+  margin-bottom: var(--space-4xl);
+  margin-top: var(--space-3xl);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
@@ -936,8 +949,8 @@
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
   box-shadow: var(--shadow-md);
-    margin-top: var(--space-3xl);
-    margin-bottom: var(--space-5xl);
+  margin-top: var(--space-3xl);
+  margin-bottom: var(--space-5xl);
 }
 
 .activity-chart {
@@ -955,8 +968,10 @@
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
-    margin-bottom: var(--space-4xl);
-    margin-top: var(--space-3xl);
+  margin-bottom: var(--space-4xl);
+  margin-top: var(--space-3xl);
+}
+
 .contribution-heatmap-card .heatmap-header {
   display: flex;
   justify-content: space-between;
@@ -996,15 +1011,19 @@
 .contribution-heatmap-card .level-0 {
   background: #161b22;
 }
+
 .contribution-heatmap-card .level-1 {
   background: #0e4429;
 }
+
 .contribution-heatmap-card .level-2 {
   background: #006d32;
 }
+
 .contribution-heatmap-card .level-3 {
   background: #26a641;
 }
+
 .contribution-heatmap-card .level-4 {
   background: #39d353;
 }
@@ -1013,15 +1032,19 @@
 [data-theme="light"] .contribution-heatmap-card .level-0 {
   background: #ebedf0;
 }
+
 [data-theme="light"] .contribution-heatmap-card .level-1 {
   background: #9be9a8;
 }
+
 [data-theme="light"] .contribution-heatmap-card .level-2 {
   background: #40c463;
 }
+
 [data-theme="light"] .contribution-heatmap-card .level-3 {
   background: #30a14e;
 }
+
 [data-theme="light"] .contribution-heatmap-card .level-4 {
   background: #216e39;
 }
@@ -1187,4 +1210,5 @@
 .repo-stat {
   font-family: inherit;
   letter-spacing: 0.01em;
+}
 }

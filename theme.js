@@ -1,4 +1,3 @@
-
 (function() {
   'use strict';
 
@@ -75,8 +74,13 @@
     );
     
     buttons.forEach(function(button) {
-      button.addEventListener('click', function(e) {
+      // Remove any existing listeners to prevent duplicates
+      const newButton = button.cloneNode(true);
+      button.parentNode.replaceChild(newButton, button);
+      
+      newButton.addEventListener('click', function(e) {
         e.preventDefault();
+        e.stopPropagation();
         toggleTheme();
       });
     });
@@ -102,7 +106,9 @@
     });
   }
 
-  // Make toggle function available globally (optional)
+  // Make functions available globally
   window.toggleTheme = toggleTheme;
+  window.setupThemeToggles = setupThemeToggles;
+  window.applyTheme = applyTheme;
 
 })();

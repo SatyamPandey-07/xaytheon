@@ -6,6 +6,8 @@ const { verifyAccessToken, loginRateLimiter } = require("../middleware/auth.midd
 
 router.post("/register", controller.register);
 router.post("/login", loginRateLimiter, controller.login);
+router.get("/github", controller.initiateGithubLogin);
+router.get("/github/callback", controller.githubCallback);
 router.post("/refresh", controller.refresh);
 router.post("/logout", controller.logout);
 router.get("/verify", verifyAccessToken, controller.verifyToken);

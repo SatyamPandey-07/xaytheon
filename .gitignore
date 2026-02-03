@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+node_modules
+/node_modules
+./node_modules/
+
+# Environment / Secrets
+.env
+*.env
+
+# IDE / Editor folders
+.idea/
+.vscode/
+.DS_Store
+
+# Logs and DBs
+*.log
+*.db
+users.db
+
+# Build folders
+dist/
+build/
+
+# Miscellaneous
+TODO.md

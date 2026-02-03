@@ -147,6 +147,40 @@ Contributors are encouraged to extend it with:
 - Token refresh logic
 - Role-based access control
 
+---
+
+## 🏗️ Analytics Queue System (Redis + BullMQ)
+
+The backend now supports background processing for heavy analytics tasks using Redis and BullMQ.
+
+### Prerequisites
+- **Redis Server** must be running locally on port `6379`.
+- If using Docker: `docker run -d -p 6379:6379 redis`
+- For Windows users, you can use the included binary from the project root: `..\redis\redis-server.exe`
+
+### How It Works
+1. `GET /api/analytics/latest` checks for cached data.
+2. If data is stale (>1h) or missing, a background job is enqueued.
+3. The API returns status: `processing` or `refreshing`.
+4. The **Worker** fetches fresh data from GitHub and updates the DB.
+5. Subsequent API calls return the fresh data.
+
+### 🧪 Testing
+We have included a script to verify the entire flow:
+
+1. Ensure Redis is running.
+2. Ensure Backend is running (`npm run dev`).
+3. Run the test script:
+   ```bash
+   node scripts/test-analytics-queue.js
+   ```
+
+The script will:
+1. Create a test user.
+2. Trigger an analytics job.
+3. Wait for the worker.
+4. Verify the data is saved.
+
 ## 📜 License
 This backend follows the same license as the main Xaytheon repository.
 

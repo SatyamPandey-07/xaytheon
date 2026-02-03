@@ -4,7 +4,7 @@ const User = require("../models/user.model");
 const crypto = require("crypto");
 const { sendPasswordResetEmail, sendPasswordChangedEmail } = require("../utils/email");
 const { validateEmail, validatePassword, validateString } = require("../utils/validation");
-// const { validateEmail, validatePassword, validateString } = require("../utils/validation");
+const githubService = require("../services/github.service");
 
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "7d";
@@ -26,6 +26,94 @@ function generateTokens(userId) {
 
   return { accessToken, refreshToken };
 }
+
+/* ---------------- GITHUB ---------------- */
+exports.initiateGithubLogin = (req, res) => {
+  const clientId = process.env.GITHUB_CLIENT_ID;
+
+  if (!clientId || clientId === "YOUR_GITHUB_CLIENT_ID") {
+    console.error("❌ CRITICAL: GITHUB_CLIENT_ID is not set in backend/.env");
+    return res.status(500).send("Server Configuration Error: GitHub Client ID is not configured. Please check backend logs.");
+  }
+
+  const baseUrl = "https://github.com/login/oauth/authorize";
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: `${process.env.API_URL || "http://127.0.0.1:5000"}/api/auth/github/callback`,
+    scope: "read:user user:email", // Minimal scopes
+    state: crypto.randomBytes(16).toString("hex"),
+  });
+
+  res.redirect(`${baseUrl}?${params.toString()}`);
+};
+
+exports.githubCallback = async (req, res) => {
+  try {
+    const { code, state } = req.query;
+
+    if (!code) {
+      return res.status(400).json({ message: "Authorization code missing" });
+    }
+
+    // 1. Exchange code for access token
+    const tokenData = await githubService.exchangeCodeForToken(code);
+
+    // Debug log to trace what GitHub returns
+    // console.log("GitHub Token Exchange Response:", JSON.stringify(tokenData, null, 2));
+
+    // Handle "error" in response body even if status is 200 (GitHub sometimes does this)
+    if (tokenData.error) {
+      console.error("GitHub Error:", tokenData.error, tokenData.error_description);
+      return res.status(400).json({ message: `GitHub Error: ${tokenData.error_description || tokenData.error}` });
+    }
+
+    if (!tokenData.access_token) {
+      return res.status(400).json({ message: "Failed to obtain access token from GitHub" });
+    }
+
+    // 2. Fetch user profile
+    const profile = await githubService.fetchUserProfile(tokenData.access_token);
+    const email = profile.email; // Note: if email is private, we might need extra call
+
+    // 3. Find or Create User
+    let user = await User.findByGithubId(profile.id.toString());
+
+    if (!user) {
+      if (email) {
+        // Check if user exists by email to link account
+        user = await User.findByEmail(email);
+        if (user) {
+          await User.updateGithubInfo(user.id, profile.id.toString(), profile.login, profile.avatar_url);
+        } else {
+          // Create new user
+          user = await User.createUser(email, null, profile.id.toString(), profile.login, profile.avatar_url);
+        }
+      } else {
+        // No email in profile, handle edge case (e.g., error or require manual email content)
+        // For now, create a dummy email or error. Let's error for safety.
+        return res.status(400).json({ message: "Email not found in GitHub profile. Please allow email access." });
+      }
+    }
+
+    // 4. Generate Tokens
+    // Ensure we have an ID (user might be the result object from createUser or row from findBy...)
+    const userId = user.id || user.lastID; // createUser returns object with id
+    const { accessToken, refreshToken } = generateTokens(userId);
+
+    await User.updateRefreshToken(userId, refreshToken);
+    res.cookie("refreshToken", refreshToken, getCookieOptions());
+
+    // 5. Redirect to Frontend
+    const frontendUrl = process.env.FRONTEND_URL || "http://127.0.0.1:5500/dashboard.html"; // Adjust default as needed
+    // Append tokens to URL (not most secure for access token, but standard for simple OAuth flows without backend sessions)
+    // Better: Redirect to a handler page that saves token.
+    res.redirect(`${frontendUrl}?accessToken=${accessToken}&refreshToken=${refreshToken}`);
+
+  } catch (error) {
+    console.error("GitHub Callback Error:", error);
+    res.status(500).json({ message: "GitHub authentication failed" });
+  }
+};
 
 function getCookieOptions() {
   return {

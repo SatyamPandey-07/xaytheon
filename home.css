@@ -1,0 +1,118 @@
+
+/* =============================
+   FEATURES SECTION - PREMIUM SAAS UI
+============================= */
+.features {
+  padding: 6rem 2rem;
+  text-align: center;
+}
+
+.features-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+
+.features-subtitle {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin-bottom: 3rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Grid layout for cards */
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+/* Individual Feature Card */
+.feature-card {
+  position: relative;
+  background: #ffffff; /* pure white */
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  border: 1px solid #e5e7eb; /* soft neutral border */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* subtle shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  cursor: default;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08); /* soft lift */
+  border-color: #6366f1; /* subtle accent on hover */
+}
+
+/* Icon wrapper */
+.feature-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  border: 2px solid #6366f1; /* soft accent border */
+  color: #6366f1;
+  font-size: 1.75rem;
+  transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+  background-color: #ffffff;
+}
+
+.feature-card:hover .feature-icon-wrapper {
+  transform: scale(1.15);
+  background-color: #6366f1;
+  color: #ffffff; /* icon color inverts on hover */
+}
+
+/* Card title */
+.feature-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #111827;
+  transition: color 0.3s ease;
+}
+
+.feature-card:hover h3 {
+  color: #6366f1; /* subtle color accent on hover */
+}
+
+/* Card description */
+.feature-card p {
+  font-size: 1rem;
+  color: #4b5563;
+  line-height: 1.6;
+  transition: color 0.3s ease;
+}
+
+.feature-card:hover p {
+  color: #374151; /* slightly darker on hover for readability */
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .features-title {
+    font-size: 2rem;
+  }
+
+  .features-subtitle {
+    font-size: 1rem;
+  }
+
+  .feature-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .feature-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+}
+

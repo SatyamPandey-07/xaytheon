@@ -1,0 +1,342 @@
+/* Favorites Panel Styles */
+
+:root {
+  --favorites-bg: #1a1a1a;
+  --favorites-border: #333;
+  --favorites-text: #e0e0e0;
+  --favorites-accent: #ffd700;
+  --favorites-hover: #2a2a2a;
+}
+
+body.light-theme {
+  --favorites-bg: #f5f5f5;
+  --favorites-border: #ddd;
+  --favorites-text: #333;
+  --favorites-hover: #e8e8e8;
+}
+
+/* Favorites Toggle Button */
+.favorites-toggle-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--favorites-accent);
+  color: #000;
+  border: 2px solid var(--favorites-accent);
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  transition: all 0.3s ease;
+  gap: 5px;
+}
+
+.favorites-toggle-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.5);
+}
+
+.favorites-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+/* Favorites Badge */
+.favorites-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4444;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  border: 2px solid var(--favorites-bg);
+}
+
+/* Favorites Panel */
+.favorites-panel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background: var(--favorites-bg);
+  border-left: 2px solid var(--favorites-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  transition: right 0.3s ease;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.3);
+}
+
+.favorites-panel.open {
+  right: 0;
+}
+
+@media (max-width: 768px) {
+  .favorites-panel {
+    width: 100%;
+    right: -100%;
+  }
+
+  .favorites-toggle-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+}
+
+/* Favorites Panel Header */
+.favorites-panel-header {
+  padding: 20px;
+  border-bottom: 2px solid var(--favorites-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.favorites-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--favorites-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.favorites-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--favorites-text);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.favorites-close-btn:hover {
+  background: var(--favorites-hover);
+}
+
+/* Favorites List */
+.favorites-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.favorites-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+  font-style: italic;
+}
+
+/* Favorite Item */
+.favorite-item {
+  background: var(--favorites-hover);
+  border: 1px solid var(--favorites-border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+}
+
+.favorite-item:hover {
+  background: var(--favorites-border);
+  transform: translateX(-4px);
+}
+
+.favorite-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.favorite-repo-name {
+  color: var(--favorites-accent);
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  flex: 1;
+  word-break: break-word;
+  transition: color 0.2s ease;
+}
+
+.favorite-repo-name:hover {
+  color: #ffed4e;
+}
+
+.favorite-remove-btn {
+  background: transparent;
+  border: 1px solid #ff4444;
+  color: #ff4444;
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.favorite-remove-btn:hover {
+  background: #ff4444;
+  color: white;
+}
+
+/* Favorite Item Meta */
+.favorite-item-meta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.favorite-lang,
+.favorite-stars {
+  display: inline-block;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--favorites-text);
+}
+
+.favorite-lang {
+  background: rgba(255, 215, 0, 0.1);
+  color: var(--favorites-accent);
+}
+
+/* Favorite Description */
+.favorite-description {
+  margin: 8px 0 0 0;
+  padding: 0;
+  font-size: 13px;
+  color: #999;
+  line-height: 1.4;
+  max-height: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Favorites Panel Footer */
+.favorites-panel-footer {
+  padding: 15px 20px;
+  border-top: 2px solid var(--favorites-border);
+  flex-shrink: 0;
+}
+
+.favorites-clear-btn {
+  width: 100%;
+  padding: 10px;
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.favorites-clear-btn:hover {
+  background: #ff2222;
+  transform: translateY(-2px);
+}
+
+.favorites-clear-btn:active {
+  transform: translateY(0);
+}
+
+/* Favorite Button on Repository Items */
+.favorite-repo-btn {
+  background: transparent;
+  border: 1px solid var(--favorites-accent);
+  color: var(--favorites-accent);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.favorite-repo-btn:hover {
+  background: var(--favorites-accent);
+  color: #000;
+}
+
+/* Scrollbar Styling */
+.favorites-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.favorites-list::-webkit-scrollbar-track {
+  background: var(--favorites-bg);
+}
+
+.favorites-list::-webkit-scrollbar-thumb {
+  background: var(--favorites-border);
+  border-radius: 4px;
+}
+
+.favorites-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Dark Theme Adjustments */
+body.dark-theme .favorites-list::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+  .favorites-panel {
+    width: 100%;
+  }
+
+  .favorites-title {
+    font-size: 16px;
+  }
+
+  .favorite-item {
+    padding: 10px;
+  }
+
+  .favorite-repo-name {
+    font-size: 13px;
+  }
+}

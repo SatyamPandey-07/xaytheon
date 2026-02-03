@@ -7,16 +7,352 @@
   <title>Explore by Topic — XAYTHEON</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css" />
-   <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="favorites.css">
 
-   <script src="theme.js"></script>
+  <script src="theme.js"></script>
   <!-- Supabase SDK & Auth for navbar -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
   <script defer src="auth.js"></script>
   <script defer src="i18n.js"></script>
   <!-- D3 for force-directed graph -->
   <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    /* Enhanced styles for the redesigned Topic Map page */
+    .topic-explore-hero {
+      text-align: center;
+      padding: 2rem 0 1.5rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .topic-explore-hero h2 {
+      font-family: 'Eightgon', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary, #e0e0e0);
+    }
+
+    .topic-explore-hero p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text-secondary, #9ca3af);
+      margin: 0;
+    }
+
+    .filter-action-bar {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--border-color, #374151);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .filter-action-bar .github-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .filter-action-bar .field-group {
+      grid-column: span 1 !important;
+      margin: 0;
+    }
+
+    .filter-action-bar label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary, #9ca3af);
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+
+    .filter-action-bar input,
+    .filter-action-bar select {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      background: var(--input-bg, #1e293b);
+      border: 1px solid var(--border-color, #475569);
+      border-radius: 8px;
+      color: var(--text-primary, #e0e0e0);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .filter-action-bar input:focus,
+    .filter-action-bar select:focus {
+      outline: none;
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    }
+
+    .action-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .action-row .btn {
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: none;
+      font-size: 0.95rem;
+    }
+
+    .action-row .btn-primary {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+    }
+
+    .action-row .btn-primary:hover {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .action-row .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-color, #475569);
+      color: var(--text-secondary, #9ca3af);
+    }
+
+    .action-row .btn-outline:hover {
+      background: rgba(100, 116, 139, 0.1);
+      border-color: #64748b;
+    }
+
+    .status-cache-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary, #9ca3af);
+    }
+
+    .view-toggle {
+      display: inline-flex;
+      gap: 0;
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid var(--border-color, #374151);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 1.5rem;
+    }
+
+    .view-toggle .btn {
+      padding: 0.625rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary, #9ca3af);
+      border-radius: 7px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .view-toggle .btn.active {
+      background: #0ea5e9;
+      color: white;
+      box-shadow: 0 2px 6px rgba(14, 165, 233, 0.4);
+    }
+
+    .view-toggle .btn:hover:not(.active) {
+      background: rgba(100, 116, 139, 0.15);
+      color: var(--text-primary, #e0e0e0);
+    }
+
+    .visualization-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border-color, #374151);
+      border-radius: 14px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .visualization-card .card-header h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary, #e0e0e0);
+      margin: 0 0 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+
+    .visualization-card .card-header h3::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 100%);
+      border-radius: 2px;
+    }
+
+    #graph-wrap {
+      width: 100%;
+      height: 600px;
+      position: relative;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-color, #334155);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    #graph-legend {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      background: rgba(30, 41, 59, 0.95);
+      border: 1px solid var(--border-color, #475569);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.875rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    #graph-legend > div {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      color: var(--text-primary, #e0e0e0);
+      font-weight: 500;
+    }
+
+    #graph-legend > div:last-child {
+      margin-bottom: 0;
+    }
+
+    #graph-legend span {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* Tooltip for graph nodes */
+    .graph-tooltip {
+      position: absolute;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid #0ea5e9;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.875rem;
+      color: var(--text-primary, #e0e0e0);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
+      z-index: 1000;
+      max-width: 250px;
+    }
+
+    .graph-tooltip.visible {
+      opacity: 1;
+    }
+
+    .graph-tooltip strong {
+      display: block;
+      color: #0ea5e9;
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    .repo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .repo-table thead {
+      background: rgba(30, 41, 59, 0.6);
+      border-bottom: 2px solid var(--border-color, #475569);
+    }
+
+    .repo-table th {
+      padding: 12px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary, #9ca3af);
+    }
+
+    .repo-table tbody tr {
+      border-bottom: 1px solid var(--border-color, #334155);
+      transition: background 0.15s ease;
+    }
+
+    .repo-table tbody tr:hover {
+      background: rgba(100, 116, 139, 0.08);
+    }
+
+    .repo-table td {
+      padding: 14px 16px;
+      color: var(--text-primary, #e0e0e0);
+    }
+
+    .repo-table td a {
+      color: #0ea5e9;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .repo-table td a:hover {
+      color: #38bdf8;
+      text-decoration: underline;
+    }
+
+    /* Helper text for inputs */
+    .helper-text {
+      font-size: 0.75rem;
+      color: var(--text-secondary, #6b7280);
+      margin-top: 0.25rem;
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .topic-explore-hero h2 {
+        font-size: 1.875rem;
+      }
+
+      .filter-action-bar .github-form {
+        grid-template-columns: 1fr;
+      }
+
+      .action-row {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .action-row .btn {
+        width: 100%;
+      }
+
+      #graph-wrap {
+        height: 450px;
+      }
+    }
+  </style>
 </head>
 
 <body class="eightgon-page">
@@ -25,67 +361,84 @@
 
     <section class="github-section">
       <div class="container">
-        <h2 class="section-title" style="font-family:'Eightgon',sans-serif;" data-i18n="nav.explore">Explore by Topic
-        </h2>
-
-        <form id="explore-form" class="github-form" autocomplete="off" style="margin-bottom: 16px;">
-          <div class="field-group" style="grid-column: span 4;">
-            <label for="ex-base-topic">Base Topic</label>
-            <input id="ex-base-topic" type="text" placeholder="e.g. threejs" value="threejs" />
-          </div>
-          <div class="field-group" style="grid-column: span 4;">
-            <label for="ex-language">Language</label>
-            <select id="ex-language">
-              <option value="">Any</option>
-              <option>JavaScript</option>
-              <option>TypeScript</option>
-              <option>Python</option>
-              <option>Go</option>
-              <option>Rust</option>
-              <option>Java</option>
-              <option>C#</option>
-              <option>C++</option>
-            </select>
-          </div>
-          <div class="field-group" style="grid-column: span 4;">
-            <label for="ex-limit">Repos to sample</label>
-            <input id="ex-limit" type="text" inputmode="numeric" value="50" />
-
-          </div>
-          <button class="btn btn-primary" type="submit" data-i18n="common.search">Explore</button>
-          <button class="btn btn-outline" type="button" id="ex-clear" data-i18n="common.cancel">Clear</button>
-          <div id="ex-status" class="github-status" aria-live="polite"></div>
-          <div id="ex-cache-info" class="github-status" aria-live="polite"
-            style="margin-top: 8px; font-size: 0.9em; color: #6b7280;"></div>
-        </form>
-
-        <div class="view-toggle" style="display:flex; gap:8px; margin-bottom:12px;">
-          <button class="btn " id="view-graph-btn">Graph View</button>
-          <button class="btn " id="view-list-btn">List View</button>
+        <!-- Hero Section with Title and Description -->
+        <div class="topic-explore-hero">
+          <h2 data-i18n="nav.explore">Explore by Topic</h2>
+          <p>Discover GitHub repositories organized by topics. Visualize connections between repositories and topics through an interactive graph, or browse a detailed list view.</p>
         </div>
 
-        <div class="card" style="grid-column: 1 / -1;">
+        <!-- Filter and Action Bar -->
+        <div class="filter-action-bar">
+          <form id="explore-form" class="github-form" autocomplete="off">
+            <div class="field-group">
+              <label for="ex-base-topic">Base Topic</label>
+              <input id="ex-base-topic" type="text" placeholder="e.g. threejs, react, python" value="threejs" />
+              <span class="helper-text">Primary topic to explore</span>
+            </div>
+            <div class="field-group">
+              <label for="ex-language">Language</label>
+              <select id="ex-language">
+                <option value="">Any</option>
+                <option>JavaScript</option>
+                <option>TypeScript</option>
+                <option>Python</option>
+                <option>Go</option>
+                <option>Rust</option>
+                <option>Java</option>
+                <option>C#</option>
+                <option>C++</option>
+              </select>
+              <span class="helper-text">Filter by programming language</span>
+            </div>
+            <div class="field-group">
+              <label for="ex-limit">Repos to Sample</label>
+              <input id="ex-limit" type="text" inputmode="numeric" value="50" />
+              <span class="helper-text">Max repositories to load (1-100)</span>
+            </div>
+          </form>
+
+          <div class="action-row">
+            <button class="btn btn-primary" type="submit" form="explore-form" data-i18n="common.search">Explore</button>
+            <button class="btn btn-outline" type="button" id="ex-clear" data-i18n="common.cancel">Clear</button>
+            <div class="status-cache-row">
+              <div id="ex-status" class="github-status" aria-live="polite"></div>
+              <div id="ex-cache-info" class="github-status" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="view-toggle">
+          <button class="btn active" id="view-graph-btn">Graph View</button>
+          <button class="btn" id="view-list-btn">List View</button>
+        </div>
+
+        <!-- Visualization Card -->
+        <div class="visualization-card">
           <div class="card-header">
-            <h3>Topic Map</h3>
+            <h3>Topic Map Visualization</h3>
           </div>
           <div class="card-body">
+            <!-- Graph View -->
             <div id="graph-view">
-              <div id="graph-wrap"
-                style="width:100%; height:560px; position:relative; border:1px solid var(--border-color); border-radius:10px; overflow:hidden;">
+              <div id="graph-wrap">
                 <svg id="graph" width="100%" height="100%"></svg>
-                <div id="graph-legend"
-                  style="position:absolute; right:12px; top:12px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; padding:8px 10px; font-size:12px;">
-                  <div><span
-                      style="display:inline-block;width:10px;height:10px;background:#0ea5e9;border-radius:50%;margin-right:6px;"></span>Topic
+                <div id="graph-legend">
+                  <div>
+                    <span style="background:#0ea5e9;"></span>Topic
                   </div>
-                  <div><span
-                      style="display:inline-block;width:10px;height:10px;background:var(--text-primary);border-radius:50%;margin-right:6px;"></span>Repo
+                  <div>
+                    <span style="background:#e0e0e0;"></span>Repo
                   </div>
                 </div>
+                <!-- Tooltip for hover interactions -->
+                <div class="graph-tooltip" id="graph-tooltip"></div>
               </div>
             </div>
+
+            <!-- List View -->
             <div id="list-view" style="display:none;">
-              <table class="repo-table" style="width:100%; border-collapse:collapse;">
+              <table class="repo-table">
                 <thead>
                   <tr>
                     <th align="left">Repository</th>
@@ -97,19 +450,58 @@
                 <tbody id="repo-list"></tbody>
               </table>
             </div>
-
           </div>
         </div>
+      </div>
     </section>
 
-  <div id="footer-placeholder"></div>
+    <div id="footer-placeholder"></div>
   </div>
 
   <script src="explore.js"></script>
+  <script src="favorites.js"></script>
   <script src="boilerplate/boilerplate-loader.js"></script>
-    
+
+  <script>
+    // Enhanced view toggle with active state management
+    const graphBtn = document.getElementById('view-graph-btn');
+    const listBtn = document.getElementById('view-list-btn');
+    const graphView = document.getElementById('graph-view');
+    const listView = document.getElementById('list-view');
+
+    graphBtn.addEventListener('click', () => {
+      graphView.style.display = 'block';
+      listView.style.display = 'none';
+      graphBtn.classList.add('active');
+      listBtn.classList.remove('active');
+    });
+
+    listBtn.addEventListener('click', () => {
+      graphView.style.display = 'none';
+      listView.style.display = 'block';
+      listBtn.classList.add('active');
+      graphBtn.classList.remove('active');
+    });
+
+    // Enhanced D3 graph tooltip interaction (add to your explore.js or here)
+    // This provides hover tooltips for better node interaction
+    const tooltip = d3.select('#graph-tooltip');
+
+    // Example node interaction - integrate with your D3 graph rendering
+    function enableNodeTooltips(nodeSelection) {
+      nodeSelection
+        .on('mouseover', function(event, d) {
+          tooltip
+            .html(`<strong>${d.name || d.id}</strong><br/>${d.type === 'topic' ? 'Topic' : 'Repository'}<br/>${d.stars ? `⭐ ${d.stars}` : ''}`)
+            .style('left', (event.pageX + 15) + 'px')
+            .style('top', (event.pageY - 28) + 'px')
+            .classed('visible', true);
+        })
+        .on('mouseout', function() {
+          tooltip.classed('visible', false);
+        });
+    }
+  </script>
 </body>
 
 </html>
-
-

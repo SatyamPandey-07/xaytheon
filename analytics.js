@@ -236,17 +236,19 @@ function setupEventListeners() {
         loadAnalyticsData(true);
     });
 
-    // Export button
-    document.getElementById('export-data-btn').addEventListener('click', showExportModal);
+// Export button to show modal
+document.getElementById('export-data-btn').addEventListener('click', showExportModal);
 
-    // Export modal
-    document.getElementById('close-export-modal').addEventListener('click', hideExportModal);
-    document.querySelectorAll('.export-option').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const format = e.currentTarget.dataset.format;
-            exportData(format);
-        });
+// Close modal button
+document.getElementById('close-export-modal').addEventListener('click', hideExportModal);
+
+// Export option buttons
+document.querySelectorAll('.export-option').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const format = e.currentTarget.dataset.format;
+        exportData(format);
     });
+});
 
     // Table toggle
     document.getElementById('toggle-table-btn').addEventListener('click', () => {
@@ -337,6 +339,9 @@ function generateSampleData() {
 /**
  * Load analytics data from API
  */
+/**
+ * Load analytics data from API with client-side TTL caching
+ */
 async function loadAnalyticsData(forceRefresh = false) {
     // Check if user is authenticated
     const isAuthenticated = currentUser && window.XAYTHEON_AUTH && window.XAYTHEON_AUTH.isAuthenticated();
@@ -371,7 +376,6 @@ async function loadAnalyticsData(forceRefresh = false) {
         return;
     }
 
-
     const startDate = document.getElementById('start-date').value;
     const endDate = document.getElementById('end-date').value;
     const cacheKey = `analytics_${startDate}_${endDate}`;
@@ -381,6 +385,26 @@ async function loadAnalyticsData(forceRefresh = false) {
     if (!startDate || !endDate) {
         console.warn('Please select both start and end dates');
         return;
+    }
+
+    // --- STEP 1: TTL CACHE CHECK (Issue #225) ---
+    // If we are online and NOT forcing a refresh, check the CacheManager first
+    if (!forceRefresh && navigator.onLine) {
+        const cachedData = defaultCache.get(cacheKey); //
+        if (cachedData) {
+            console.log('✅ Using valid TTL-cached data for:', cacheKey);
+            analyticsData = cachedData;
+            
+            // Update UI immediately with cached data
+            updateMetrics();
+            renderCharts();
+            updateTable();
+
+            // Indicate the data is from the recent cache
+            lastUpdatedEl.textContent = 'Cached (Recently)';
+            lastUpdatedInfo.style.display = 'inline-block';
+            return; // Exit early to avoid redundant API request
+        }
     }
 
     try {
@@ -407,35 +431,36 @@ async function loadAnalyticsData(forceRefresh = false) {
             const data = await response.json();
             analyticsData = data.snapshots || [];
 
-            // Cache the fresh data
-            await offlineManager.saveData(cacheKey, analyticsData);
+            // --- STEP 2: UPDATE TTL CACHE (Issue #225) ---
+            // Store the fresh data in localStorage with the default 30-minute expiry
+            defaultCache.set(cacheKey, analyticsData); //
+
+            // Persistent storage for offline use
+            await offlineManager.saveData(cacheKey, analyticsData); //
 
             // Update "Last updated" text
             lastUpdatedEl.textContent = 'Just now';
             lastUpdatedInfo.style.display = 'inline-block';
 
         } else {
-            // Offline: fallback to cache
+            // Offline: fallback to cache 
             throw new Error('Offline');
         }
 
     } catch (error) {
-        console.warn('Fetching unsuccessful, attempting cache...', error);
+        console.warn('Fetching unsuccessful, attempting persistent cache...', error);
 
-        // Try loading from cache
-        const cachedRecord = await offlineManager.loadData(cacheKey);
+        // Try loading from persistent OfflineManager
+        const cachedRecord = await offlineManager.loadData(cacheKey); //
 
         if (cachedRecord && cachedRecord.data) {
             analyticsData = cachedRecord.data;
 
             if (navigator.onLine) {
                 showError('Could not fetch new data. Showing cached version.');
-            } else {
-                // Determine user-friendly offline message
-                console.log('✅ Loaded data from cache');
             }
 
-            // Update "Last updated" timestamp
+            // Update timestamp based on when it was originally saved to OfflineManager
             lastUpdatedEl.textContent = offlineManager.formatTime(cachedRecord.timestamp);
             lastUpdatedInfo.style.display = 'inline-block';
 
@@ -1286,5 +1311,55 @@ function handleRealTimeUpdate(update) {
             charts.commits.data.datasets[0].data[analyticsData.length - 1] = latest.total_commits;
             charts.commits.update('none');
         });
+    }
+}
+
+/**
+ * Show/Hide Export Modal
+ */
+function showExportModal() {
+    document.getElementById('export-modal').style.display = 'flex';
+}
+
+function hideExportModal() {
+    document.getElementById('export-modal').style.display = 'none';
+}
+
+/**
+ * Fetch and download export data
+ */
+async function exportData(format) {
+    hideExportModal();
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+    const token = window.XAYTHEON_AUTH ? window.XAYTHEON_AUTH.getAccessToken() : null;
+
+    if (!token) {
+        showToast('Please sign in to export data', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/analytics/export?format=${format}&startDate=${startDate}&endDate=${endDate}`,
+            {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }
+        );
+
+        if (!response.ok) throw new Error('Export failed');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `analytics-export-${Date.now()}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        showToast(`Exported as ${format.toUpperCase()} successfully`, 'success');
+    } catch (error) {
+        console.error('Export error:', error);
+        showToast('Failed to export data', 'error');
     }
 }

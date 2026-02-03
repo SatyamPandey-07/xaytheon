@@ -176,17 +176,7 @@
     <script src="script.js"></script>
     <!-- Achievements-specific script -->
     <script src="achievements.js"></script>
-    <script>
-    fetch('navbar.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('navbar-placeholder').innerHTML = data;
-
-            // Optional: Re-run JS for menu toggle & theme switch after navbar is loaded
-            if (typeof initNavbar === "function") initNavbar();
-        })
-        .catch(error => console.error('Error loading navbar:', error));
-</script>
+<script src="theme.js"></script>
 
 </body>
 

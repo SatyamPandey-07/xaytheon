@@ -83,17 +83,47 @@ exports.getSnapshots = async (req, res) => {
 exports.getLatestSnapshot = async (req, res) => {
     try {
         const userId = req.userId;
+        const { githubUsername } = req.query;
+
         const snapshot = await analyticsModel.getLatestSnapshot(userId);
 
+        // Check if data is stale (older than 1 hour)
+        const STALE_THRESHOLD = 60 * 60 * 1000;
+        const isStale = !snapshot || ((new Date() - new Date(snapshot.snapshot_date + 'Z')) > STALE_THRESHOLD); // Append Z for UTC if needed, or assume local
+
+        const targetUsername = githubUsername || (snapshot ? snapshot.github_username : null);
+
+        if (isStale && targetUsername) {
+            console.log(`[Analytics] Data stale for ${targetUsername}, enqueueing job...`);
+            const { addAnalyticsJob } = require('../queue/analytics.queue');
+
+            try {
+                await addAnalyticsJob(userId, targetUsername);
+            } catch (err) {
+                console.error("Failed to enqueue job (Redis might be down):", err.message);
+                // Continue to return stale data if available
+            }
+        }
+
         if (!snapshot) {
+            if (targetUsername) {
+                return res.json({
+                    success: true,
+                    status: 'processing',
+                    message: 'Analytics calculation started in background.',
+                    snapshot: null
+                });
+            }
+
             return res.status(404).json({
                 success: false,
-                message: "No snapshots found",
+                message: "No snapshots found. Provide githubUsername to start tracking.",
             });
         }
 
         res.json({
             success: true,
+            status: isStale ? 'refreshing' : 'fresh',
             snapshot,
         });
     } catch (error) {
@@ -186,84 +216,45 @@ exports.getGrowthMetrics = async (req, res) => {
 };
 
 /**
- * Export analytics data
- * GET /api/analytics/export?format=json|csv&startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+ * Export analytics data as JSON or CSV
  */
 exports.exportData = async (req, res) => {
     try {
         const userId = req.userId;
         const { format = "json", startDate, endDate } = req.query;
 
-        let snapshots;
-        if (startDate && endDate) {
-            snapshots = await analyticsModel.getSnapshotsByDateRange(
-                userId,
-                startDate,
-                endDate
-            );
-        } else {
-            snapshots = await analyticsModel.getAllSnapshots(userId);
-        }
+        let snapshots = await analyticsModel.getSnapshotsByDateRange(userId, startDate, endDate);
 
         if (format === "csv") {
-            // Convert to CSV
-            const headers = [
-                "ID",
-                "GitHub Username",
-                "Stars",
-                "Followers",
-                "Following",
-                "Public Repos",
-                "Total Commits",
-                "Contribution Count",
-                "Snapshot Date",
-            ];
-
+            const headers = ["Date", "Stars", "Followers", "Following", "Public Repos", "Total Commits"];
             const csvRows = [headers.join(",")];
 
-            snapshots.forEach((snapshot) => {
+            snapshots.forEach((s) => {
                 const row = [
-                    snapshot.id,
-                    snapshot.github_username,
-                    snapshot.stars,
-                    snapshot.followers,
-                    snapshot.following,
-                    snapshot.public_repos,
-                    snapshot.total_commits,
-                    snapshot.contribution_count,
-                    snapshot.snapshot_date,
+                    s.snapshot_date,
+                    s.stars,
+                    s.followers,
+                    s.following,
+                    s.public_repos,
+                    s.total_commits
                 ];
                 csvRows.push(row.join(","));
             });
 
-            const csvContent = csvRows.join("\n");
-
             res.setHeader("Content-Type", "text/csv");
-            res.setHeader(
-                "Content-Disposition",
-                `attachment; filename=analytics-export-${Date.now()}.csv`
-            );
-            res.send(csvContent);
-        } else {
-            // JSON format
-            res.setHeader("Content-Type", "application/json");
-            res.setHeader(
-                "Content-Disposition",
-                `attachment; filename=analytics-export-${Date.now()}.json`
-            );
-            res.json({
-                exportDate: new Date().toISOString(),
-                totalSnapshots: snapshots.length,
-                snapshots,
-            });
+            res.setHeader("Content-Disposition", `attachment; filename=analytics_${Date.now()}.csv`);
+            return res.send(csvRows.join("\n"));
         }
-    } catch (error) {
-        console.error("Error exporting data:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to export data",
-            error: error.message,
+
+        // Default to JSON
+        res.setHeader("Content-Type", "application/json");
+        res.json({
+            exportDate: new Date().toISOString(),
+            total: snapshots.length,
+            snapshots
         });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Export failed", error: error.message });
     }
 };
 

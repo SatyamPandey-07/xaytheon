@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Globe Feature - Quick Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #000510;
+            color: white;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .test-section {
+            background: rgba(68, 136, 255, 0.1);
+            border: 1px solid rgba(68, 136, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-section h2 {
+            color: #4488ff;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #4488ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5599ff;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success { color: #00ff88; }
+        .error { color: #ff4444; }
+        .info { color: #4488ff; }
+        #mini-globe {
+            width: 400px;
+            height: 400px;
+            border: 2px solid #4488ff;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-ok { background: #00ff88; }
+        .status-error { background: #ff4444; }
+        .status-pending { background: #ffaa00; }
+    </style>
+</head>
+<body>
+    <h1>🌍 Globe Feature - Quick Test Page</h1>
+    
+    <!-- Backend Tests -->
+    <div class="test-section">
+        <h2>1. Backend API Tests</h2>
+        <p>Test all REST API endpoints</p>
+        <button onclick="testBackend()">Run Backend Tests</button>
+        <div id="backend-results" class="result"></div>
+    </div>
+
+    <!-- WebSocket Tests -->
+    <div class="test-section">
+        <h2>2. WebSocket Connection Test</h2>
+        <p>Test real-time WebSocket connection</p>
+        <button onclick="testWebSocket()">Test WebSocket</button>
+        <button onclick="disconnectWebSocket()">Disconnect</button>
+        <div id="websocket-results" class="result"></div>
+    </div>
+
+    <!-- Globe Rendering Test -->
+    <div class="test-section">
+        <h2>3. Globe Rendering Test</h2>
+        <p>Test Three.js globe rendering</p>
+        <button onclick="testGlobeRendering()">Render Globe</button>
+        <button onclick="addTestEvent()">Add Test Event</button>
+        <div id="mini-globe"></div>
+        <div id="globe-results" class="result"></div>
+    </div>
+
+    <!-- Performance Test -->
+    <div class="test-section">
+        <h2>4. Performance Test</h2>
+        <p>Test high-volume event processing</p>
+        <button onclick="testPerformance(100)">Test 100 Events</button>
+        <button onclick="testPerformance(500)">Test 500 Events</button>
+        <button onclick="testPerformance(1000)">Test 1000 Events</button>
+        <div id="performance-results" class="result"></div>
+    </div>
+
+    <!-- Full System Test -->
+    <div class="test-section">
+        <h2>5. Full System Test</h2>
+        <p>Run all tests in sequence</p>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <div id="all-results" class="result"></div>
+    </div>
+
+    <!-- Status Summary -->
+    <div class="test-section">
+        <h2>Status Summary</h2>
+        <p><span class="status-indicator" id="status-backend"></span>Backend API</p>
+        <p><span class="status-indicator" id="status-websocket"></span>WebSocket</p>
+        <p><span class="status-indicator" id="status-globe"></span>Globe Rendering</p>
+        <p><span class="status-indicator" id="status-performance"></span>Performance</p>
+    </div>
+
+    <script type="module">
+        import GlobeEngine from './GlobeEngine.js';
+        import { io } from 'https://cdn.socket.io/4.5.4/socket.io.esm.min.js';
+
+        const BASE_URL = 'http://localhost:5000';
+        let globe = null;
+        let socket = null;
+
+        // Utility functions
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML += `<div class="${className}">[${new Date().toLocaleTimeString()}] ${message}</div>`;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function setStatus(component, status) {
+            const indicator = document.getElementById(`status-${component}`);
+            indicator.className = 'status-indicator';
+            if (status === 'ok') indicator.classList.add('status-ok');
+            else if (status === 'error') indicator.classList.add('status-error');
+            else indicator.classList.add('status-pending');
+        }
+
+        // Test 1: Backend API
+        window.testBackend = async function() {
+            const resultsId = 'backend-results';
+            document.getElementById(resultsId).innerHTML = '';
+            log(resultsId, 'Starting backend tests...', 'info');
+            setStatus('backend', 'pending');
+
+            const endpoints = [
+                '/api/globe/statistics',
+                '/api/globe/events?limit=10',
+                '/api/globe/heatmap?timeRange=3600000',
+                '/api/globe/regional-stats',
+                '/api/globe/filters'
+            ];
+
+            let passed = 0;
+            let failed = 0;
+
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(BASE_URL + endpoint);
+                    if (response.ok) {
+                        log(resultsId, `✅ ${endpoint} - OK`, 'success');
+                        passed++;
+                    } else {
+                        log(resultsId, `❌ ${endpoint} - Failed (${response.status})`, 'error');
+                        failed++;
+                    }
+                } catch (error) {
+                    log(resultsId, `❌ ${endpoint} - Error: ${error.message}`, 'error');
+                    failed++;
+                }
+            }
+
+            log(resultsId, `\nResults: ${passed} passed, ${failed} failed`, passed === endpoints.length ? 'success' : 'error');
+            setStatus('backend', passed === endpoints.length ? 'ok' : 'error');
+        };
+
+        // Test 2: WebSocket
+        window.testWebSocket = function() {
+            const resultsId = 'websocket-results';
+            document.getElementById(resultsId).innerHTML = '';
+            log(resultsId, 'Connecting to WebSocket...', 'info');
+            setStatus('websocket', 'pending');
+
+            socket = io(BASE_URL, {
+                transports: ['websocket'],
+                reconnection: false
+            });
+
+            socket.on('connect', () => {
+                log(resultsId, '✅ WebSocket connected!', 'success');
+                log(resultsId, `Socket ID: ${socket.id}`, 'info');
+                setStatus('websocket', 'ok');
+
+                // Test subscription
+                socket.emit('globe:subscribe', ['test/repo']);
+                log(resultsId, '📡 Subscribed to events', 'info');
+
+                // Listen for events
+                socket.on('globe:event', (event) => {
+                    log(resultsId, `📥 Event received: ${event.type}`, 'success');
+                });
+            });
+
+            socket.on('connect_error', (error) => {
+                log(resultsId, `❌ Connection error: ${error.message}`, 'error');
+                setStatus('websocket', 'error');
+            });
+        };
+
+        window.disconnectWebSocket = function() {
+            if (socket) {
+                socket.disconnect();
+                log('websocket-results', '🔌 Disconnected', 'info');
+                setStatus('websocket', 'pending');
+            }
+        };
+
+        // Test 3: Globe Rendering
+        window.testGlobeRendering = function() {
+            const resultsId = 'globe-results';
+            document.getElementById(resultsId).innerHTML = '';
+            log(resultsId, 'Initializing globe...', 'info');
+            setStatus('globe', 'pending');
+
+            try {
+                const container = document.getElementById('mini-globe');
+                globe = new GlobeEngine(container, {
+                    globeRadius: 80,
+                    cameraDistance: 200,
+                    rotationSpeed: 0.002,
+                    maxArcs: 100,
+                    particleCount: 1000
+                });
+
+                log(resultsId, '✅ Globe initialized successfully!', 'success');
+                log(resultsId, 'Stats: ' + JSON.stringify(globe.getStatistics()), 'info');
+                setStatus('globe', 'ok');
+            } catch (error) {
+                log(resultsId, `❌ Error: ${error.message}`, 'error');
+                setStatus('globe', 'error');
+            }
+        };
+
+        window.addTestEvent = function() {
+            if (!globe) {
+                log('globe-results', '⚠️ Initialize globe first!', 'error');
+                return;
+            }
+
+            const testEvent = {
+                type: 'PushEvent',
+                repo: 'test/repo',
+                location: {
+                    lat: Math.random() * 180 - 90,
+                    lon: Math.random() * 360 - 180,
+                    city: 'Test City',
+                    country: 'Test Country'
+                }
+            };
+
+            globe.queueEvent(testEvent);
+            log('globe-results', '✨ Test event added!', 'success');
+        };
+
+        // Test 4: Performance
+        window.testPerformance = async function(eventCount) {
+            const resultsId = 'performance-results';
+            log(resultsId, `\nTesting with ${eventCount} events...`, 'info');
+            setStatus('performance', 'pending');
+
+            const startTime = performance.now();
+
+            try {
+                const promises = [];
+                for (let i = 0; i < eventCount; i++) {
+                    promises.push(
+                        fetch(BASE_URL + '/api/globe/webhook', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                type: 'PushEvent',
+                                repo: { name: 'test/repo' },
+                                actor: { login: 'testuser' },
+                                created_at: new Date().toISOString(),
+                                repository: { language: 'JavaScript' }
+                            })
+                        })
+                    );
+                }
+
+                await Promise.all(promises);
+                const duration = performance.now() - startTime;
+                const eventsPerSecond = Math.round(eventCount / (duration / 1000));
+
+                log(resultsId, `✅ Processed ${eventCount} events in ${duration.toFixed(2)}ms`, 'success');
+                log(resultsId, `⚡ ~${eventsPerSecond} events/second`, 'success');
+                setStatus('performance', eventsPerSecond > 100 ? 'ok' : 'error');
+            } catch (error) {
+                log(resultsId, `❌ Error: ${error.message}`, 'error');
+                setStatus('performance', 'error');
+            }
+        };
+
+        // Test 5: All Tests
+        window.runAllTests = async function() {
+            document.getElementById('all-results').innerHTML = '';
+            log('all-results', '🚀 Running all tests...', 'info');
+
+            await testBackend();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            testWebSocket();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            testGlobeRendering();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testPerformance(100);
+            
+            log('all-results', '\n✅ All tests completed!', 'success');
+        };
+
+        // Initialize status indicators
+        ['backend', 'websocket', 'globe', 'performance'].forEach(component => {
+            setStatus(component, 'pending');
+        });
+
+        log('all-results', '🌍 Globe Feature Test Page Ready', 'success');
+        log('all-results', 'Click "Run All Tests" to verify everything works!', 'info');
+    </script>
+</body>
+</html>

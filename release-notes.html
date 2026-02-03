@@ -15,25 +15,11 @@
 
 <body class="eightgon-page">
     <div class="page-wrapper">
-        <!-- Navigation -->
-        <nav class="navbar">
-            <div class="nav-container">
-                <a class="logo" href="index.html">
-                    <img class="logo-img" src="assets/logo/thelogo.png" alt="XAYTHEON logo">
-                </a>
-                <ul class="nav-menu">
-                    <li><a class="nav-link" href="index.html#home">Home</a></li>
-                    <li><a class="nav-link" href="github.html">Dashboard</a></li>
-                    <li><a class="nav-link active" href="release-notes.html">Release Notes</a></li>
-                    <li><a class="nav-link" href="code-analyzer.html">Code Analyzer</a></li>
-                    <li><a class="nav-link" href="pr-review.html">PR Assistant</a></li>
-                    <li id="auth-area"></li>
-                </ul>
-            </div>
-        </nav>
+       
 
         <main class="release-container">
             <header class="release-header">
+                <div id="header-placeholder"></div>
                 <div>
                     <h1 class="page-title">Automated Release Notes</h1>
                     <p class="page-subtitle">AI-powered changelog generation from commits and pull requests.</p>
@@ -113,7 +99,10 @@
             </div>
         </main>
     </div>
-
+     
+    
+<div id="footer-placeholder"></div>
+    <script src="boilerplate/boilerplate-loader.js"></script>
     <script src="release.js"></script>
     <script src="script.js"></script>
 </body>

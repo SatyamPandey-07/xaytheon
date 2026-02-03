@@ -1,0 +1,746 @@
+/**
+ * DevOps War-Room CSS
+ * Immersive incident monitoring dashboard
+ */
+
+:root {
+    --bg-dark: #0a0e1a;
+    --bg-darker: #050810;
+    --bg-card: #151b2e;
+    --border-color: #1e2842;
+    --text-primary: #e4e6eb;
+    --text-secondary: #8b92a7;
+    
+    --critical: #dc3545;
+    --warning: #ffc107;
+    --success: #28a745;
+    --info: #17a2b8;
+    
+    --emergency-red: #ff0000;
+    --emergency-glow: rgba(255, 0, 0, 0.5);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-darker);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+}
+
+.war-room {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Header */
+.war-room-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: var(--bg-card);
+    border-bottom: 2px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.header-left h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--success);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-badge.connecting {
+    background: var(--warning);
+}
+
+.status-badge.disconnected {
+    background: var(--critical);
+}
+
+/* Stats Panel */
+.stats-panel {
+    display: flex;
+    gap: 2rem;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.stat-value.critical {
+    color: var(--critical);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+/* Header Right */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.users-online {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.btn-emergency {
+    padding: 0.5rem 1.5rem;
+    background: var(--critical);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    animation: pulse-red 2s infinite;
+}
+
+.btn-emergency:hover {
+    background: #c82333;
+    box-shadow: 0 0 20px var(--emergency-glow);
+}
+
+@keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 5px var(--emergency-glow); }
+    50% { box-shadow: 0 0 20px var(--emergency-glow); }
+}
+
+/* Main Layout */
+.war-room-main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Event Stream Sidebar */
+.events-sidebar {
+    width: 350px;
+    background: var(--bg-card);
+    border-right: 2px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header h3 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.stream-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-control {
+    flex: 1;
+    padding: 0.4rem;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-control:hover {
+    background: var(--border-color);
+}
+
+.btn-control.active {
+    background: var(--critical);
+    border-color: var(--critical);
+}
+
+/* Event Stream */
+.event-stream {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.event-item {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--bg-dark);
+    border-left: 3px solid var(--info);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.event-item:hover {
+    background: var(--border-color);
+    transform: translateX(5px);
+}
+
+.event-item.critical {
+    border-left-color: var(--critical);
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.event-item.warning {
+    border-left-color: var(--warning);
+}
+
+.event-item.success {
+    border-left-color: var(--success);
+}
+
+.event-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.event-description {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.event-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.event-time {
+    font-style: italic;
+}
+
+.event-priority {
+    padding: 0.1rem 0.4rem;
+    background: var(--bg-darker);
+    border-radius: 10px;
+}
+
+/* Incident Stage (Center) */
+.incident-stage {
+    flex: 1;
+    background: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 2rem;
+}
+
+.no-incident-state {
+    text-align: center;
+}
+
+.empty-state h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.simulate-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-simulate {
+    padding: 0.75rem 1.5rem;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-simulate:hover {
+    background: var(--border-color);
+    transform: translateY(-2px);
+}
+
+/* Pinned Incident */
+.pinned-incident {
+    width: 100%;
+    max-width: 900px;
+    background: var(--bg-card);
+    border: 2px solid var(--critical);
+    border-radius: 12px;
+    box-shadow: 0 0 30px var(--emergency-glow);
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.pinned-incident.hidden {
+    display: none;
+}
+
+.incident-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.incident-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.incident-title-row h2 {
+    font-size: 1.5rem;
+}
+
+.btn-unpin {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-unpin:hover {
+    background: var(--critical);
+    color: white;
+    border-color: var(--critical);
+}
+
+.incident-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.incident-id {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+.severity-badge {
+    padding: 0.25rem 0.75rem;
+    background: var(--critical);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.severity-badge.high {
+    background: var(--warning);
+}
+
+.severity-badge.medium {
+    background: var(--info);
+}
+
+.severity-badge.low {
+    background: var(--success);
+}
+
+.incident-time {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* Incident Body */
+.incident-body {
+    padding: 1.5rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.analysis-section,
+.related-section,
+.actions-section,
+.timeline-section,
+.collab-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-dark);
+    border-radius: 8px;
+}
+
+.analysis-section h3,
+.related-section h3,
+.actions-section h3,
+.timeline-section h3,
+.collab-section h3 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.analysis-content {
+    padding: 1rem;
+    background: var(--bg-darker);
+    border-left: 3px solid var(--info);
+    border-radius: 4px;
+    line-height: 1.6;
+}
+
+.confidence-meter {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.meter {
+    flex: 1;
+    height: 20px;
+    background: var(--bg-darker);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.meter-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--critical), var(--warning), var(--success));
+    transition: width 0.5s ease-out;
+}
+
+.related-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.related-item {
+    padding: 0.5rem;
+    background: var(--bg-darker);
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.related-item a {
+    color: var(--info);
+    text-decoration: none;
+}
+
+.related-item a:hover {
+    text-decoration: underline;
+}
+
+.actions-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.actions-list li {
+    padding: 0.5rem;
+    background: var(--bg-darker);
+    border-left: 3px solid var(--success);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+/* Timeline */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    background: var(--bg-darker);
+    border-radius: 4px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background: var(--info);
+    border-radius: 50%;
+    border: 2px solid var(--bg-dark);
+}
+
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    left: -1.45rem;
+    top: calc(50% + 12px);
+    width: 2px;
+    height: calc(100% + 1rem);
+    background: var(--border-color);
+}
+
+.timeline-item:last-child::after {
+    display: none;
+}
+
+/* Collaboration */
+.collab-feed {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.comment-input {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.comment-input textarea {
+    flex: 1;
+    padding: 0.5rem;
+    background: var(--bg-darker);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    resize: none;
+    font-family: inherit;
+}
+
+/* Action Buttons */
+.incident-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 0.75rem;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-action:hover {
+    background: var(--border-color);
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+.btn-primary {
+    padding: 0.5rem 1rem;
+    background: var(--info);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: #138496;
+}
+
+/* Incidents Sidebar */
+.incidents-sidebar {
+    width: 350px;
+    background: var(--bg-card);
+    border-left: 2px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+
+.incidents-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.incident-card {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--bg-dark);
+    border-radius: 4px;
+    border-left: 3px solid var(--info);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.incident-card:hover {
+    background: var(--border-color);
+    transform: translateX(-5px);
+}
+
+.incident-card.critical {
+    border-left-color: var(--critical);
+}
+
+/* Emergency Overlay */
+.emergency-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: emergencyPulse 1s infinite;
+}
+
+@keyframes emergencyPulse {
+    0%, 100% { opacity: 0.95; }
+    50% { opacity: 1; }
+}
+
+.emergency-overlay.hidden {
+    display: none;
+}
+
+.emergency-content {
+    text-align: center;
+    color: white;
+}
+
+.emergency-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: shake 0.5s infinite;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.btn-emergency-exit {
+    padding: 1rem 2rem;
+    background: white;
+    color: var(--emergency-red);
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 2rem;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-darker);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Loading Animation */
+.loading {
+    text-align: center;
+    color: var(--text-secondary);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}

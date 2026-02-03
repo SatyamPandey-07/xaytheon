@@ -3,25 +3,31 @@ const db = require("../config/db");
 /**
  * Create a new user
  */
-exports.createUser = (email, password) =>
+/**
+ * Create a new user
+ */
+exports.createUser = (email, password, githubId = null, username = null, avatarUrl = null) =>
   new Promise((resolve, reject) => {
     if (!email || typeof email !== "string" || email.length > 254) {
       return reject(new Error("Invalid email"));
     }
 
-    if (!password || typeof password !== "string" || password.length > 128) {
+    if (!githubId && (!password || typeof password !== "string" || password.length > 128)) {
       return reject(new Error("Invalid password"));
     }
 
     db.run(
-      `INSERT INTO users (email, password)
-       VALUES (?, ?)`,
-      [email, password],
+      `INSERT INTO users (email, password, github_id, username, avatar_url)
+       VALUES (?, ?, ?, ?, ?)`,
+      [email, password, githubId, username, avatarUrl],
       function (err) {
         if (err) return reject(err);
         resolve({
           id: this.lastID,
-          email
+          email,
+          githubId,
+          username,
+          avatarUrl
         });
       }
     );
@@ -37,8 +43,27 @@ exports.findByEmail = (email) =>
     }
 
     db.get(
-      "SELECT id, email, password, view_history, preferred_language, preferences FROM users WHERE email = ?",
+      "SELECT id, email, password, github_id, username, avatar_url, view_history, preferred_language, preferences FROM users WHERE email = ?",
       [email],
+      (err, row) => {
+        if (err) return reject(err);
+        resolve(row || null);
+      }
+    );
+  });
+
+/**
+ * Find user by GitHub ID
+ */
+exports.findByGithubId = (githubId) =>
+  new Promise((resolve, reject) => {
+    if (!githubId) {
+      return reject(new Error("Invalid GitHub ID"));
+    }
+
+    db.get(
+      "SELECT id, email, password, github_id, username, avatar_url, view_history, preferred_language, preferences FROM users WHERE github_id = ?",
+      [githubId],
       (err, row) => {
         if (err) return reject(err);
         resolve(row || null);
@@ -105,6 +130,21 @@ exports.updateViewHistory = (userId, historyJson) =>
       function (err) {
         if (err) return reject(err);
         resolve(this.changes);
+      }
+    );
+  });
+
+/**
+ * Update user GitHub info (linking account)
+ */
+exports.updateGithubInfo = (userId, githubId, username, avatarUrl) =>
+  new Promise((resolve, reject) => {
+    db.run(
+      "UPDATE users SET github_id = ?, username = ?, avatar_url = ? WHERE id = ?",
+      [githubId, username, avatarUrl, userId],
+      function (err) {
+        if (err) reject(err);
+        else resolve(this.changes);
       }
     );
   });
