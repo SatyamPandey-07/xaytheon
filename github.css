@@ -39,31 +39,8 @@
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.25);
 }
-
-/* Dark Theme (Default) */
-:root,
-[data-theme="dark"] {
-  --bg-primary: #000000;
-  --bg-secondary: #0a0a0a;
-  --bg-tertiary: #141414;
-  --bg-elevated: #1a1a1a;
-  --bg-hover: #222222;
-
-  --border-primary: #2a2a2a;
-  --border-secondary: #333333;
-  --border-hover: #404040;
-
-  --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
-  --text-tertiary: #808080;
-  --text-muted: #606060;
-
-  --accent-gradient: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
-  --card-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-}
-
-/* Light Theme */
-[data-theme="light"] {
+:root {
+  /* Light theme defaults */
   --bg-primary: #ffffff;
   --bg-secondary: #fafafa;
   --bg-tertiary: #f5f5f5;
@@ -88,9 +65,6 @@
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
 }
 
-/* ===================================
-   MAIN LAYOUT
-   =================================== */
 .github-main {
   min-height: 100vh;
   background: var(--bg-primary);
@@ -114,9 +88,9 @@
    =================================== */
 .hero-section {
   text-align: center;
-  margin-bottom: var(--space-4xl);
-  margin-top: var(--space-3xl);
-  padding: var(--space-3xl) 0;
+  margin-bottom: var(--space-xl);
+  margin-top: var(--space-xl);
+  padding: var(--space-xl) 0;
 }
 
 .hero-title {
@@ -148,7 +122,7 @@
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-2xl);
   padding: var(--space-xl);
-  margin-bottom: var(--space-4xl);
+  margin-bottom: var(--space-xl);
   margin-top: var(--space-3xl);
   border-color: var(--border-hover);
   box-shadow: var(--shadow-xl);
@@ -279,8 +253,8 @@
 }
 
 .dashboard-section {
-  margin-bottom: var(--space-5xl);
-  margin-top: var(--space-5xl);
+  margin-bottom: var(--space-xl);
+  margin-top: var(--space-xl);
   padding: var(--space-3xl) 0;
   border-top: 2px solid var(--border-primary);
   padding-top: var(--space-4xl);
@@ -312,7 +286,7 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: var(--space-lg);
-  margin-bottom: var(--space-4xl);
+  margin-bottom: var(--space-xl);
   margin-top: var(--space-3xl);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-2xl);
@@ -590,7 +564,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-lg);
-  margin-bottom: var(--space-4xl);
+  margin-bottom: var(--space-xl);
   margin-top: var(--space-3xl);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
@@ -700,7 +674,7 @@
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
-  margin-bottom: var(--space-4xl);
+  margin-bottom: var(--space-xl);
   margin-top: var(--space-3xl);
 }
 
@@ -759,8 +733,8 @@
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
-  margin-top: var(--space-3xl);
-  margin-bottom: var(--space-4xl);
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-xl);
   flex-direction: column;
   gap: var(--space-md);
 }
@@ -785,220 +759,6 @@
   align-items: center;
   gap: var(--space-sm);
   margin-bottom: var(--space-sm);
-}
-
-.repo-name {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  flex: 1;
-}
-
-.repo-visibility {
-  padding: 4px 12px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-primary);
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.repo-description {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: var(--space-md);
-}
-
-.repo-stats {
-  display: flex;
-  gap: var(--space-lg);
-  font-size: 0.875rem;
-  color: var(--text-tertiary);
-}
-
-.repo-stat {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* ===================================
-   CONTRIBUTION ACTIVITY 
-   =================================== */
-
-.activity-overview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--space-lg);
-  margin-bottom: var(--space-4xl);
-  margin-top: var(--space-3xl);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-md);
-  transition: all var(--transition-base);
-  position: relative;
-  overflow: hidden;
-}
-
-.activity-stat-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--accent-gradient);
-  opacity: 0;
-  transition: opacity var(--transition-base);
-}
-
-.activity-stat-card:hover {
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-4px);
-}
-
-.activity-stat-card:hover::before {
-  opacity: 1;
-}
-
-/* Activity Card Header with Icon */
-.activity-stat-card {
-  display: flex;
-  flex-direction: column;
-}
-
-.activity-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-bottom: var(--space-lg);
-}
-
-/* Remove emoji styling, use SVG icons instead */
-.activity-icon.streak {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-}
-
-.activity-icon.longest {
-  background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
-}
-
-.activity-icon.total {
-  background: linear-gradient(135deg, #141414 0%, #242424 100%);
-}
-
-.activity-icon.avg {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-}
-
-[data-theme="light"] .activity-icon.streak {
-  background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
-}
-
-[data-theme="light"] .activity-icon.longest {
-  background: linear-gradient(135deg, #d0d0d0 0%, #c0c0c0 100%);
-}
-
-[data-theme="light"] .activity-icon.total {
-  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
-}
-
-[data-theme="light"] .activity-icon.avg {
-  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
-}
-
-/* Add SVG icons to replace emojis */
-.activity-icon svg {
-  width: 24px;
-  height: 24px;
-  stroke: var(--text-primary);
-}
-
-/* Activity Value */
-.activity-value {
-  font-size: 2.5rem;
-  font-weight: 900;
-  color: var(--text-primary);
-  line-height: 1;
-  margin-bottom: var(--space-sm);
-}
-
-/* Activity Label */
-.activity-label {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Activity Patterns Card */
-.activity-patterns-card {
-  background: var(--card-gradient);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-md);
-  margin-top: var(--space-3xl);
-  margin-bottom: var(--space-5xl);
-}
-
-.activity-chart {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* ===================================
-   CONTRIBUTION HEATMAP - FIXED & SCOPED
-   No Global Spacing Impact
-   =================================== */
-
-.contribution-heatmap-card {
-  background: var(--card-gradient);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  margin-bottom: var(--space-4xl);
-  margin-top: var(--space-3xl);
-}
-
-.contribution-heatmap-card .heatmap-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: var(--space-md);
-}
-
-.contribution-heatmap-card .card-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-/* Legend */
-.contribution-heatmap-card .heatmap-legend {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.contribution-heatmap-card .legend-label {
-  font-size: 11px;
-  color: var(--text-tertiary);
-  margin: 0 4px;
 }
 
 .contribution-heatmap-card .legend-box {
@@ -1211,4 +971,218 @@
   font-family: inherit;
   letter-spacing: 0.01em;
 }
+
+
+.repo-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.repo-visibility {
+  padding: 4px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.repo-description {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-md);
+}
+
+.repo-stats {
+  display: flex;
+  gap: var(--space-lg);
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+.repo-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ===================================
+   CONTRIBUTION ACTIVITY 
+   =================================== */
+
+.activity-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  margin-top: var(--space-3xl);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.activity-stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.activity-stat-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+.activity-stat-card:hover::before {
+  opacity: 1;
+}
+
+/* Activity Card Header with Icon */
+.activity-stat-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: var(--space-lg);
+}
+
+/* Remove emoji styling, use SVG icons instead */
+.activity-icon.streak {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+}
+
+.activity-icon.longest {
+  background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
+}
+
+.activity-icon.total {
+  background: linear-gradient(135deg, #141414 0%, #242424 100%);
+}
+
+.activity-icon.avg {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+}
+
+[data-theme="light"] .activity-icon.streak {
+  background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
+}
+
+[data-theme="light"] .activity-icon.longest {
+  background: linear-gradient(135deg, #d0d0d0 0%, #c0c0c0 100%);
+}
+
+[data-theme="light"] .activity-icon.total {
+  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+}
+
+[data-theme="light"] .activity-icon.avg {
+  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+}
+
+/* Add SVG icons to replace emojis */
+.activity-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text-primary);
+}
+
+/* Activity Value */
+.activity-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: var(--space-sm);
+}
+
+/* Activity Label */
+.activity-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Activity Patterns Card */
+.activity-patterns-card {
+  background: var(--card-gradient);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-md);
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.activity-chart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ===================================
+   CONTRIBUTION HEATMAP - FIXED & SCOPED
+   No Global Spacing Impact
+   =================================== */
+
+.contribution-heatmap-card {
+  background: var(--card-gradient);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  margin-top: var(--space-xl);
+}
+
+.contribution-heatmap-card .heatmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.contribution-heatmap-card .card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Legend */
+.contribution-heatmap-card .heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.contribution-heatmap-card .legend-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin: 0 4px;
 }

@@ -1,19 +1,9 @@
-/* ===================================
-   GITHUB DASHBOARD - PREMIUM EDITION
-   Complete Analytics Hub
-   =================================== */
 
-// ===================================
-// Initialize Theme
-// ===================================
 (function initTheme() {
     const theme = localStorage.getItem("theme") || "dark";
     document.documentElement.setAttribute("data-theme", theme);
 })();
 
-// ===================================
-// Main Dashboard Class
-// ===================================
 class GitHubDashboard {
     constructor() {
         this.form = document.getElementById('github-form');
@@ -38,9 +28,6 @@ class GitHubDashboard {
         document.getElementById('theme-toggle')?.addEventListener('click', () => {
             this.toggleTheme();
         });
-
-        // Smart Default: Auto-load a profile to eliminate empty state
-        // Check for URL param first, then auth user, then fallback to a default
         const urlParams = new URLSearchParams(window.location.search);
         const urlUser = urlParams.get('user');
 
@@ -48,9 +35,6 @@ class GitHubDashboard {
             this.usernameInput.value = urlUser;
             this.fetchAllData(urlUser);
         } else {
-            // Check for authenticated user in XAYTHEON_AUTH if available
-            // For now, we'll use a smart default "featured" profile if the input is empty
-            // This ensures the user sees VALUE immediately
             setTimeout(() => {
                 if (window.XAYTHEON_AUTH && window.XAYTHEON_AUTH.isAuthenticated()) {
                     const session = window.XAYTHEON_AUTH.getSession();
@@ -58,9 +42,7 @@ class GitHubDashboard {
                 }
 
                 if (!this.usernameInput.value) {
-                    // "Smart Default" - Load a compelling profile to show capabilities
-                    // Using 'torvalds' (Linux creator) or 'shadcn' (popular UI) or similar
-                    // Let's use 'torvalds' as he is universally known in dev world
+                  
                     const defaultUser = 'torvalds';
                     this.usernameInput.value = defaultUser;
                     this.showStatus(`✨ Loading smart default profile: ${defaultUser}...`, 'info');
@@ -155,10 +137,6 @@ class GitHubDashboard {
             console.error('GitHub API Error:', error);
         }
     }
-
-    // ===================================
-    // SECTION 1: PROFILE OVERVIEW
-    // ===================================
     displayProfile() {
         const user = this.userData;
 
@@ -209,10 +187,6 @@ class GitHubDashboard {
             ratioText.textContent = `${ratio.toFixed(2)}:1 ratio`;
         }
     }
-
-    // ===================================
-    // SECTION 2: REPOSITORY STATISTICS
-    // ===================================
     displayRepositoryStats() {
         const repos = this.reposData;
 
@@ -331,11 +305,6 @@ class GitHubDashboard {
             chartEl.appendChild(item);
         });
     }
-    // ===================================
-    // TOP REPOSITORIES - WITH PREMIUM SVG ICONS
-    // Replace your displayTopRepositories function with this
-    // ===================================
-
     displayTopRepositories(repos) {
         const listEl = document.getElementById('top-repos-list');
         if (!listEl) return;
@@ -419,10 +388,6 @@ class GitHubDashboard {
             listEl.appendChild(item);
         });
     }
-
-    // ===================================
-    // PERSONALIZED SUGGESTIONS
-    // ===================================
     async fetchSuggestedRepos(language) {
         const container = document.getElementById('suggested-repos-container');
         const listEl = document.getElementById('suggested-repos-list');
@@ -491,10 +456,6 @@ class GitHubDashboard {
             container.style.display = 'none';
         }
     }
-
-    // ===================================
-    // SECTION 3: CONTRIBUTION ACTIVITY
-    // ===================================
     displayContributionActivity() {
         const events = this.eventsData;
 
@@ -565,17 +526,6 @@ class GitHubDashboard {
 
         return { current, longest: Math.max(longest, current) };
     }
-
-    // ===================================
-    // CONTRIBUTION HEATMAP - GITHUB OFFICIAL STYLE (FIXED)
-    // Replace your existing renderContributionHeatmap function with this
-    // ===================================
-    // ===================================
-    // CONTRIBUTION HEATMAP - GITHUB OFFICIAL STYLE
-    // FIXED: Overlapping months & proper sizing
-    // Replace your existing renderContributionHeatmap function with this
-    // ===================================
-
     renderContributionHeatmap(events) {
         const gridEl = document.getElementById('contribution-heatmap');
         const tooltipEl = document.getElementById('heatmap-tooltip');
@@ -641,9 +591,7 @@ class GitHubDashboard {
             firstDayOfWeek.setDate(startDate.getDate() + (week * 7));
             const month = firstDayOfWeek.getMonth();
 
-            // Only add month label if:
-            // 1. Month changed
-            // 2. At least 2 weeks since last month label (prevent overlap)
+         
             if (month !== lastMonth && (week - lastMonthWeek >= 2 || lastMonthWeek === -1)) {
                 lastMonth = month;
                 lastMonthWeek = week;
@@ -738,9 +686,7 @@ class GitHubDashboard {
 
         console.log('Heatmap rendered:', weeksToShow, 'weeks,', monthPositions.length, 'month labels');
     }
-    // ===================================
-    // ACTIVITY CHART
-    // ===================================
+  
     renderActivityChart(events) {
         const canvasEl = document.getElementById('activity-chart');
         if (!canvasEl) return;
@@ -848,9 +794,6 @@ class GitHubDashboard {
         });
     }
 
-    // ===================================
-    // UTILITY FUNCTIONS
-    // ===================================
     formatNumber(num) {
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
         if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
@@ -884,10 +827,6 @@ class GitHubDashboard {
 
         return 'Just now';
     }
-
-    // ===================================
-    // CLEAR DASHBOARD
-    // ===================================
     clearDashboard() {
         this.usernameInput.value = '';
         this.dashboard?.classList.add('dashboard-hidden');
@@ -919,10 +858,6 @@ class GitHubDashboard {
         this.showStatus('Dashboard cleared', 'info');
     }
 }
-
-// ===================================
-// Initialize Dashboard
-// ===================================
 document.addEventListener('DOMContentLoaded', () => {
     new GitHubDashboard();
 });

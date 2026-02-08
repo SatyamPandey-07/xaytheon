@@ -1,171 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
-
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GitHub Dashboard — XAYTHEON</title>
-
-  <!-- Supabase SDK & auth bootstrap -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
-  <script defer src="auth.js"></script>
-  <script>
-    const theme = localStorage.getItem("theme")
-    if (theme) {
-      document.documentElement.setAttribute("data-theme", theme)
-    }
-  </script>
-  <!--Styling -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    .section-title {
-      font-family: VT323;
-      font-size: 60px;
-      top: 10vh;
-    }
-
-    .navbar {
-      background-color: #000;
-    }
-
-    .navbar a,
-    .navbar .theme-toggle {
-      color: #fff;
-    }
-
-    .navbar .theme-toggle svg {
-      stroke: #fff;
-    }
-
-    .navbar .logo-img {
-      filter: brightness(0) invert(1);
-    }
-
-    #gh-username::placeholder {
-      color: rgba(0, 0, 0, 0.6);
-    }
-
-    #gh-username:focus {
-      border-color: rgba(0, 0, 0, 0.6);
-      box-shadow:
-        0 0 0 3px rgba(0, 0, 0, 0.1),
-        0 12px 28px rgba(0, 0, 0, 0.12);
-    }
-
-    #gh-username {
-      background: rgba(99, 102, 241, 0.12);
-      /* accent tint */
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-
-      border: 1px solid rgba(99, 102, 241, 0.25);
-      border-radius: 14px;
-
-      color: #000;
-    }
-
-    /* =========================
-    PROFILE CARD ANIMATION
-    ========================= */
-
-    .profile-card {
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* --- Base layout (before hover) --- */
-    .profile-row {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 10px;
-
-      transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-      will-change: transform;
-    }
-
-    /* Avatar */
-    .avatar {
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
-      object-fit: cover;
-
-      transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-      will-change: transform;
-    }
-
-    /* Hide secondary text initially */
-    .profile-login,
-    .profile-bio {
-      opacity: 0;
-      transform: translateY(6px);
-
-      transition:
-        opacity 0.45s ease 0.15s,
-        transform 0.45s ease 0.15s;
-
-      will-change: opacity, transform;
-    }
-
-    /* Stats hidden & removed from flow */
-    .profile-stats {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translate(-50%, 20px);
-      opacity: 0;
-
-      display: flex;
-      gap: 28px;
-
-      transition:
-        opacity 0.6s ease 0.2s,
-        transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
-
-      will-change: opacity, transform;
-    }
-
-    /* =========================
-    HOVER STATE
-    ========================= */
-
-    .profile-card:hover .profile-row {
-      flex-direction: row;
-      align-items: center;
-      text-align: left;
-      transform: translateX(-40px);
-    }
-
-    .profile-card:hover .avatar {
-      transform: scale(0.6);
-    }
-
-    .profile-card:hover .profile-login,
-    .profile-card:hover .profile-bio {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .profile-card:hover .profile-stats {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
-  </style>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#000000" />
   <title>GitHub Dashboard — XAYTHEON</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png" />
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Fonts & Icons -->
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Press+Start+2P&display=swap"
     rel="stylesheet" />
@@ -173,17 +15,26 @@
   <link rel="stylesheet" href="github.css" />
   <link rel="stylesheet" href="github-suggestions.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <script>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script src="theme.js"></script>
 
-  </script>
+
+  <!-- Supabase SDK & Chart.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
-
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
-  <!-- Three.js (Mini Viewer / 3D Stuff) -->
+  <!-- Three.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
+  <!-- Custom Scripts -->
+  <script defer src="auth.js"></script>
+  <script defer src="i18n.js"></script>
+  <script defer src="github.js"></script>
+  <script defer src="contributions.js"></script>
+  <script defer src="boilerplate/boilerplate-loader.js"></script>
 </head>
 
 <body class="eightgon-page">
@@ -197,9 +48,7 @@
         <!-- HERO -->
         <section class="hero-section">
           <h1 class="hero-title">Personal GitHub Analytics</h1>
-          <p class="hero-subtitle">
-            Comprehensive insights into your GitHub presence and activity patterns
-          </p>
+          <p class="hero-subtitle">Comprehensive insights into your GitHub presence and activity patterns</p>
         </section>
 
         <!-- SEARCH -->
@@ -212,27 +61,29 @@
               </svg>
               <input type="text" id="gh-username" class="search-input"
                 placeholder="Enter GitHub username (e.g., octocat)" />
-            </div>
+              <label for="gh-username" class="sr-only">GitHub Username</label>
 
+            </div>
             <div class="search-actions">
               <button type="submit" class="btn-search">
-                <span>Analyze Profile</span>
-                <svg width="16" height="16" viewBox="0 0 24 24">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-              </button>
+                <button type="submit" class="btn-search" aria-label="Analyze GitHub profile">
 
-              <button type="button" id="clear-btn" class="btn-clear">
-                Clear
-              </button>
+                  <span>Analyze Profile</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </button>
+                <button type="button" id="clear-btn" class="btn-clear">Clear</button>
             </div>
           </form>
-
           <div id="status-message" class="status-message"></div>
         </section>
 
+        <!-- DASHBOARD -->
         <div id="dashboard" class="dashboard-hidden">
+
+          <!-- Profile Overview -->
           <section class="dashboard-section">
             <div class="section-header">
               <h2 class="section-title">Profile Overview</h2>
@@ -240,6 +91,7 @@
             </div>
 
             <div class="profile-grid">
+
               <!-- Profile Card -->
               <div class="profile-main-card">
                 <div class="profile-banner"></div>
@@ -317,10 +169,11 @@
                   <div id="ratio-text" class="ratio-text">—</div>
                 </div>
               </div>
+
             </div>
           </section>
 
-          <!-- Section 2: Repository Statistics -->
+          <!-- Repository Statistics -->
           <section class="dashboard-section">
             <div class="section-header">
               <h2 class="section-title">Repository Statistics</h2>
@@ -328,7 +181,6 @@
             </div>
 
             <div class="repo-stats-grid">
-              <!-- Public Repos -->
               <div class="stat-card public-repos">
                 <div class="stat-card-header">
                   <div class="stat-icon-wrapper public">
@@ -342,7 +194,6 @@
                 <div class="stat-card-footer">Total public repos</div>
               </div>
 
-              <!-- Total Stars -->
               <div class="stat-card total-stars">
                 <div class="stat-card-header">
                   <div class="stat-icon-wrapper stars">
@@ -357,7 +208,6 @@
                 <div class="stat-card-footer">Stars earned</div>
               </div>
 
-              <!-- Total Forks -->
               <div class="stat-card total-forks">
                 <div class="stat-card-header">
                   <div class="stat-icon-wrapper forks">
@@ -375,7 +225,6 @@
                 <div class="stat-card-footer">Times forked</div>
               </div>
 
-              <!-- Total Size -->
               <div class="stat-card total-size">
                 <div class="stat-card-header">
                   <div class="stat-icon-wrapper size">
@@ -392,137 +241,46 @@
                 <div class="stat-card-footer">Repository size</div>
               </div>
             </div>
-
-            <!-- Language Breakdown -->
-            <div class="language-breakdown-card">
-              <h4 class="card-title">Language Distribution</h4>
-              <p id="primary-lang-insight" class="insight-text"
-                style="color: var(--text-secondary); margin-bottom: 16px; font-size: 0.95rem;"></p>
-              <div id="language-chart" class="language-chart"></div>
-            </div>
-
-            <!-- Top Repositories -->
-            <div class="top-repos-card">
-              <h4 class="card-title">Top Repositories</h4>
-              <div id="top-repos-list" class="top-repos-list"></div>
-            </div>
-
-            <!-- Suggested Repositories (Smart Default) -->
-            <div class="suggested-repos-card" id="suggested-repos-container" style="display: none; margin-top: 24px;">
-              <h4 class="card-title">
-                <span class="highlight-text">Recommended for You</span>
-                <span class="card-subtitle-small">Based on your <span id="primary-lang-label">code</span>
-                  interests</span>
-              </h4>
-              <div id="suggested-repos-list" class="top-repos-list"></div>
-            </div>
           </section>
 
-          <!-- Section 3: Contribution Visualization -->
+          <!-- Contribution & Activity -->
           <section class="dashboard-section">
             <div class="section-header">
               <h2 class="section-title">Contribution Activity</h2>
               <div class="section-line"></div>
             </div>
 
-            <!-- Activity Overview Grid - Replace your existing activity-overview-grid section with this -->
             <div class="activity-overview-grid">
-              <!-- Current Streak -->
               <div class="activity-stat-card">
-                <div class="activity-icon streak">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                  </svg>
-                </div>
+                <div class="activity-icon streak"></div>
                 <div class="activity-value" id="current-streak">0</div>
                 <div class="activity-label">Current Streak</div>
               </div>
-
-              <!-- Longest Streak -->
               <div class="activity-stat-card">
-                <div class="activity-icon longest">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                  </svg>
-                </div>
+                <div class="activity-icon longest"></div>
                 <div class="activity-value" id="longest-streak">0</div>
                 <div class="activity-label">Longest Streak</div>
               </div>
-
-              <!-- Total Contributions -->
               <div class="activity-stat-card">
-                <div class="activity-icon total">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7" />
-                    <rect x="14" y="3" width="7" height="7" />
-                    <rect x="14" y="14" width="7" height="7" />
-                    <rect x="3" y="14" width="7" height="7" />
-                  </svg>
-                </div>
+                <div class="activity-icon total"></div>
                 <div class="activity-value" id="total-contributions">0</div>
                 <div class="activity-label">Total Contributions</div>
               </div>
-
-              <!-- Average Per Day -->
               <div class="activity-stat-card">
-                <div class="activity-icon avg">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 3v18h18" />
-                    <path d="m19 9-5 5-4-4-3 3" />
-                  </svg>
-                </div>
+                <div class="activity-icon avg"></div>
                 <div class="activity-value" id="avg-daily">0.0</div>
                 <div class="activity-label">Avg Per Day</div>
               </div>
             </div>
-            <!-- Contribution Heatmap -->
 
             <div class="contribution-heatmap-card">
               <div class="heatmap-header">
                 <h4 class="card-title">Contribution Activity</h4>
-                <div class="heatmap-legend">
-                  <span class="legend-label">Less</span>
-                  <div class="legend-box level-0"></div>
-                  <div class="legend-box level-1"></div>
-                  <div class="legend-box level-2"></div>
-                  <div class="legend-box level-3"></div>
-                  <div class="legend-box level-4"></div>
-                  <span class="legend-label">More</span>
-                </div>
               </div>
-
               <div class="heatmap-container">
-                <div class="heatmap-wrapper">
-                  <!-- Weekday Labels -->
-                  <div class="weekday-labels">
-                    <div class="weekday-label">Mon</div>
-                    <div class="weekday-label"></div>
-                    <div class="weekday-label">Wed</div>
-                    <div class="weekday-label"></div>
-                    <div class="weekday-label">Fri</div>
-                    <div class="weekday-label"></div>
-                    <div class="weekday-label"></div>
-                  </div>
-
-                  <!-- Month Labels -->
-                  <div id="month-labels" class="month-labels"></div>
-
-                  <!-- Grid Container -->
-                  <div class="grid-container">
-                    <div id="contribution-heatmap" class="contribution-grid"></div>
-                  </div>
-                </div>
+                <div id="contribution-heatmap" class="contribution-grid"></div>
               </div>
-
-              <div id="heatmap-tooltip" class="heatmap-tooltip"></div>
             </div>
-
-            <!-- Activity Patterns -->
 
             <div class="activity-patterns-card">
               <h4 class="card-title">Activity Patterns</h4>
@@ -530,102 +288,58 @@
                 <canvas id="activity-chart" class="activity-chart"></canvas>
               </div>
             </div>
-          </section>
-
-          <!-- Average Per Day -->
-          <div class="activity-stat-card">
-            <div class="activity-icon avg">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 3v18h18" />
-                <path d="m19 9-5 5-4-4-3 3" />
-              </svg>
-            </div>
-            <div class="activity-value" id="avg-daily">0.0</div>
-            <div class="activity-label">Avg Per Day</div>
-          </div>
-        </div>
-        <!-- Contribution Heatmap -->
-
-        <div class="contribution-heatmap-card">
-          <div class="heatmap-header">
-            <h4 class="card-title">Contribution Activity</h4>
             <div class="heatmap-legend">
-              <span class="legend-label">Less</span>
+              <span>Less</span>
               <div class="legend-box level-0"></div>
               <div class="legend-box level-1"></div>
               <div class="legend-box level-2"></div>
               <div class="legend-box level-3"></div>
               <div class="legend-box level-4"></div>
-              <span class="legend-label">More</span>
+              <span>More</span>
             </div>
-          </div>
 
-          <div class="heatmap-container">
-            <div class="heatmap-wrapper">
-              <!-- Weekday Labels -->
-              <div class="weekday-labels">
-                <div class="weekday-label">Mon</div>
-                <div class="weekday-label"></div>
-                <div class="weekday-label">Wed</div>
-                <div class="weekday-label"></div>
-                <div class="weekday-label">Fri</div>
-                <div class="weekday-label"></div>
-                <div class="weekday-label"></div>
-              </div>
+          </section>
+          <!-- Language Insights -->
+          <section class="dashboard-section">
+            <div class="section-header">
+              <h2 class="section-title">Language Insights</h2>
+              <div class="section-line"></div>
+            </div>
 
-              <!-- Month Labels -->
-              <div id="month-labels" class="month-labels"></div>
+            <div class="language-insights-card">
+              <p id="primary-lang-insight" class="insight-text"></p>
+              <div id="language-chart" class="language-chart"></div>
+            </div>
+          </section>
 
-              <!-- Scripts -->
-              <script defer src="auth.js"></script>
-              <script defer src="i18n.js"></script>
-              <script src="theme.js"></script>
-              <script src="github.js"></script>
-              <script src="boilerplate/boilerplate-loader.js"></script>
-              </section>
+          <!-- Top Repositories -->
+          <section class="dashboard-section">
+            <div class="section-header">
+              <h2 class="section-title">Top Repositories</h2>
+              <div class="section-line"></div>
+            </div>
+            <div id="top-repos-list" class="repos-list"></div>
+          </section>
+
+          <!-- Suggested Repositories -->
+          <section id="suggested-repos-container" class="dashboard-section" style="display:none;">
+            <div class="section-header">
+              <h2 class="section-title">Recommended Projects</h2>
+              <div class="section-line"></div>
+            </div>
+            <div id="suggested-repos-list" class="repos-list"></div>
+          </section>
+
+
+        </div>
+      </div>
     </main>
-    <!-- Grid Container -->
-    <div class="grid-container">
-      <div id="contribution-heatmap" class="contribution-grid"></div>
-    </div>
-  </div>
-  </div>
 
-  <div id="heatmap-tooltip" class="heatmap-tooltip"></div>
-  </div>
+    <div id="footer-placeholder"></div>
 
-  <!-- Activity Patterns -->
-
-  <div class="activity-patterns-card">
-    <h4 class="card-title">Activity Patterns</h4>
-    <div class="chart-container">
-      <canvas id="activity-chart" class="activity-chart"></canvas>
-    </div>
-  </div>
-  </section>
-  </div>
 
   </div>
-  </main>
-  </div>
-
-  <!-- =====================================================
-  FOOTER
-  ====================================================== -->
-  <div id="footer-placeholder"></div>
-
-  <!-- =====================================================
-  APP SCRIPTS (ORDER MATTERS)
-  ====================================================== -->
-  <script defer src="boilerplate/boilerplate-loader.js"></script>
-
-  <script defer src="auth.js"></script>
-  <script defer src="i18n.js"></script>
-  <script defer src="theme.js"></script>
-
-  <script defer src="github.js"></script>
-  <script defer src="contributions.js"></script>
+ 
 </body>
 
 </html>
