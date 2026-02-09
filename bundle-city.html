@@ -5,79 +5,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bundle City — XAYTHEON</title>
+
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="bundle-city.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 
 <body class="dark-theme">
-    <div id="header-placeholder"></div>
+
+    <header id="header-placeholder"></header>
 
     <main class="bundle-city-container">
+
         <!-- 3D Canvas -->
         <div id="city-viewport"></div>
 
         <!-- Overlay UI -->
         <div class="ui-overlay">
             <div class="sidebar">
+
                 <div class="card glass">
-                    <h3><i class="ri-government-line"></i> Bundle Analytics</h3>
+                    <h3>
+                        <i class="ri-government-line" aria-hidden="true"></i>
+                        Bundle Analytics
+                    </h3>
+
                     <div class="city-stats">
                         <div class="stat-item">
                             <span class="label">Total Size</span>
-                            <span id="total-size" class="value">0 KB</span>
+                            <span
+                                id="total-size"
+                                class="value"
+                                aria-live="polite"
+                                aria-atomic="true">
+                                0 KB
+                            </span>
                         </div>
+
                         <div class="stat-item">
                             <span class="label">Buildings</span>
-                            <span id="total-buildings" class="value">0</span>
+                            <span
+                                id="total-buildings"
+                                class="value"
+                                aria-live="polite"
+                                aria-atomic="true">
+                                0
+                            </span>
                         </div>
+
                         <div class="stat-item">
                             <span class="label">Bloat Factor</span>
-                            <span id="bloat-factor" class="value">0%</span>
+                            <span
+                                id="bloat-factor"
+                                class="value"
+                                aria-live="polite"
+                                aria-atomic="true">
+                                0%
+                            </span>
                         </div>
                     </div>
                 </div>
 
                 <div class="card glass suggestions-panel">
-                    <h3><i class="ri-magic-line"></i> AI Pruning Insights</h3>
-                    <div id="ai-suggestions" class="suggestions-list">
-                        <!-- AI Recommendations -->
-                        <div class="loading-shimmer">Analyzing city structure...</div>
+                    <h3>
+                        <i class="ri-magic-line" aria-hidden="true"></i>
+                        AI Pruning Insights
+                    </h3>
+
+                    <div
+                        id="ai-suggestions"
+                        class="suggestions-list"
+                        aria-live="polite"
+                        aria-busy="true">
+
+                        <div class="loading-shimmer">
+                            Analyzing city structure...
+                        </div>
                     </div>
                 </div>
+
             </div>
 
             <div class="bottom-controls">
-                <div class="legend glass">
-                    <span class="legend-item"><span class="dot js"></span> JS</span>
-                    <span class="legend-item"><span class="dot css"></span> CSS</span>
-                    <span class="legend-item"><span class="dot img"></span> Images</span>
-                    <span class="legend-item"><span class="dot font"></span> Fonts</span>
+                <div class="legend glass" aria-label="Asset type legend">
+                    <span class="legend-item">
+                        <span class="dot js" aria-hidden="true"></span> JS
+                    </span>
+                    <span class="legend-item">
+                        <span class="dot css" aria-hidden="true"></span> CSS
+                    </span>
+                    <span class="legend-item">
+                        <span class="dot img" aria-hidden="true"></span> Images
+                    </span>
+                    <span class="legend-item">
+                        <span class="dot font" aria-hidden="true"></span> Fonts
+                    </span>
                 </div>
-                <div class="info-bubble glass" id="selection-info">
+
+                <div
+                    class="info-bubble glass"
+                    id="selection-info"
+                    aria-live="polite">
                     <p>Select a building to view performance "Rent"</p>
                 </div>
             </div>
         </div>
 
         <!-- Demolition Confirmation Modal -->
-        <div id="demolition-modal" class="modal">
+        <div
+            id="demolition-modal"
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="demolition-title"
+            aria-describedby="demolition-text"
+            hidden>
+
             <div class="modal-content glass">
-                <h2>⚠️ Demolition Order</h2>
-                <p id="demolition-text">Are you sure you want to prune this module from the bundle?</p>
+                <h2 id="demolition-title">⚠️ Demolition Order</h2>
+                <p id="demolition-text">
+                    Are you sure you want to prune this module from the bundle?
+                </p>
+
                 <div class="modal-actions">
-                    <button id="cancel-demo" class="btn btn-secondary">Abort</button>
-                    <button id="confirm-demo" class="btn btn-danger">Demolish</button>
+                    <button id="cancel-demo" class="btn btn-secondary">
+                        Abort
+                    </button>
+                    <button id="confirm-demo" class="btn btn-danger">
+                        Demolish
+                    </button>
                 </div>
             </div>
         </div>
     </main>
 
-    <script src="boilerplate/boilerplate-loader.js"></script>
-    <script src="bundle-city.js"></script>
-</body>
+    <!-- Footer Landmark -->
+    <footer></footer>
 
+    <script defer src="boilerplate/boilerplate-loader.js"></script>
+    <script defer src="bundle-city.js"></script>
+</body>
 </html>
