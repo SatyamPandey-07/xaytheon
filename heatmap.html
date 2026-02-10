@@ -36,14 +36,18 @@
     <!-- Header -->
     <div id="header-placeholder"></div>
 
-    <main class="heatmap-page" role="main">
+    <main class="heatmap-page">
 
         <!-- ===== HEATMAP CARD ===== -->
         <article class="card heatmap-card" id="capture-area" aria-labelledby="heatmap-title">
 
             <header class="heatmap-header">
                 <h2 id="heatmap-title">🔥 Contribution Heatmap</h2>
-                <button id="export-btn" class="btn btn-primary">
+                <button
+                    id="export-btn"
+                    class="btn btn-primary"
+                    aria-label="Export contribution heatmap as PNG"
+                >
                     Export PNG
                 </button>
             </header>
@@ -53,20 +57,24 @@
                 id="heatmap-svg-container"
                 class="heatmap-container"
                 role="img"
-                aria-label="Contribution heatmap showing activity intensity by day"
+                aria-labelledby="heatmap-title heatmap-legend-desc"
             >
                 <!-- SVG injected by heatmap.js -->
             </div>
 
             <!-- Legend -->
-            <div class="heatmap-legend" aria-label="Heatmap intensity legend">
+            <div
+                class="heatmap-legend"
+                id="heatmap-legend-desc"
+                aria-label="Heatmap intensity legend"
+            >
                 <span>Less</span>
-                <ul class="legend-colors" role="list">
-                    <li role="listitem" aria-label="No contributions"></li>
-                    <li role="listitem" aria-label="Low contributions"></li>
-                    <li role="listitem" aria-label="Moderate contributions"></li>
-                    <li role="listitem" aria-label="High contributions"></li>
-                    <li role="listitem" aria-label="Very high contributions"></li>
+                <ul class="legend-colors">
+                    <li aria-label="No contributions"></li>
+                    <li aria-label="Low contributions"></li>
+                    <li aria-label="Moderate contributions"></li>
+                    <li aria-label="High contributions"></li>
+                    <li aria-label="Very high contributions"></li>
                 </ul>
                 <span>More</span>
             </div>
@@ -74,41 +82,26 @@
         </article>
 
         <!-- ===== INSIGHTS SECTION ===== -->
-        <section class="insights-section" aria-label="Contribution insights">
+        <section class="insights-section">
 
             <!-- Streaks -->
             <article class="card insight-card">
                 <h3>📈 Streaks</h3>
 
-                <div class="insight-content">
+                <div class="insight-content" aria-live="polite" aria-atomic="true">
                     <div class="stat-row">
                         <span class="stat-label">Current Streak</span>
-                        <span
-                            class="stat-value big"
-                            id="current-streak"
-                            aria-live="polite"
-                            aria-atomic="true"
-                        >0 days</span>
+                        <span class="stat-value big" id="current-streak">0 days</span>
                     </div>
 
                     <div class="stat-row">
                         <span class="stat-label">Longest Streak</span>
-                        <span
-                            class="stat-value"
-                            id="longest-streak"
-                            aria-live="polite"
-                            aria-atomic="true"
-                        >0 days</span>
+                        <span class="stat-value" id="longest-streak">0 days</span>
                     </div>
 
                     <div class="stat-row">
                         <span class="stat-label">Total Contributions</span>
-                        <span
-                            class="stat-value"
-                            id="total-attrib"
-                            aria-live="polite"
-                            aria-atomic="true"
-                        >0</span>
+                        <span class="stat-value" id="total-attrib">0</span>
                     </div>
                 </div>
             </article>
@@ -117,25 +110,15 @@
             <article class="card insight-card">
                 <h3>⚡ Productivity</h3>
 
-                <div class="insight-content">
+                <div class="insight-content" aria-live="polite" aria-atomic="true">
                     <div class="stat-row">
                         <span class="stat-label">Best Day</span>
-                        <span
-                            class="stat-value big"
-                            id="best-day"
-                            aria-live="polite"
-                            aria-atomic="true"
-                        >-</span>
+                        <span class="stat-value big" id="best-day">-</span>
                     </div>
 
                     <div class="stat-row">
                         <span class="stat-label">Most Productive Hour</span>
-                        <span
-                            class="stat-value"
-                            id="best-hour"
-                            aria-live="polite"
-                            aria-atomic="true"
-                        >-</span>
+                        <span class="stat-value" id="best-hour">-</span>
                     </div>
 
                     <p class="insight-tip" id="insight-tip">
@@ -149,60 +132,26 @@
                 <h3>🎨 Theme</h3>
 
                 <div class="insight-content">
-                    <div
-                        class="theme-options"
-                        role="radiogroup"
-                        aria-label="Heatmap color themes"
-                    >
-                        <button
-                            class="theme-btn active"
-                            data-theme="default"
+                    <div class="theme-options" role="group" aria-label="Heatmap color themes">
+                        <button class="theme-btn active" data-theme="default"
                             style="background:var(--accent-color)"
-                            role="radio"
-                            aria-checked="true"
-                            tabindex="0"
-                            aria-label="Default theme"
-                        ></button>
+                            aria-label="Default theme"></button>
 
-                        <button
-                            class="theme-btn"
-                            data-theme="fire"
+                        <button class="theme-btn" data-theme="fire"
                             style="background:#f59e0b"
-                            role="radio"
-                            aria-checked="false"
-                            tabindex="-1"
-                            aria-label="Fire theme"
-                        ></button>
+                            aria-label="Fire theme"></button>
 
-                        <button
-                            class="theme-btn"
-                            data-theme="ocean"
+                        <button class="theme-btn" data-theme="ocean"
                             style="background:#0ea5e9"
-                            role="radio"
-                            aria-checked="false"
-                            tabindex="-1"
-                            aria-label="Ocean theme"
-                        ></button>
+                            aria-label="Ocean theme"></button>
 
-                        <button
-                            class="theme-btn"
-                            data-theme="forest"
+                        <button class="theme-btn" data-theme="forest"
                             style="background:#22c55e"
-                            role="radio"
-                            aria-checked="false"
-                            tabindex="-1"
-                            aria-label="Forest theme"
-                        ></button>
+                            aria-label="Forest theme"></button>
 
-                        <button
-                            class="theme-btn"
-                            data-theme="pink"
+                        <button class="theme-btn" data-theme="pink"
                             style="background:#ec4899"
-                            role="radio"
-                            aria-checked="false"
-                            tabindex="-1"
-                            aria-label="Pink theme"
-                        ></button>
+                            aria-label="Pink theme"></button>
                     </div>
 
                     <p class="theme-help">
