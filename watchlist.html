@@ -27,19 +27,21 @@
 <body class="eightgon-page">
     <div class="page-wrapper">
 
-        <div id="header-placeholder"></div>
+        <header id="header-placeholder" role="banner"></header>
 
-        <main>
+        <main role="main">
             <section id="watchlist" class="watchlist-section">
                 <div class="watchlist-container">
 
                     <!-- Sidebar -->
-                    <aside class="watchlist-sidebar">
+                    <aside class="watchlist-sidebar" aria-label="Watchlists sidebar">
                         <div class="sidebar-header">
-                            <h2 data-i18n="watchlist.title">📋 Watchlists</h2>
+                            <h2 data-i18n="watchlist.title">
+                                <span aria-hidden="true">📋</span> Watchlists
+                            </h2>
                             <button class="btn btn-primary btn-sm" id="create-watchlist-btn">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                                    stroke-width="2" aria-hidden="true">
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                 </svg>
@@ -47,7 +49,7 @@
                             </button>
                         </div>
 
-                        <div class="watchlist-list" id="watchlist-list">
+                        <div class="watchlist-list" id="watchlist-list" aria-live="polite">
                             <!-- Watchlists will be populated here -->
                         </div>
                     </aside>
@@ -56,8 +58,8 @@
                     <div class="watchlist-main">
 
                         <!-- Auth Warning -->
-                        <div id="auth-warning" class="warning-card" style="display: none;">
-                            <div class="warning-icon">⚠️</div>
+                        <div id="auth-warning" class="warning-card" style="display: none;" role="alert">
+                            <div class="warning-icon" aria-hidden="true">⚠️</div>
                             <div>
                                 <h3>Authentication Required</h3>
                                 <p>Please <a href="login.html">sign in</a> to access your watchlists and track
@@ -66,8 +68,8 @@
                         </div>
 
                         <!-- Empty State -->
-                        <div id="empty-state" class="empty-state" style="display: none;">
-                            <div class="empty-state-icon">📋</div>
+                        <div id="empty-state" class="empty-state" style="display: none;" aria-live="polite">
+                            <div class="empty-state-icon" aria-hidden="true">📋</div>
                             <h3>No Watchlist Selected</h3>
                             <p>Create a new watchlist or select one from the sidebar to get started.</p>
                             <button class="btn btn-primary"
@@ -89,7 +91,7 @@
                                     <button class="btn btn-outline btn-sm" id="add-repo-btn"
                                         data-i18n="watchlist.addRepo">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2">
+                                            stroke="currentColor" stroke-width="2" aria-hidden="true">
                                             <line x1="12" y1="5" x2="12" y2="19"></line>
                                             <line x1="5" y1="12" x2="19" y2="12"></line>
                                         </svg>
@@ -97,7 +99,7 @@
                                     </button>
                                     <button class="btn btn-outline btn-sm" id="manage-collaborators-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2">
+                                            stroke="currentColor" stroke-width="2" aria-hidden="true">
                                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                             <circle cx="9" cy="7" r="4"></circle>
                                             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -107,7 +109,7 @@
                                     </button>
                                     <button class="btn btn-outline btn-sm" id="watchlist-settings-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2">
+                                            stroke="currentColor" stroke-width="2" aria-hidden="true">
                                             <circle cx="12" cy="12" r="3"></circle>
                                             <path
                                                 d="M12 1v6m0 6v6m5.2-13.2l-4.2 4.2m0 6l4.2 4.2M23 12h-6m-6 0H1m18.2 5.2l-4.2-4.2m0-6l4.2-4.2">
@@ -119,17 +121,17 @@
                             </div>
 
                             <!-- Presence Indicators -->
-                            <div class="presence-bar" id="presence-bar">
+                            <div class="presence-bar" id="presence-bar" aria-live="polite">
                                 <div class="presence-avatars" id="presence-avatars"></div>
                                 <span class="presence-text" id="presence-text">Only you</span>
-                                <div class="connection-status" id="connection-status">
-                                    <span class="status-dot"></span>
+                                <div class="connection-status" id="connection-status" aria-live="polite">
+                                    <span class="status-dot" aria-hidden="true"></span>
                                     <span class="status-text">Connected</span>
                                 </div>
                             </div>
 
                             <!-- Repository Grid -->
-                            <div class="repo-grid" id="repo-grid">
+                            <div class="repo-grid" id="repo-grid" aria-live="polite">
                                 <!-- Repository cards will be populated here -->
                             </div>
 
@@ -140,9 +142,9 @@
             </section>
         </main>
 
-      <div id="footer-placeholder"></div>
+      <footer id="footer-placeholder" role="contentinfo"></footer>
 
-        <div class="cursor-container">
+        <div class="cursor-container" aria-hidden="true">
             <span class="cursor-dot"></span>
             <span class="cursor-dot"></span>
             <span class="cursor-dot"></span>
@@ -156,7 +158,8 @@
     </div>
 
     <!-- Notification Panel -->
-    <div id="notification-panel" class="notification-panel" style="display: none;">
+    <div id="notification-panel" class="notification-panel" style="display: none;"
+        role="region" aria-live="polite" aria-label="Notifications">
         <div class="notification-header">
             <h3>Notifications</h3>
             <button class="btn-text" id="mark-all-read">Mark all as read</button>
@@ -167,11 +170,12 @@
     </div>
 
     <!-- Create Watchlist Modal -->
-    <div id="create-watchlist-modal" class="modal" style="display: none;">
+    <div id="create-watchlist-modal" class="modal" style="display: none;"
+        role="dialog" aria-modal="true" aria-labelledby="create-watchlist-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Create New Watchlist</h3>
-                <button class="modal-close" id="close-create-modal">&times;</button>
+                <h3 id="create-watchlist-title">Create New Watchlist</h3>
+                <button class="modal-close" id="close-create-modal" aria-label="Close dialog">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="create-watchlist-form">
@@ -200,11 +204,12 @@
     </div>
 
     <!-- Add Repository Modal -->
-    <div id="add-repo-modal" class="modal" style="display: none;">
+    <div id="add-repo-modal" class="modal" style="display: none;"
+        role="dialog" aria-modal="true" aria-labelledby="add-repo-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Add Repository</h3>
-                <button class="modal-close" id="close-add-repo-modal">&times;</button>
+                <h3 id="add-repo-title">Add Repository</h3>
+                <button class="modal-close" id="close-add-repo-modal" aria-label="Close dialog">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="add-repo-form">
@@ -224,7 +229,7 @@
     </div>
 
     <!-- Toast Container -->
-    <div id="toast-container" class="toast-container"></div>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
     <!-- Main app script -->
     <script src="boilerplate/boilerplate-loader.js"></script>
@@ -235,9 +240,8 @@
     fetch('navbar.html')
         .then(response => response.text())
         .then(data => {
-            document.getElementById('navbar-placeholder').innerHTML = data;
+            document.getElementById('header-placeholder').innerHTML = data;
 
-            // Optional: Re-run JS for menu toggle & theme switch after navbar is loaded
             if (typeof initNavbar === "function") initNavbar();
         })
         .catch(error => console.error('Error loading navbar:', error));
@@ -246,5 +250,3 @@
 </body>
 
 </html>
-
-
