@@ -18,7 +18,7 @@
                 Architectural Drift Detector
             </h1>
             <div class="nav-actions">
-                <button id="refreshBtn" class="btn-secondary">
+                <button id="refreshBtn" class="btn-secondary" type="button">
                     <span aria-hidden="true">🔄</span>
                     Refresh
                 </button>
@@ -35,15 +35,15 @@
                 <h2>Repository Analysis</h2>
                 <div class="input-grid">
                     <div class="form-group">
-                        <label>Repository Owner</label>
+                        <label for="ownerInput">Repository Owner</label>
                         <input type="text" id="ownerInput" placeholder="e.g., facebook">
                     </div>
                     <div class="form-group">
-                        <label>Repository Name</label>
+                        <label for="repoInput">Repository Name</label>
                         <input type="text" id="repoInput" placeholder="e.g., react">
                     </div>
                     <div class="form-group">
-                        <label>Architecture Pattern</label>
+                        <label for="architectureSelect">Architecture Pattern</label>
                         <select id="architectureSelect">
                             <option value="layered">Layered Architecture</option>
                             <option value="mvc">MVC</option>
@@ -52,7 +52,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <button id="analyzeBtn" class="btn-primary">
+                        <button id="analyzeBtn" class="btn-primary" type="button">
                             <span aria-hidden="true">🔍</span>
                             Analyze Architecture
                         </button>
@@ -112,10 +112,10 @@
                 <div class="section-header">
                     <h2>3D Violation Heatmap</h2>
                     <div class="heatmap-controls">
-                        <button id="rotateBtn" class="btn-icon" title="Toggle Rotation">
+                        <button id="rotateBtn" class="btn-icon" title="Toggle Rotation" type="button">
                             <span aria-hidden="true">🔄</span>
                         </button>
-                        <button id="resetViewBtn" class="btn-icon" title="Reset View">
+                        <button id="resetViewBtn" class="btn-icon" title="Reset View" type="button">
                             <span aria-hidden="true">🎯</span>
                         </button>
                     </div>
@@ -176,8 +176,8 @@
                 <div class="section-header">
                     <h2>Architecture-as-Code Definition</h2>
                     <div class="editor-actions">
-                        <button id="loadExampleBtn" class="btn-secondary">Load Example</button>
-                        <button id="validateBtn" class="btn-primary">Validate</button>
+                        <button id="loadExampleBtn" class="btn-secondary" type="button">Load Example</button>
+                        <button id="validateBtn" class="btn-primary" type="button">Validate</button>
                     </div>
                 </div>
                 <textarea id="architectureEditor" class="architecture-editor" placeholder="Enter your architecture definition in JSON..."></textarea>
@@ -187,10 +187,10 @@
     </div>
 
     <!-- Violation Detail Modal -->
-    <div id="violationModal" class="modal hidden">
+    <div id="violationModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="violationModalTitle">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Violation Details</h3>
+                <h3 id="violationModalTitle">Violation Details</h3>
                 <button class="modal-close" aria-label="Close modal">&times;</button>
             </div>
             <div id="modalBody" class="modal-body"></div>
