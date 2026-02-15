@@ -17,7 +17,11 @@
 
     <main class="forecaster-container">
         <header class="page-header">
-            <h1><i class="ri-rhythm-line"></i> Sprint Forecaster</h1>
+            <h1>
+                <i class="ri-rhythm-line" aria-hidden="true"></i>
+                Sprint Forecaster
+            </h1>
+            
             <p>Monte Carlo Velocity Engine & Project Vitals</p>
         </header>
 
@@ -26,7 +30,11 @@
             <section class="card glass confidence-card">
                 <h3>Release Confidence</h3>
                 <div class="gauge-wrapper">
-                    <canvas id="confidenceGauge"></canvas>
+                    <canvas id="confidenceGauge" role="img"
+                      aria-label="Release confidence probability gauge showing likelihood of sprint completion">
+                      Release confidence visualization showing probability of sprint completion.
+                    </canvas>
+
                     <div class="gauge-label">
                         <span id="confidence-percent">--</span>
                         <small>Probability</small>
@@ -46,7 +54,11 @@
 
             <!-- What-If Panel -->
             <section class="card glass what-if-panel">
-                <h3><i class="ri-magic-line"></i> "What-If" Simulator</h3>
+                <h3>
+                    <i class="ri-magic-line" aria-hidden="true"></i>
+                    "What-If" Simulator
+                </h3>
+
                 <div class="simulator-inputs">
                     <div class="input-group">
                         <label>Added Scope (Story Points)</label>
@@ -81,7 +93,10 @@
             <section class="card glass volatility-card">
                 <h3>Complexity Volatility Trend</h3>
                 <div class="chart-container">
-                    <canvas id="volatilityChart"></canvas>
+                    <canvas id="volatilityChart" role="img"
+                        aria-label="Complexity volatility trend chart over time">
+                        Line chart displaying sprint complexity volatility trend.
+                    </canvas>
                 </div>
             </section>
         </div>
