@@ -153,6 +153,7 @@ class ViolationDetectorService {
             description: violationPattern.description,
             line: edge.line,
             type: this.categorizeViolation(edge.sourceLayer, edge.targetLayer),
+            driftImpact: this.calculateDriftImpact(edge, violationPattern)
           });
         } else {
           // Generic violation
@@ -166,16 +167,65 @@ class ViolationDetectorService {
             description: `Unexpected connection from ${edge.sourceLayer} to ${edge.targetLayer}`,
             line: edge.line,
             type: "unexpected",
+            driftImpact: 0.1
           });
         }
       }
     });
+
+    // Deep Analysis for "Architecture Drift"
+    this.injectDriftSignals(violations, graph);
 
     // Sort by severity
     const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
     violations.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
 
     return violations;
+  }
+
+  /**
+   * Calculate how much a single violation contributes to drift
+   */
+  calculateDriftImpact(edge, pattern) {
+    const baseImpact = pattern.severity === "critical" ? 0.8 : (pattern.severity === "high" ? 0.5 : 0.2);
+
+    // Add logic for distance skipped in layers
+    const layerOrder = ["view", "controller", "service", "model"];
+    const fromIdx = layerOrder.indexOf(edge.sourceLayer);
+    const toIdx = layerOrder.indexOf(edge.targetLayer);
+
+    if (fromIdx !== -1 && toIdx !== -1) {
+      const skipDistance = Math.abs(toIdx - fromIdx);
+      return baseImpact * (1 + skipDistance * 0.2);
+    }
+
+    return baseImpact;
+  }
+
+  /**
+   * Inject deeper drift signals into the violations list
+   */
+  injectDriftSignals(violations, graph) {
+    // Detect "Bypass Patterns" - e.g. Controller using both Service and Model for the same feature
+    const sourceNodeUsage = {};
+    graph.edges.forEach(edge => {
+      if (!sourceNodeUsage[edge.source]) sourceNodeUsage[edge.source] = new Set();
+      sourceNodeUsage[edge.source].add(edge.targetLayer);
+    });
+
+    Object.entries(sourceNodeUsage).forEach(([source, layers]) => {
+      if (layers.has('controller') && layers.has('model') && !layers.has('service')) {
+        // This is a strong signal of skipping the service layer
+        violations.push({
+          id: `drift-bypass-${source}`,
+          source: source,
+          severity: "high",
+          description: "Module directly accesses data model while bypassing application services",
+          type: "drift-bypass",
+          driftImpact: 0.7
+        });
+      }
+    });
   }
 
   /**
