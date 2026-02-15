@@ -1,3 +1,5 @@
+
+const consistencyScore = calculateConsistencyScore(contributions);
 const cacheService = require('./cache.service');
 
 class ContributionAggregatorService {
@@ -60,6 +62,7 @@ class ContributionAggregatorService {
                     stats: {
                         total,
                         currentStreak,
+                        consistencyScore,
                         maxStreak,
                         startDate: startDate.toISOString().split('T')[0],
                         endDate: todayKey

@@ -221,3 +221,23 @@
         display: none;
     }
 }
+
+.summary-card,
+.suggestions-card,
+.chat-area {
+    background: var(--bg-elevated); /* Match main cards */
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md); /* Use global shadow */
+    border-radius: 14px; /* Align with .card in style.css */
+}
+
+.bot-msg .msg-content {
+    background: var(--bg-secondary); /* Use standardized secondary bg */
+    color: var(--text-primary);
+    border-radius: 18px 18px 18px 2px;
+}
+
+#user-input {
+    color: var(--text-primary);
+    font-family: "Researcher", sans-serif; /* Align typography */
+}
