@@ -6,11 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Explore by Topic — XAYTHEON</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="style.css?v=3">
   <link rel="stylesheet" href="favorites.css">
 
-  <script src="theme.js"></script>
+  <script defer src="theme.js"></script>
   <!-- Supabase SDK & Auth for navbar -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
   <script defer src="auth.js"></script>
@@ -409,8 +408,8 @@
 
         <!-- View Toggle -->
         <div class="view-toggle">
-          <button class="btn active" id="view-graph-btn">Graph View</button>
-          <button class="btn" id="view-list-btn">List View</button>
+           <button class="btn active" id="view-graph-btn" type="button" aria-pressed="true">Graph View</button>
+           <button class="btn" id="view-list-btn" type="button" aria-pressed="false">List View</button>
         </div>
 
         <!-- Visualization Card -->
@@ -472,16 +471,26 @@
     graphBtn.addEventListener('click', () => {
       graphView.style.display = 'block';
       listView.style.display = 'none';
+      
       graphBtn.classList.add('active');
       listBtn.classList.remove('active');
+
+      graphBtn.setAttribute('aria-pressed', 'true');
+      listBtn.setAttribute('aria-pressed', 'false');
     });
+
 
     listBtn.addEventListener('click', () => {
       graphView.style.display = 'none';
       listView.style.display = 'block';
+
       listBtn.classList.add('active');
       graphBtn.classList.remove('active');
+
+      listBtn.setAttribute('aria-pressed', 'true');
+      graphBtn.setAttribute('aria-pressed', 'false');
     });
+
 
     // Enhanced D3 graph tooltip interaction (add to your explore.js or here)
     // This provides hover tooltips for better node interaction
@@ -505,3 +514,4 @@
 </body>
 
 </html>
+
