@@ -292,3 +292,93 @@ exports.cleanupOldSnapshots = async (req, res) => {
         });
     }
 };
+
+/**
+ * FORENSIC TIME-TRAVEL: Get Historical Health Timeline
+ * GET /api/analytics/forensic/timeline?weeksBack=26
+ */
+exports.getForensicTimeline = async (req, res) => {
+    try {
+        const gitTimeMachine = require('../services/git-time-machine.service');
+        const { weeksBack = 26, repoPath = './' } = req.query;
+
+        // Get health snapshots
+        const snapshots = await gitTimeMachine.aggregateHealthSnapshots(
+            repoPath,
+            parseInt(weeksBack)
+        );
+
+        // Calculate summary statistics
+        const avgHealth = snapshots.reduce((sum, s) => sum + s.healthScore, 0) / snapshots.length;
+        const minHealth = Math.min(...snapshots.map(s => s.healthScore));
+        const maxHealth = Math.max(...snapshots.map(s => s.healthScore));
+
+        const criticalWeeks = snapshots.filter(s => s.status === 'CRITICAL' || s.status === 'POOR').length;
+
+        res.json({
+            success: true,
+            data: {
+                snapshots,
+                summary: {
+                    totalWeeks: snapshots.length,
+                    averageHealth: Math.round(avgHealth),
+                    minHealth,
+                    maxHealth,
+                    criticalWeeks,
+                    healthTrend: snapshots[snapshots.length - 1].healthScore - snapshots[0].healthScore,
+                    currentStatus: snapshots[snapshots.length - 1].status
+                },
+                timeRange: {
+                    start: snapshots[0].date,
+                    end: snapshots[snapshots.length - 1].date,
+                    startTimestamp: snapshots[0].timestamp,
+                    endTimestamp: snapshots[snapshots.length - 1].timestamp
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching forensic timeline:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch forensic timeline',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * FORENSIC TIME-TRAVEL: Get Interpolated Health at Specific Time
+ * GET /api/analytics/forensic/at-time?timestamp=1234567890
+ */
+exports.getHealthAtTime = async (req, res) => {
+    try {
+        const gitTimeMachine = require('../services/git-time-machine.service');
+        const { timestamp, weeksBack = 26 } = req.query;
+
+        if (!timestamp) {
+            return res.status(400).json({
+                success: false,
+                message: 'Timestamp parameter is required'
+            });
+        }
+
+        // Get all snapshots
+        const snapshots = await gitTimeMachine.aggregateHealthSnapshots('./', parseInt(weeksBack));
+
+        // Interpolate health at specific time
+        const healthData = gitTimeMachine.interpolateHealthAtTime(snapshots, parseInt(timestamp));
+
+        res.json({
+            success: true,
+            data: healthData
+        });
+    } catch (error) {
+        console.error('Error fetching health at time:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch health data',
+            error: error.message
+        });
+    }
+};
+

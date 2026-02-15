@@ -130,7 +130,66 @@ class AnalyticsScheduler {
             throw error;
         }
     }
+
+    /**
+     * FORENSIC TIME-TRAVEL: Record Health Snapshot
+     * Captures current project health metrics for historical analysis
+     * @param {string} repoPath - Repository path
+     */
+    async recordHealthSnapshot(repoPath = './') {
+        try {
+            const gitTimeMachine = require('./git-time-machine.service');
+            const riskEngine = require('./risk-engine.service');
+
+            // Get current health metrics
+            const now = new Date();
+            const healthData = await gitTimeMachine.calculateWeeklyHealth(repoPath, now, 0);
+
+            // Get risk galaxy data for additional context
+            const riskData = await riskEngine.calculateRiskGalaxy();
+            const avgRisk = riskData.reduce((sum, file) => sum + file.score, 0) / riskData.length;
+
+            // Enhance with real-time data
+            const snapshot = {
+                ...healthData,
+                metrics: {
+                    ...healthData.metrics,
+                    riskScore: Math.round(avgRisk),
+                    fileCount: riskData.length
+                },
+                timestamp: now.getTime(),
+                recorded: true
+            };
+
+            console.log(`📸 Health snapshot recorded: Score ${snapshot.healthScore} (${snapshot.status})`);
+
+            // In production, save to database
+            // await db.saveHealthSnapshot(snapshot);
+
+            return snapshot;
+        } catch (error) {
+            console.error('❌ Error recording health snapshot:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Start periodic health snapshot recording
+     * @param {number} intervalHours - Hours between snapshots (default: 168 = 1 week)
+     */
+    startHealthSnapshots(intervalHours = 168) {
+        console.log(`🕐 Starting health snapshot recording every ${intervalHours}h`);
+
+        const intervalMs = intervalHours * 60 * 60 * 1000;
+        this.healthSnapshotInterval = setInterval(() => {
+            this.recordHealthSnapshot();
+        }, intervalMs);
+
+        // Record initial snapshot
+        this.recordHealthSnapshot();
+    }
 }
 
 // Export singleton instance
 module.exports = new AnalyticsScheduler();
+

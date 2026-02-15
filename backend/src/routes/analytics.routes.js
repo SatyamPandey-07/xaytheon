@@ -27,4 +27,8 @@ router.get("/export", analyticsController.exportData);
 // Cleanup old snapshots (admin/maintenance endpoint)
 router.delete("/cleanup", analyticsController.cleanupOldSnapshots);
 
+// FORENSIC TIME-TRAVEL ENDPOINTS
+router.get("/forensic/timeline", analyticsController.getForensicTimeline);
+router.get("/forensic/at-time", analyticsController.getHealthAtTime);
+
 module.exports = router;

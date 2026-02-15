@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forensic Time-Travel | XAYTHEON</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="forensics.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+
+<body class="dark-theme">
+    <div id="header-placeholder"></div>
+
+    <main class="forensics-container">
+        <!-- 3D Time-Slicer Viewport -->
+        <div id="time-slicer-viewport"></div>
+
+        <!-- HUD Overlay -->
+        <div class="forensics-hud">
+            <!-- Top Panel -->
+            <div class="top-panel glass">
+                <h1><i class="ri-time-line"></i> Forensic Time-Travel Analytics</h1>
+                <p class="subtitle">Scrub through 6 months of project health history</p>
+            </div>
+
+            <!-- Temporal Scrubber -->
+            <div class="scrubber-panel glass">
+                <div class="scrubber-header">
+                    <span id="current-date">Loading...</span>
+                    <span id="health-score-display" class="health-badge">--</span>
+                </div>
+
+                <div class="timeline-container">
+                    <input type="range" id="time-slider" min="0" max="100" value="100" class="time-slider">
+                    <div class="timeline-markers" id="timeline-markers"></div>
+                </div>
+
+                <div class="playback-controls">
+                    <button id="play-btn" class="control-btn"><i class="ri-play-fill"></i></button>
+                    <button id="pause-btn" class="control-btn hidden"><i class="ri-pause-fill"></i></button>
+                    <button id="reset-btn" class="control-btn"><i class="ri-restart-line"></i></button>
+                    <select id="speed-select" class="speed-select">
+                        <option value="0.5">0.5x</option>
+                        <option value="1" selected>1x</option>
+                        <option value="2">2x</option>
+                        <option value="5">5x</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Metrics Dashboard -->
+            <div class="metrics-panel glass">
+                <h3>Health Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-label">Complexity</span>
+                        <span class="metric-value" id="metric-complexity">--</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Risk Score</span>
+                        <span class="metric-value" id="metric-risk">--</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Build Speed</span>
+                        <span class="metric-value" id="metric-build">--s</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Test Coverage</span>
+                        <span class="metric-value" id="metric-coverage">--%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Code Churn</span>
+                        <span class="metric-value" id="metric-churn">--</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Tech Debt</span>
+                        <span class="metric-value" id="metric-debt">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="summary-panel glass">
+                <h3>Timeline Summary</h3>
+                <div class="summary-stats">
+                    <div class="stat-row">
+                        <span>Average Health:</span>
+                        <span id="avg-health">--</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Critical Weeks:</span>
+                        <span id="critical-weeks">--</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Health Trend:</span>
+                        <span id="health-trend">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="boilerplate/boilerplate-loader.js"></script>
+    <script src="forensics.js"></script>
+</body>
+
+</html>
