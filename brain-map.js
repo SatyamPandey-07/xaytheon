@@ -18,6 +18,7 @@ class SemanticBrain {
         this.mouse = new THREE.Vector2();
         this.hoveredNode = null;
         this.intentLines = [];
+        this.driftSpikes = new THREE.Group();
 
         // Simulated Semantic Categories (Clusters)
         this.clusters = [
@@ -36,6 +37,7 @@ class SemanticBrain {
         this.createNebula();
         this.setupLighting();
         this.animate();
+        this.scene.add(this.driftSpikes);
 
         window.addEventListener('resize', () => this.onWindowResize());
         window.addEventListener('mousemove', (e) => this.onMouseMove(e));
@@ -45,6 +47,7 @@ class SemanticBrain {
         document.getElementById('intent-search').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.mapIntent();
         });
+        document.getElementById('scan-drift-btn').addEventListener('click', () => this.visualizeArchitectureDrift());
     }
 
     setupScene() {
@@ -297,6 +300,114 @@ class SemanticBrain {
             duration: 2,
             ease: "expo.out"
         });
+    }
+
+    /**
+     * VISUALIZE ARCHITECTURE DRIFT
+     * Renders "Corrupted Nodes" as glitching red spikes
+     */
+    async visualizeArchitectureDrift() {
+        // Clear previous spikes
+        while (this.driftSpikes.children.length > 0) {
+            this.driftSpikes.remove(this.driftSpikes.children[0]);
+        }
+
+        try {
+            // Fetch drift data from backend
+            const response = await fetch('/api/arch-drift/violations/facebook/react?architecture=layered');
+            const result = await response.json();
+
+            if (!result.success) return;
+
+            const violations = result.data.violations;
+
+            // Filter nodes that have high drift impact
+            violations.forEach(v => {
+                if (v.severity === 'critical' || v.severity === 'high') {
+                    // Pick a random node in the nebula to represent this violation (for demo)
+                    const nodeIndex = Math.floor(Math.random() * this.nodes.length);
+                    const node = this.nodes[nodeIndex];
+                    this.createDriftSpike(node, v);
+                }
+            });
+
+            this.showDriftStatus(result.data.metrics);
+
+        } catch (error) {
+            console.error("Failed to visualize drift:", error);
+        }
+    }
+
+    createDriftSpike(node, violation) {
+        const spikeCount = 5 + Math.floor(Math.random() * 10);
+        const group = new THREE.Group();
+        group.position.copy(node.position);
+
+        for (let i = 0; i < spikeCount; i++) {
+            const length = 10 + Math.random() * 20;
+            const geometry = new THREE.ConeGeometry(0.5, length, 4);
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xff0000,
+                emissive: 0xff0000,
+                emissiveIntensity: 2,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            const spike = new THREE.Mesh(geometry, material);
+
+            // Random orientation
+            spike.rotation.x = Math.random() * Math.PI * 2;
+            spike.rotation.z = Math.random() * Math.PI * 2;
+
+            // Offset so base is at node center
+            spike.translateY(length / 2);
+
+            group.add(spike);
+
+            // Glitch animation
+            gsap.to(spike.scale, {
+                y: 1.5,
+                x: 2,
+                z: 2,
+                duration: 0.1 + Math.random() * 0.2,
+                repeat: -1,
+                yoyo: true,
+                ease: "none"
+            });
+
+            gsap.to(material, {
+                opacity: 0.2,
+                duration: 0.05,
+                repeat: -1,
+                yoyo: true,
+                delay: Math.random()
+            });
+        }
+
+        this.driftSpikes.add(group);
+
+        // Add point light for corruption glow
+        const light = new THREE.PointLight(0xff0000, 1, 50);
+        group.add(light);
+    }
+
+    showDriftStatus(metrics) {
+        const statusEl = document.createElement('div');
+        statusEl.className = 'drift-status-overlay glass';
+        statusEl.innerHTML = `
+            <div class="drift-header">
+                <i class="ri-error-warning-fill" style="color:#ef4444"></i>
+                <span>ARCHITECTURE DRIFT DETECTED</span>
+            </div>
+            <div class="drift-metrics">
+                <div class="metric">Score: <span style="color:#ef4444">${metrics.healthScore}%</span></div>
+                <div class="metric">Violations: ${metrics.violationCount}</div>
+                <div class="metric">Risk: ${metrics.riskLevel.toUpperCase()}</div>
+            </div>
+            <button onclick="this.parentElement.remove()" class="close-drift">Dismiss</button>
+        `;
+        document.body.appendChild(statusEl);
     }
 
     onWindowResize() {

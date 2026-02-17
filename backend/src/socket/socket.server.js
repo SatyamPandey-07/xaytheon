@@ -108,9 +108,127 @@ function initializeSocket(server) {
             socket.to(`collab:${roomId}`).emit("user_left_collab", { userId: socket.userId });
         });
 
+        // WAR ROOM: Join incident war room
+        socket.on("join_war_room", (incidentId) => {
+            const roomName = `war_room:${incidentId}`;
+            socket.join(roomName);
+            socket.currentWarRoom = incidentId;
+
+            console.log(`🚨 User ${socket.userId} joined War Room: ${incidentId}`);
+
+            // Notify others of new participant
+            socket.to(roomName).emit("war_room_user_joined", {
+                userId: socket.userId,
+                incidentId,
+                timestamp: Date.now()
+            });
+
+            // Send current participants
+            io.in(roomName).allSockets().then(sockets => {
+                socket.emit("war_room_participants", {
+                    incidentId,
+                    count: sockets.size,
+                    participants: Array.from(sockets)
+                });
+            });
+        });
+
+        // WAR ROOM: Leave war room
+        socket.on("leave_war_room", (incidentId) => {
+            const roomName = `war_room:${incidentId}`;
+            socket.leave(roomName);
+            socket.currentWarRoom = null;
+
+            socket.to(roomName).emit("war_room_user_left", {
+                userId: socket.userId,
+                incidentId,
+                timestamp: Date.now()
+            });
+        });
+
+        // WAR ROOM: Sync 3D cursor position
+        socket.on("war_room_cursor_move", (data) => {
+            if (socket.currentWarRoom) {
+                const roomName = `war_room:${socket.currentWarRoom}`;
+                socket.to(roomName).emit("war_room_cursor_update", {
+                    userId: socket.userId,
+                    position: data.position,
+                    color: data.color || '#60a5fa',
+                    timestamp: Date.now()
+                });
+            }
+        });
+
+        // WAR ROOM: Sync camera position
+        socket.on("war_room_camera_move", (data) => {
+            if (socket.currentWarRoom) {
+                const roomName = `war_room:${socket.currentWarRoom}`;
+                socket.to(roomName).emit("war_room_camera_update", {
+                    userId: socket.userId,
+                    position: data.position,
+                    target: data.target,
+                    timestamp: Date.now()
+                });
+            }
+        });
+
+        // WAR ROOM: Create incident pin
+        socket.on("war_room_create_pin", (data) => {
+            if (socket.currentWarRoom) {
+                const roomName = `war_room:${socket.currentWarRoom}`;
+                const pin = {
+                    id: `pin_${Date.now()}_${socket.userId}`,
+                    userId: socket.userId,
+                    position: data.position,
+                    nodeId: data.nodeId,
+                    message: data.message,
+                    severity: data.severity || 'medium',
+                    timestamp: Date.now()
+                };
+
+                // Broadcast to all in room (including sender)
+                io.to(roomName).emit("war_room_pin_created", pin);
+            }
+        });
+
+        // WAR ROOM: Remove incident pin
+        socket.on("war_room_remove_pin", (pinId) => {
+            if (socket.currentWarRoom) {
+                const roomName = `war_room:${socket.currentWarRoom}`;
+                io.to(roomName).emit("war_room_pin_removed", {
+                    pinId,
+                    userId: socket.userId,
+                    timestamp: Date.now()
+                });
+            }
+        });
+
+        // WAR ROOM: Broadcast status update
+        socket.on("war_room_status_update", (data) => {
+            if (socket.currentWarRoom) {
+                const roomName = `war_room:${socket.currentWarRoom}`;
+                io.to(roomName).emit("war_room_status_broadcast", {
+                    userId: socket.userId,
+                    status: data.status,
+                    message: data.message,
+                    timestamp: Date.now()
+                });
+            }
+        });
+
         // Handle disconnect
         socket.on("disconnect", () => {
             console.log(`❌ User ${socket.userId} disconnected: ${socket.id}`);
+
+            // Leave war room if in one
+            if (socket.currentWarRoom) {
+                const roomName = `war_room:${socket.currentWarRoom}`;
+                socket.to(roomName).emit("war_room_user_left", {
+                    userId: socket.userId,
+                    incidentId: socket.currentWarRoom,
+                    timestamp: Date.now()
+                });
+            }
 
             if (userSockets.has(socket.userId)) {
                 userSockets.get(socket.userId).delete(socket.id);

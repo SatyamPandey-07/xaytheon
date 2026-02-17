@@ -28,8 +28,11 @@ class ArchitectureValidatorService {
       // Apply custom rules
       const customViolations = this.applyCustomRules(violations, definition);
 
+      // Analyze Architecture Drift
+      const driftAnalysis = this.analyzeArchitectureDrift(violations, definition);
+
       // Generate validation report
-      const report = this.generateReport(violations, customViolations, definition);
+      const report = this.generateReport(violations, customViolations, definition, driftAnalysis);
 
       return report;
     } catch (error) {
@@ -99,6 +102,45 @@ class ArchitectureValidatorService {
     });
 
     return customViolations;
+  }
+
+  /**
+   * Analyze Architecture Drift
+   * Calculates how much the actual implementation has deviated from the blueprint
+   */
+  analyzeArchitectureDrift(violations, definition) {
+    const totalNodes = violations.graph.nodes.length;
+    const totalEdges = violations.graph.edges.length;
+
+    // Identify "Corrupted" nodes (nodes involved in multiple critical violations)
+    const nodeViolationCount = {};
+    violations.violations.forEach(v => {
+      nodeViolationCount[v.source] = (nodeViolationCount[v.source] || 0) + 1;
+    });
+
+    const corruptedNodes = Object.entries(nodeViolationCount)
+      .filter(([id, count]) => count >= 2)
+      .map(([id, count]) => ({
+        id,
+        driftMagnitude: Math.min(10, count * 2), // Max spike intensity
+        reason: "Multiple structural violations detected"
+      }));
+
+    // Calculate structural entropy
+    const skipLayerViolations = violations.violations.filter(v => v.type === "skip-layer").length;
+    const reverseViolations = violations.violations.filter(v => v.type === "reverse").length;
+
+    // Higher entropy means more "spontaneous" unstructured links
+    const structuralEntropy = totalEdges > 0
+      ? (skipLayerViolations * 1.5 + reverseViolations * 2.5) / totalEdges
+      : 0;
+
+    return {
+      driftScore: Math.round(structuralEntropy * 100),
+      corruptedNodes,
+      entropy: parseFloat(structuralEntropy.toFixed(3)),
+      driftLevel: structuralEntropy > 0.4 ? "SEVERE" : (structuralEntropy > 0.15 ? "MODERATE" : "LOW")
+    };
   }
 
   /**
@@ -258,7 +300,7 @@ class ArchitectureValidatorService {
   /**
    * Generate validation report
    */
-  generateReport(violations, customViolations, definition) {
+  generateReport(violations, customViolations, definition, driftAnalysis) {
     const allViolations = [...violations.violations, ...customViolations];
 
     // Group by rule/type
@@ -274,7 +316,7 @@ class ArchitectureValidatorService {
     // Calculate compliance score
     const totalConnections = violations.graph.edges.length;
     const violationCount = allViolations.length;
-    const complianceScore = totalConnections > 0 
+    const complianceScore = totalConnections > 0
       ? Math.max(0, 100 - (violationCount / totalConnections) * 100)
       : 100;
 
@@ -303,6 +345,7 @@ class ArchitectureValidatorService {
           low: allViolations.filter((v) => v.severity === "low").length,
         },
       },
+      drift: driftAnalysis,
       recommendations: this.generateValidationRecommendations(allViolations, definition),
     };
   }
