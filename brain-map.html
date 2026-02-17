@@ -10,37 +10,39 @@
     <link rel="stylesheet" href="brain-map.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
     <!-- 3D Engines -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 
 <body>
     <div id="header-placeholder"></div>
 
-    <canvas id="nebula-canvas"></canvas>
+    <canvas id="nebula-canvas" role="img" aria-label="3D semantic knowledge brain visualization"></canvas>
 
     <div class="brain-hud">
         <div class="hud-top">
             <div class="search-panel">
                 <div class="search-box">
+                    <!-- Added label for accessibility -->
+                    <label for="intent-search" class="sr-only">Search code intent</label>
                     <input type="text" id="intent-search" data-i18n="brain.searchPlaceholder"
                         placeholder="Enter code intent (e.g., 'How to encrypt user passwords?')">
                     <button id="search-intent-btn" data-i18n="brain.mapIntent">MAP INTENT</button>
                 </div>
 
-                <div id="intent-path-container" class="intent-path-panel">
+                <div id="intent-path-container" class="intent-path-panel" aria-live="polite">
                     <!-- Logical path steps injected here -->
                 </div>
             </div>
 
-            <div class="map-status">
+            <div class="map-status" aria-live="polite">
                 <div class="status-badge">
-                    <div class="dot"></div>
+                    <div class="dot" aria-hidden="true"></div>
                     <span>VECTOR ENGINE: ACTIVE</span>
                 </div>
                 <div class="status-badge">
-                    <i class="ri-node-tree"></i>
+                    <i class="ri-node-tree" aria-hidden="true"></i>
                     <span id="node-count"><span data-i18n="brain.nodeIdx">-- nodes indexed</span></span>
                 </div>
                 <button id="scan-drift-btn" class="drift-scan-btn">
@@ -58,11 +60,10 @@
                 </div>
             </div>
             <div class="info-body">
-                <p id="node-description">Select a node in the nebula to view its semantic profile and knowledge links.
-                </p>
+                <p id="node-description">Select a node in the nebula to view its semantic profile and knowledge links.</p>
 
                 <div class="external-links" id="node-links">
-                    <h4 style="font-size: 0.75rem; margin-bottom: 0.5rem; color: var(--text-primary);">KNOWLEDGE GRAPH
+                    <h4 style="font-size: 0.75rem; margin-bottom: 0.5rem; color: var(--text-primary);" aria-hidden="true">KNOWLEDGE GRAPH
                     </h4>
                     <!-- Dynamic links -->
                 </div>
@@ -70,9 +71,9 @@
         </aside>
     </div>
 
-    <div id="brain-tooltip"></div>
+    <div id="brain-tooltip" role="tooltip"></div>
 
-    <script src="brain-map.js"></script>
+    <script defer src="brain-map.js"></script>
     <script>
         // Load navbar
         fetch('navbar.html')
@@ -81,6 +82,9 @@
                 document.getElementById('header-placeholder').innerHTML = data;
                 // Re-init i18n if available
                 if (window.i18n) window.i18n.applyTranslations();
+            })
+            .catch(() => {
+                console.warn('Failed to load navbar.html');
             });
     </script>
 </body>
