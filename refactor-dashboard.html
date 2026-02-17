@@ -5,11 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Refactor Safety Net — XAYTHEON</title>
+
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="refactor-safety.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- External Scripts (Non-blocking) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
 </head>
 
 <body class="dark-theme">
@@ -21,21 +24,28 @@
             <!-- Left: Input & Config -->
             <div class="panel glass input-panel">
                 <div class="panel-header">
-                    <h3><i class="ri-code-s-slash-line"></i> Refactor Sandbox</h3>
+                    <h3><i class="ri-code-s-slash-line" aria-hidden="true"></i> Refactor Sandbox</h3>
                     <div class="checkpoint-status">
                         <span id="checkpoint-badge" class="badge hidden">Checkpoint Active</span>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Target File</label>
-                    <input type="text" id="target-file" value="src/services/auth.service.js"
+                    <label for="target-file">Target File</label>
+                    <input 
+                        type="text" 
+                        id="target-file" 
+                        name="target-file"
+                        value="src/services/auth.service.js"
                         placeholder="e.g. src/utils.js">
                 </div>
 
                 <div class="form-group">
-                    <label>Proposed Code Change</label>
-                    <textarea id="code-editor" placeholder="// Type your refactored code here...">
+                    <label for="code-editor">Proposed Code Change</label>
+                    <textarea 
+                        id="code-editor" 
+                        name="code-editor"
+                        placeholder="// Type your refactored code here...">
 class AuthService {
     async login(user) {
         // Refactored logic...
@@ -45,11 +55,11 @@ class AuthService {
                 </div>
 
                 <div class="action-bar">
-                    <button class="btn btn-secondary" onclick="createCheckpoint()">
-                        <i class="ri-save-3-line"></i> Checkpoint state
+                    <button type="button" class="btn btn-secondary" onclick="createCheckpoint()">
+                        <i class="ri-save-3-line" aria-hidden="true"></i> Checkpoint state
                     </button>
-                    <button class="btn btn-primary" onclick="analyzeRefactor()">
-                        <i class="ri-radar-fill"></i> Analyze Impact
+                    <button type="button" class="btn btn-primary" onclick="analyzeRefactor()">
+                        <i class="ri-radar-fill" aria-hidden="true"></i> Analyze Impact
                     </button>
                 </div>
             </div>
@@ -73,7 +83,6 @@ class AuthService {
                 <div class="blast-radius-section">
                     <h4>💥 Blast Radius (Impacted Files)</h4>
                     <ul id="blast-list" class="file-list">
-                        <!-- Populated by JS -->
                         <li class="empty-state">No analysis run yet.</li>
                     </ul>
                 </div>
@@ -81,15 +90,19 @@ class AuthService {
                 <!-- Safety Tests -->
                 <div id="safety-tests-section" class="safety-tests hidden">
                     <div class="alert-box">
-                        <i class="ri-alert-fill"></i> Warning: Low Confidence.
+                        <i class="ri-alert-fill" aria-hidden="true"></i> Warning: Low Confidence.
                         <span>AI generated the following safety tests:</span>
                     </div>
                     <pre><code id="test-preview"></code></pre>
                 </div>
 
                 <!-- Emergency Rollback -->
-                <button id="rollback-btn" class="btn btn-danger full-width hidden" onclick="rollback()">
-                    <i class="ri-arrow-go-back-line"></i> EMERGENCY ROLLBACK
+                <button 
+                    id="rollback-btn" 
+                    type="button"
+                    class="btn btn-danger full-width hidden" 
+                    onclick="rollback()">
+                    <i class="ri-arrow-go-back-line" aria-hidden="true"></i> EMERGENCY ROLLBACK
                 </button>
 
             </div>
@@ -97,8 +110,9 @@ class AuthService {
 
     </main>
 
-    <script src="boilerplate/boilerplate-loader.js"></script>
-    <script src="refactor-safety.js"></script>
+    <!-- Internal Scripts (Non-blocking) -->
+    <script src="boilerplate/boilerplate-loader.js" defer></script>
+    <script src="refactor-safety.js" defer></script>
 </body>
 
 </html>
