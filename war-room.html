@@ -23,7 +23,7 @@
 
         <!-- War Room HUD -->
         <div class="war-room-hud">
-            <!-- Top Bar -->
+            <!-- Top Bar with Stats -->
             <div class="top-bar glass">
                 <div class="incident-info">
                     <span class="incident-badge">
@@ -33,37 +33,103 @@
                     <span class="incident-status" id="incident-status">ACTIVE</span>
                 </div>
 
+                <div class="stats-panel">
+                    <div class="stat">
+                        <span class="stat-value" id="events-count">0</span>
+                        <span class="stat-label">Events</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value critical" id="critical-count">0</span>
+                        <span class="stat-label">Critical</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="incidents-count">0</span>
+                        <span class="stat-label">Incidents</span>
+                    </div>
+                </div>
+
                 <div class="participants-bar">
                     <i class="ri-team-fill"></i>
                     <span id="participant-count">1</span> Active
                     <div class="participant-avatars" id="participant-avatars"></div>
                 </div>
+
+                <button id="emergency-btn" class="btn-emergency">🚨 EMERGENCY</button>
             </div>
 
-            <!-- Live Status Feed -->
-            <div class="status-feed glass">
-                <h3><i class="ri-broadcast-line"></i> Live Status</h3>
-                <div class="status-messages" id="status-messages">
-                    <div class="status-msg system">
-                        <span class="timestamp">20:00:00</span>
-                        <span class="message">War Room initialized</span>
+            <!-- Left Sidebar: Event Stream & Incident Pins -->
+            <aside class="sidebar-left glass">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="pins"><i class="ri-pushpin-fill"></i> Pins</button>
+                    <button class="tab-btn" data-tab="events"><i class="ri-broadcast-line"></i> Events</button>
+                </div>
+
+                <div id="pins-tab" class="tab-content active">
+                    <div class="pins-list" id="pins-list">
+                        <p class="empty-state">No pins created yet</p>
                     </div>
                 </div>
-                <div class="status-input">
-                    <input type="text" id="status-input" placeholder="Broadcast status update...">
-                    <button id="send-status-btn"><i class="ri-send-plane-fill"></i></button>
+
+                <div id="events-tab" class="tab-content">
+                    <div id="event-stream" class="event-stream">
+                        <p class="empty-state">No events in stream</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Sidebar: Live Status & Analysis -->
+            <aside class="sidebar-right glass">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="status"><i class="ri-chat-3-line"></i> Status</button>
+                    <button class="tab-btn" data-tab="analysis"><i class="ri-robot-line"></i> Analysis</button>
+                </div>
+
+                <div id="status-tab" class="tab-content active">
+                    <div class="status-messages" id="status-messages">
+                        <div class="status-msg system">
+                            <span class="timestamp">20:00:00</span>
+                            <span class="message">War Room initialized</span>
+                        </div>
+                    </div>
+                    <div class="status-input">
+                        <input type="text" id="status-input" placeholder="Broadcast status...">
+                        <button id="send-status-btn"><i class="ri-send-plane-fill"></i></button>
+                    </div>
+                </div>
+
+                <div id="analysis-tab" class="tab-content">
+                    <div id="ai-analysis" class="analysis-content">
+                        <div class="placeholder-text">Select a node or pin for root cause analysis</div>
+                    </div>
+                    <div class="confidence-meter">
+                        <span>Confidence:</span>
+                        <div class="meter">
+                            <div id="confidence-bar" class="meter-fill" style="width: 0%"></div>
+                        </div>
+                        <span id="confidence-value">0%</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Metadata Overlay (Slides in when node/pin selected) -->
+            <div id="incident-metadata" class="metadata-overlay glass hidden">
+                <div class="metadata-header">
+                    <h3 id="metadata-title">Node: Payment Engine</h3>
+                    <button id="close-metadata-btn"><i class="ri-close-line"></i></button>
+                </div>
+                <div class="metadata-body">
+                    <div class="related-section">
+                        <h4>Suspect Pull Requests</h4>
+                        <div id="related-prs" class="related-list"></div>
+                    </div>
+                    <div class="related-section">
+                        <h4>Related Developers</h4>
+                        <div id="related-devs" class="related-list"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Incident Pins Panel -->
-            <div class="pins-panel glass">
-                <h3><i class="ri-pushpin-fill"></i> Incident Pins</h3>
-                <div class="pins-list" id="pins-list">
-                    <p class="empty-state">No pins created yet</p>
-                </div>
-            </div>
-
-            <!-- Controls -->
+            <!-- Controls (Bottom) -->
             <div class="controls-panel glass">
                 <button id="create-pin-btn" class="control-btn primary">
                     <i class="ri-pushpin-2-fill"></i> Create Pin
@@ -74,15 +140,28 @@
                 <button id="toggle-cursor-sync" class="control-btn active">
                     <i class="ri-cursor-fill"></i> Show Cursors
                 </button>
+                <div class="separator"></div>
+                <button id="simulate-deploy-fail" class="control-btn outline">
+                    <i class="ri-error-warning-line"></i> Simulate Fail
+                </button>
             </div>
 
             <!-- Connection Status -->
             <div class="connection-status" id="connection-status">
                 <div class="status-dot connecting"></div>
-                <span>Connecting...</span>
+                <span id="connection-text">Connecting...</span>
             </div>
         </div>
     </main>
+
+    <!-- Emergency Overlay -->
+    <div id="emergency-overlay" class="emergency-overlay hidden">
+        <div class="emergency-content">
+            <h1>🚨 EMERGENCY MODE ACTIVATED</h1>
+            <p>All critical incidents prioritized across the fleet</p>
+            <button id="exit-emergency" class="btn-emergency-exit">Exit Emergency Mode</button>
+        </div>
+    </div>
 
     <script src="boilerplate/boilerplate-loader.js"></script>
     <script src="war-room.js"></script>

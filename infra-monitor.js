@@ -1,5 +1,5 @@
 /**
- * XAYTHEON - Health Monitor Frontend
+ * XAYTHEON - Health Monitor Frontend with Self-Healing CI/CD
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,6 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const lightYellow = document.getElementById('light-yellow');
     const lightGreen = document.getElementById('light-green');
     const statusText = document.getElementById('status-text');
+
+    // Remediation panel elements
+    const remediationPanel = document.getElementById('remediation-panel');
+    const confidenceBadge = document.getElementById('confidence-badge');
+    const rootCauseDesc = document.getElementById('root-cause-desc');
+    const affectedFiles = document.getElementById('affected-files');
+    const patchCode = document.getElementById('patch-code');
+    const applyPatchBtn = document.getElementById('apply-patch-btn');
+    const createPRBtn = document.getElementById('create-pr-btn');
+    const dismissRemediationBtn = document.getElementById('dismiss-remediation-btn');
+
+    let currentRemediation = null;
 
     // Socket.io initialization
     const socket = io('/', {
@@ -28,23 +40,182 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.aiAnalysis) {
             showAiDiagnosis(data);
         }
+        if (data.remediation) {
+            showRemediation(data.remediation);
+        }
         refreshSummary();
     });
 
+    // Listen for remediation available event
+    socket.on('remediation_available', (data) => {
+        console.log('Remediation available:', data);
+        showRemediation(data.remediation);
+    });
+
     triggerDemoBtn.addEventListener('click', async () => {
-        const statuses = ['success', 'failure', 'in_progress'];
-        const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+        const errorTypes = ['lint', 'dependency', 'test', 'syntax'];
+        const randomType = errorTypes[Math.floor(Math.random() * errorTypes.length)];
 
-        const logs = randomStatus === 'failure'
-            ? 'Error: Command failed with exit code 1. Could not find module express. ReferenceError: app is not defined at line 45.'
-            : 'Build completed successfully.';
-
-        await fetch('/api/health/mock-trigger', {
+        await fetch('/api/ai/simulate-failure', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ repo: 'SatyamPandey-07/xaytheon', status: randomStatus, logs })
+            body: JSON.stringify({
+                repoName: 'SatyamPandey-07/xaytheon',
+                errorType: randomType
+            })
         });
     });
+
+    // Remediation button handlers
+    applyPatchBtn.addEventListener('click', async () => {
+        if (!currentRemediation) return;
+
+        try {
+            applyPatchBtn.disabled = true;
+            applyPatchBtn.innerHTML = '<i class="ri-loader-4-line"></i> Applying...';
+
+            const response = await fetch(`/api/ai/remediation/${currentRemediation.buildId}/apply`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ createPR: false })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccessNotification('Auto-fix applied successfully!');
+                remediationPanel.style.display = 'none';
+            } else {
+                showErrorNotification('Failed to apply auto-fix');
+            }
+        } catch (error) {
+            console.error('Apply patch error:', error);
+            showErrorNotification('Failed to apply auto-fix');
+        } finally {
+            applyPatchBtn.disabled = false;
+            applyPatchBtn.innerHTML = '<i class="ri-magic-fill"></i> Apply Auto-Fix';
+        }
+    });
+
+    createPRBtn.addEventListener('click', async () => {
+        if (!currentRemediation) return;
+
+        try {
+            createPRBtn.disabled = true;
+            createPRBtn.innerHTML = '<i class="ri-loader-4-line"></i> Creating PR...';
+
+            const response = await fetch(`/api/ai/remediation/${currentRemediation.buildId}/apply`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ createPR: true })
+            });
+
+            const result = await response.json();
+
+            if (result.success && result.data.prUrl) {
+                showSuccessNotification('Pull request created!');
+                window.open(result.data.prUrl, '_blank');
+                remediationPanel.style.display = 'none';
+            } else {
+                showErrorNotification('Failed to create PR');
+            }
+        } catch (error) {
+            console.error('Create PR error:', error);
+            showErrorNotification('Failed to create PR');
+        } finally {
+            createPRBtn.disabled = false;
+            createPRBtn.innerHTML = '<i class="ri-git-pull-request-fill"></i> Create PR';
+        }
+    });
+
+    dismissRemediationBtn.addEventListener('click', () => {
+        remediationPanel.style.display = 'none';
+        currentRemediation = null;
+    });
+
+    function showRemediation(remediation) {
+        currentRemediation = remediation;
+
+        // Show panel
+        remediationPanel.style.display = 'block';
+
+        // Update confidence badge
+        const confidence = Math.round(remediation.confidence * 100);
+        confidenceBadge.textContent = `${confidence}% Confidence`;
+        confidenceBadge.className = 'confidence-badge';
+        if (confidence >= 80) {
+            confidenceBadge.classList.add('high');
+        } else if (confidence >= 50) {
+            confidenceBadge.classList.add('medium');
+        } else {
+            confidenceBadge.classList.add('low');
+        }
+
+        // Update root cause
+        rootCauseDesc.textContent = remediation.rootCause.description;
+
+        // Update affected files
+        if (remediation.rootCause.affectedFiles && remediation.rootCause.affectedFiles.length > 0) {
+            affectedFiles.innerHTML = '<strong>Affected Files:</strong><ul>' +
+                remediation.rootCause.affectedFiles.map(file => `<li>${file}</li>`).join('') +
+                '</ul>';
+        } else {
+            affectedFiles.innerHTML = '';
+        }
+
+        // Update patch preview
+        if (remediation.patch.script) {
+            patchCode.textContent = remediation.patch.script;
+        } else if (remediation.patch.command) {
+            patchCode.textContent = `# Command to run:\n${remediation.patch.command}\n\n# ${remediation.patch.description}`;
+        } else {
+            patchCode.textContent = remediation.patch.suggestion || 'Manual fix required';
+        }
+
+        // Animate panel entrance
+        remediationPanel.style.animation = 'slideInRight 0.5s ease-out';
+    }
+
+    function showSuccessNotification(message) {
+        // Simple notification (could be enhanced with a toast library)
+        const notification = document.createElement('div');
+        notification.className = 'notification success';
+        notification.innerHTML = `<i class="ri-checkbox-circle-fill"></i> ${message}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+
+    function showErrorNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'notification error';
+        notification.innerHTML = `<i class="ri-error-warning-fill"></i> ${message}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
 
     async function refreshSummary() {
         try {

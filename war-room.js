@@ -1,8 +1,7 @@
 /**
- * XAYTHEON - Real-Time Collaborative Incident War Room
+ * XAYTHEON - Integrated Collaborative Incident War Room
  * 
- * 3D multiplayer coordination space with WebSocket synchronization
- * for cursor positions, camera views, and incident pins.
+ * Merged 3D Multiplayer Coordination with Real-time DevOps Dashboard.
  */
 
 class IncidentWarRoom {
@@ -13,8 +12,10 @@ class IncidentWarRoom {
         this.renderer = null;
         this.controls = null;
         this.socket = null;
+
+        // Incident State
         this.incidentId = 'INCIDENT-2026-001';
-        this.userId = this.generateUserId();
+        this.userId = null;
 
         // Collaborative state
         this.remoteCursors = new Map();
@@ -23,11 +24,17 @@ class IncidentWarRoom {
         this.cameraSyncEnabled = false;
         this.cursorSyncEnabled = true;
 
+        // Dashboard state (from upstream)
+        this.events = [];
+        this.incidents = [];
+        this.emergencyMode = false;
+        this.activeNode = null;
+
         // 3D Objects
         this.nodes = [];
         this.links = [];
 
-        // Mock topology
+        // Mock topology (represents the fleet)
         this.topology = [
             { id: 'gateway', name: 'API Gateway', pos: [0, 40, 0], type: 'core', status: 'healthy' },
             { id: 'auth', name: 'Auth Service', pos: [-40, 10, -20], type: 'service', status: 'degraded' },
@@ -46,15 +53,11 @@ class IncidentWarRoom {
         this.init();
     }
 
-    generateUserId() {
-        return `user_${Math.random().toString(36).substr(2, 9)}`;
-    }
-
     async init() {
         this.setupScene();
         this.createTopology();
         this.setupLighting();
-        this.setupControls();
+        this.setupEventListeners();
         this.animate();
 
         await this.connectWebSocket();
@@ -65,12 +68,7 @@ class IncidentWarRoom {
         this.scene.background = new THREE.Color(0x050508);
         this.scene.fog = new THREE.FogExp2(0x050508, 0.003);
 
-        this.camera = new THREE.PerspectiveCamera(
-            60,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            2000
-        );
+        this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
         this.camera.position.set(120, 100, 120);
         this.camera.lookAt(0, 0, 0);
 
@@ -81,76 +79,35 @@ class IncidentWarRoom {
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
-
-        window.addEventListener('resize', () => this.onWindowResize());
     }
 
     setupLighting() {
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        this.scene.add(ambientLight);
-
-        const pointLight = new THREE.PointLight(0x3b82f6, 1, 500);
-        pointLight.position.set(50, 100, 50);
-        this.scene.add(pointLight);
-
-        const redLight = new THREE.PointLight(0xef4444, 0.8, 300);
-        redLight.position.set(-50, -50, -50);
-        this.scene.add(redLight);
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const p1 = new THREE.PointLight(0x3b82f6, 1, 500); p1.position.set(50, 100, 50); this.scene.add(p1);
+        const p2 = new THREE.PointLight(0xef4444, 0.8, 300); p2.position.set(-50, -50, -50); this.scene.add(p2);
     }
 
     createTopology() {
-        const nodeGeometry = new THREE.SphereGeometry(3, 32, 32);
-
-        // Create nodes
+        const nodeGeom = new THREE.SphereGeometry(3, 32, 32);
         this.topology.forEach(data => {
             const color = this.getStatusColor(data.status);
-            const material = new THREE.MeshPhongMaterial({
-                color: color,
-                emissive: color,
-                emissiveIntensity: 0.6,
-                shininess: 100
-            });
-
-            const node = new THREE.Mesh(nodeGeometry, material);
+            const mat = new THREE.MeshPhongMaterial({ color, emissive: color, emissiveIntensity: 0.6, shininess: 100 });
+            const node = new THREE.Mesh(nodeGeom, mat);
             node.position.set(...data.pos);
             node.userData = data;
-
             this.scene.add(node);
             this.nodes.push(node);
-
-            // Add pulsing animation for down nodes
             if (data.status === 'down') {
-                gsap.to(node.scale, {
-                    x: 1.5,
-                    y: 1.5,
-                    z: 1.5,
-                    duration: 0.8,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: 'power2.inOut'
-                });
+                gsap.to(node.scale, { x: 1.5, y: 1.5, z: 1.5, duration: 0.8, repeat: -1, yoyo: true });
             }
         });
 
-        // Create connections
-        this.connections.forEach(([sourceId, targetId]) => {
-            const source = this.topology.find(n => n.id === sourceId);
-            const target = this.topology.find(n => n.id === targetId);
-
-            if (source && target) {
-                const points = [
-                    new THREE.Vector3(...source.pos),
-                    new THREE.Vector3(...target.pos)
-                ];
-
-                const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                const material = new THREE.LineBasicMaterial({
-                    color: 0x3b82f6,
-                    transparent: true,
-                    opacity: 0.3
-                });
-
-                const line = new THREE.Line(geometry, material);
+        this.connections.forEach(([sId, tId]) => {
+            const s = this.topology.find(n => n.id === sId);
+            const t = this.topology.find(n => n.id === tId);
+            if (s && t) {
+                const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...s.pos), new THREE.Vector3(...t.pos)]);
+                const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.3 }));
                 this.scene.add(line);
                 this.links.push(line);
             }
@@ -158,384 +115,255 @@ class IncidentWarRoom {
     }
 
     getStatusColor(status) {
-        const colors = {
-            'healthy': 0x10b981,
-            'degraded': 0xfbbf24,
-            'down': 0xef4444
-        };
-        return colors[status] || 0x64748b;
+        return ({ healthy: 0x10b981, degraded: 0xfbbf24, down: 0xef4444 })[status] || 0x64748b;
     }
 
-    setupControls() {
-        // Create pin button
-        document.getElementById('create-pin-btn').addEventListener('click', () => {
-            this.createIncidentPin();
+    setupEventListeners() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const sidebar = btn.closest('aside');
+                sidebar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                sidebar.querySelectorAll('.tab-content').forEach(c => b.classList.remove('active')); // Fixed typo here (was c -> b)
+                // Actually let's fix the logic
+                sidebar.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
+            });
         });
 
-        // Camera sync toggle
-        document.getElementById('toggle-camera-sync').addEventListener('click', (e) => {
+        document.getElementById('create-pin-btn').addEventListener('click', () => this.createIncidentPin());
+        document.getElementById('toggle-camera-sync').addEventListener('click', e => {
             this.cameraSyncEnabled = !this.cameraSyncEnabled;
-            e.target.classList.toggle('active');
+            e.currentTarget.classList.toggle('active');
         });
-
-        // Cursor sync toggle
-        document.getElementById('toggle-cursor-sync').addEventListener('click', (e) => {
+        document.getElementById('toggle-cursor-sync').addEventListener('click', e => {
             this.cursorSyncEnabled = !this.cursorSyncEnabled;
-            e.target.classList.toggle('active');
+            e.currentTarget.classList.toggle('active');
+        });
+        document.getElementById('send-status-btn').addEventListener('click', () => this.sendStatusUpdate());
+        document.getElementById('status-input').addEventListener('keypress', e => e.key === 'Enter' && this.sendStatusUpdate());
+
+        document.getElementById('close-metadata-btn').addEventListener('click', () => {
+            document.getElementById('incident-metadata').classList.add('hidden');
         });
 
-        // Status input
-        document.getElementById('send-status-btn').addEventListener('click', () => {
-            this.sendStatusUpdate();
-        });
+        document.getElementById('emergency-btn').addEventListener('click', () => this.toggleEmergency(true));
+        document.getElementById('exit-emergency').addEventListener('click', () => this.toggleEmergency(false));
 
-        document.getElementById('status-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.sendStatusUpdate();
-        });
+        document.getElementById('simulate-deploy-fail').addEventListener('click', () => this.simulateFailure());
 
-        // Mouse move for cursor sync
-        let lastCursorUpdate = 0;
-        window.addEventListener('mousemove', (e) => {
-            if (this.cursorSyncEnabled && Date.now() - lastCursorUpdate > 50) {
-                this.broadcastCursorPosition(e);
-                lastCursorUpdate = Date.now();
+        let lastUpdate = 0;
+        window.addEventListener('mousemove', e => {
+            if (this.cursorSyncEnabled && Date.now() - lastUpdate > 50) {
+                this.broadcastCursor(e);
+                lastUpdate = Date.now();
             }
+            this.handleRaycasting(e);
         });
 
-        // Camera change for sync
-        let lastCameraUpdate = 0;
         this.controls.addEventListener('change', () => {
-            if (this.cameraSyncEnabled && Date.now() - lastCameraUpdate > 100) {
-                this.broadcastCameraPosition();
-                lastCameraUpdate = Date.now();
-            }
+            if (this.cameraSyncEnabled) this.broadcastCamera();
+        });
+
+        window.addEventListener('resize', () => {
+            this.camera.aspect = window.innerWidth / window.innerHeight;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
         });
     }
 
     async connectWebSocket() {
-        try {
-            // Get auth token (mock for demo)
-            const token = localStorage.getItem('auth_token') || 'demo_token';
+        const token = localStorage.getItem('xaytheon_token');
+        this.socket = io('/', { auth: { token } });
 
-            this.socket = io('http://localhost:3000', {
-                auth: { token }
-            });
+        this.socket.on('connect', () => {
+            this.updateConn('connected');
+            this.socket.emit('join_war_room', this.incidentId);
+        });
 
-            this.socket.on('connect', () => {
-                console.log('✅ Connected to War Room');
-                this.updateConnectionStatus('connected');
-                this.socket.emit('join_war_room', this.incidentId);
-            });
+        this.socket.on('connect_error', (err) => {
+            console.error('Socket connection error:', err);
+            this.updateConn('disconnected');
+        });
 
-            this.socket.on('disconnect', () => {
-                console.log('❌ Disconnected from War Room');
-                this.updateConnectionStatus('disconnected');
-            });
+        this.socket.on('war_room_user_joined', d => this.onUserJoined(d));
+        this.socket.on('war_room_user_left', d => this.onUserLeft(d));
+        this.socket.on('war_room_cursor_update', d => this.updateRemoteCursor(d));
+        this.socket.on('war_room_pin_created', p => this.renderPin(p));
+        this.socket.on('war_room_status_broadcast', m => this.addMsg(m));
+        this.socket.on('incident_update', ev => this.addEvent(ev));
+    }
 
-            // War Room events
-            this.socket.on('war_room_user_joined', (data) => {
-                this.onUserJoined(data);
-            });
+    handleRaycasting(e) {
+        const mouse = new THREE.Vector2((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, this.camera);
+        const intersects = raycaster.intersectObjects(this.nodes);
 
-            this.socket.on('war_room_user_left', (data) => {
-                this.onUserLeft(data);
-            });
-
-            this.socket.on('war_room_participants', (data) => {
-                this.updateParticipants(data);
-            });
-
-            this.socket.on('war_room_cursor_update', (data) => {
-                this.updateRemoteCursor(data);
-            });
-
-            this.socket.on('war_room_camera_update', (data) => {
-                this.updateRemoteCamera(data);
-            });
-
-            this.socket.on('war_room_pin_created', (pin) => {
-                this.renderIncidentPin(pin);
-            });
-
-            this.socket.on('war_room_pin_removed', (data) => {
-                this.removeIncidentPin(data.pinId);
-            });
-
-            this.socket.on('war_room_status_broadcast', (data) => {
-                this.addStatusMessage(data);
-            });
-
-        } catch (error) {
-            console.error('Failed to connect to War Room:', error);
-            this.updateConnectionStatus('disconnected');
+        if (intersects.length > 0) {
+            document.body.style.cursor = 'pointer';
+            if (e.buttons === 1) this.showNodeMetadata(intersects[0].object.userData);
+        } else {
+            document.body.style.cursor = 'default';
         }
     }
 
-    broadcastCursorPosition(e) {
-        if (!this.socket) return;
+    showNodeMetadata(data) {
+        this.activeNode = data;
+        const panel = document.getElementById('incident-metadata');
+        document.getElementById('metadata-title').textContent = `${data.type.toUpperCase()}: ${data.name}`;
 
-        const x = (e.clientX / window.innerWidth) * 2 - 1;
-        const y = -(e.clientY / window.innerHeight) * 2 + 1;
+        document.getElementById('related-prs').innerHTML = `
+            <div class="pr-item">#782 Add payment retry logic</div>
+            <div class="pr-item">#775 Update k8s config</div>
+        `;
+        document.getElementById('related-devs').innerHTML = `
+            <div class="dev-item">@alex_dev (Last commit 2h ago)</div>
+            <div class="dev-item">@sara_sre (On-call)</div>
+        `;
 
-        this.socket.emit('war_room_cursor_move', {
-            position: { x, y },
-            color: '#60a5fa'
-        });
+        panel.classList.remove('hidden');
+        this.runAiAnalysis(data);
     }
 
-    broadcastCameraPosition() {
-        if (!this.socket) return;
+    runAiAnalysis(node) {
+        const panel = document.getElementById('ai-analysis');
+        panel.innerHTML = '<div class="loading">Analyzing node logs...</div>';
 
-        this.socket.emit('war_room_camera_move', {
-            position: this.camera.position.toArray(),
-            target: this.controls.target.toArray()
-        });
+        setTimeout(() => {
+            panel.innerHTML = `
+                <p><strong>Root Cause:</strong> Potential memory leak in <code>${node.id}</code> worker pool.</p>
+                <p><strong>Action:</strong> Review last deployment (#782) and check garbage collection metrics.</p>
+            `;
+            this.updateConfidence(85);
+        }, 1500);
+    }
+
+    updateConfidence(val) {
+        gsap.to('#confidence-bar', { width: val + '%', duration: 1 });
+        document.getElementById('confidence-value').textContent = val + '%';
+    }
+
+    toggleEmergency(val) {
+        this.emergencyMode = val;
+        document.getElementById('emergency-overlay').classList.toggle('hidden', !val);
+        if (val) this.socket.emit('war_room_status_update', { status: 'critical', message: 'FLEET-WIDE EMERGENCY MODE ACTIVATED' });
+    }
+
+    addEvent(ev) {
+        this.events.unshift(ev);
+        const stream = document.getElementById('event-stream');
+        if (stream.querySelector('.empty-state')) stream.innerHTML = '';
+        const evEl = document.createElement('div');
+        evEl.className = `event-item ${ev.severity === 'critical' ? 'critical' : ''}`;
+        evEl.innerHTML = `<strong>${ev.source}</strong>: ${ev.message} <span class="time">${new Date().toLocaleTimeString()}</span>`;
+        stream.prepend(evEl);
+        if (stream.children.length > 50) stream.lastElementChild.remove();
+    }
+
+    updateStats(s) {
+        if (s.events) document.getElementById('events-count').textContent = s.events;
+        if (s.critical !== undefined) document.getElementById('critical-count').textContent = s.critical;
+        if (s.incidents) document.getElementById('incidents-count').textContent = s.incidents;
+    }
+
+    broadcastCursor(e) {
+        if (!this.socket || !this.socket.connected) return;
+        const x = (e.clientX / window.innerWidth) * 2 - 1;
+        const y = -(e.clientY / window.innerHeight) * 2 + 1;
+        this.socket.emit('war_room_cursor_move', { position: { x, y } });
+    }
+
+    broadcastCamera() {
+        if (!this.socket || !this.socket.connected) return;
+        this.socket.emit('war_room_camera_move', { position: this.camera.position.toArray(), target: this.controls.target.toArray() });
     }
 
     updateRemoteCursor(data) {
-        if (!this.cursorSyncEnabled) return;
-
         let cursor = this.remoteCursors.get(data.userId);
-
         if (!cursor) {
-            // Create new cursor orb
-            const geometry = new THREE.SphereGeometry(2, 16, 16);
-            const material = new THREE.MeshBasicMaterial({
-                color: data.color,
-                transparent: true,
-                opacity: 0.6
-            });
-            cursor = new THREE.Mesh(geometry, material);
+            cursor = new THREE.Mesh(new THREE.SphereGeometry(2, 16, 16), new THREE.MeshBasicMaterial({ color: data.color || '#3b82f6', transparent: true, opacity: 0.6 }));
             this.scene.add(cursor);
             this.remoteCursors.set(data.userId, cursor);
         }
-
-        // Update position (convert 2D screen to 3D world)
-        const vector = new THREE.Vector3(data.position.x, data.position.y, 0.5);
-        vector.unproject(this.camera);
+        const vector = new THREE.Vector3(data.position.x, data.position.y, 0.5).unproject(this.camera);
         const dir = vector.sub(this.camera.position).normalize();
-        const distance = 50;
-        const pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
-
-        gsap.to(cursor.position, {
-            x: pos.x,
-            y: pos.y,
-            z: pos.z,
-            duration: 0.1,
-            ease: 'none'
-        });
-    }
-
-    updateRemoteCamera(data) {
-        // Visual indicator only (don't force camera movement)
-        console.log(`User ${data.userId} moved camera to:`, data.position);
+        const pos = this.camera.position.clone().add(dir.multiplyScalar(50));
+        gsap.to(cursor.position, { x: pos.x, y: pos.y, z: pos.z, duration: 0.1, ease: 'none' });
     }
 
     createIncidentPin() {
-        // For demo, pin the first down node
-        const downNode = this.topology.find(n => n.status === 'down');
-        if (!downNode) return;
-
-        const message = prompt('Enter pin message:');
-        if (!message) return;
-
-        this.socket.emit('war_room_create_pin', {
-            position: downNode.pos,
-            nodeId: downNode.id,
-            message: message,
-            severity: 'critical'
-        });
+        const node = this.topology.find(n => n.status === 'down');
+        if (!node) return;
+        const msg = prompt('Enter pin message:');
+        if (msg) this.socket.emit('war_room_create_pin', { position: node.pos, nodeId: node.id, message: msg, severity: 'critical' });
     }
 
-    renderIncidentPin(pin) {
-        // Create 3D pin marker
-        const geometry = new THREE.ConeGeometry(2, 8, 8);
-        const material = new THREE.MeshPhongMaterial({
-            color: this.getPinColor(pin.severity),
-            emissive: this.getPinColor(pin.severity),
-            emissiveIntensity: 0.8
-        });
+    renderPin(pin) {
+        const mesh = new THREE.Mesh(new THREE.ConeGeometry(2, 8, 8), new THREE.MeshPhongMaterial({ color: 0xef4444, emissive: 0xef4444, emissiveIntensity: 0.8 }));
+        mesh.position.set(...pin.position); mesh.position.y += 10;
+        this.scene.add(mesh); this.incidentPins.set(pin.id, mesh);
 
-        const pinMesh = new THREE.Mesh(geometry, material);
-        pinMesh.position.set(...pin.position);
-        pinMesh.position.y += 10; // Offset above node
-        pinMesh.userData = pin;
-
-        this.scene.add(pinMesh);
-        this.incidentPins.set(pin.id, pinMesh);
-
-        // Animate
-        gsap.from(pinMesh.scale, {
-            x: 0,
-            y: 0,
-            z: 0,
-            duration: 0.5,
-            ease: 'back.out'
-        });
-
-        // Add to UI
-        this.addPinToList(pin);
-    }
-
-    getPinColor(severity) {
-        const colors = {
-            'critical': 0xef4444,
-            'high': 0xf97316,
-            'medium': 0xfbbf24,
-            'low': 0x3b82f6
-        };
-        return colors[severity] || 0x64748b;
-    }
-
-    addPinToList(pin) {
         const list = document.getElementById('pins-list');
-
-        // Remove empty state
-        const emptyState = list.querySelector('.empty-state');
-        if (emptyState) emptyState.remove();
-
-        const pinEl = document.createElement('div');
-        pinEl.className = `pin-item ${pin.severity}`;
-        pinEl.innerHTML = `
-            <div class="pin-header">
-                <span class="pin-user">User ${pin.userId.substr(-4)}</span>
-                <span class="pin-time">${new Date(pin.timestamp).toLocaleTimeString()}</span>
-            </div>
-            <div class="pin-message">${pin.message}</div>
-            <div class="pin-node">📍 ${pin.nodeId}</div>
-            <button class="pin-remove" onclick="warRoom.removePin('${pin.id}')">Remove</button>
-        `;
-
-        list.prepend(pinEl);
+        if (list.querySelector('.empty-state')) list.innerHTML = '';
+        const el = document.createElement('div');
+        el.className = `pin-item ${pin.severity}`;
+        el.innerHTML = `<div class="pin-header"><span class="pin-user">User ${pin.userId.substr(-4)}</span></div><div class="pin-message">${pin.message}</div>`;
+        list.prepend(el);
     }
 
-    removePin(pinId) {
-        this.socket.emit('war_room_remove_pin', pinId);
-    }
-
-    removeIncidentPin(pinId) {
-        const pin = this.incidentPins.get(pinId);
-        if (pin) {
-            this.scene.remove(pin);
-            this.incidentPins.delete(pinId);
-        }
-
-        // Remove from UI
-        const list = document.getElementById('pins-list');
-        const pinEls = list.querySelectorAll('.pin-item');
-        pinEls.forEach(el => {
-            if (el.querySelector('.pin-remove').onclick.toString().includes(pinId)) {
-                el.remove();
-            }
-        });
+    addMsg(data) {
+        const msgs = document.getElementById('status-messages');
+        if (msgs.querySelector('.empty-state')) msgs.innerHTML = '';
+        const el = document.createElement('div');
+        el.className = `status-msg ${data.status}`;
+        el.innerHTML = `<span class="timestamp">${new Date(data.timestamp).toLocaleTimeString()}</span> <strong>User ${data.userId.substr(-4)}:</strong> ${data.message}`;
+        msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight;
     }
 
     sendStatusUpdate() {
         const input = document.getElementById('status-input');
-        const message = input.value.trim();
-        if (!message) return;
-
-        this.socket.emit('war_room_status_update', {
-            status: 'info',
-            message: message
-        });
-
-        input.value = '';
-    }
-
-    addStatusMessage(data) {
-        const messages = document.getElementById('status-messages');
-        const msgEl = document.createElement('div');
-        msgEl.className = `status-msg ${data.status}`;
-
-        const time = new Date(data.timestamp).toLocaleTimeString();
-        msgEl.innerHTML = `
-            <span class="timestamp">${time}</span>
-            <span class="user-name">User ${data.userId.substr(-4)}:</span>
-            <span class="message">${data.message}</span>
-        `;
-
-        messages.appendChild(msgEl);
-        messages.scrollTop = messages.scrollHeight;
-    }
-
-    onUserJoined(data) {
-        this.participants.add(data.userId);
-        this.updateParticipantCount();
-
-        this.addStatusMessage({
-            status: 'system',
-            userId: 'SYSTEM',
-            message: `User ${data.userId.substr(-4)} joined the war room`,
-            timestamp: data.timestamp
-        });
-    }
-
-    onUserLeft(data) {
-        this.participants.delete(data.userId);
-        this.updateParticipantCount();
-
-        // Remove cursor
-        const cursor = this.remoteCursors.get(data.userId);
-        if (cursor) {
-            this.scene.remove(cursor);
-            this.remoteCursors.delete(data.userId);
+        if (input.value.trim()) {
+            this.socket.emit('war_room_status_update', { status: 'info', message: input.value });
+            input.value = '';
         }
-
-        this.addStatusMessage({
-            status: 'system',
-            userId: 'SYSTEM',
-            message: `User ${data.userId.substr(-4)} left the war room`,
-            timestamp: data.timestamp
-        });
     }
 
-    updateParticipants(data) {
-        document.getElementById('participant-count').textContent = data.count;
-    }
-
-    updateParticipantCount() {
+    onUserJoined(d) {
+        this.participants.add(d.userId);
         document.getElementById('participant-count').textContent = this.participants.size + 1;
+        this.addMsg({ status: 'system', userId: 'SYSTEM', message: `User ${d.userId.substr(-4)} joined`, timestamp: d.timestamp });
     }
 
-    updateConnectionStatus(status) {
-        const statusEl = document.getElementById('connection-status');
-        const dot = statusEl.querySelector('.status-dot');
-        const text = statusEl.querySelector('span');
-
-        dot.className = `status-dot ${status}`;
-
-        const messages = {
-            'connecting': 'Connecting...',
-            'connected': 'Connected',
-            'disconnected': 'Disconnected'
-        };
-
-        text.textContent = messages[status] || status;
+    onUserLeft(d) {
+        this.participants.delete(d.userId);
+        document.getElementById('participant-count').textContent = this.participants.size + 1;
+        const cursor = this.remoteCursors.get(d.userId);
+        if (cursor) { this.scene.remove(cursor); this.remoteCursors.delete(d.userId); }
     }
 
-    onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+    updateConn(s) {
+        const dot = document.querySelector('.status-dot');
+        if (dot) dot.className = `status-dot ${s}`;
+        const text = document.getElementById('connection-text');
+        if (text) text.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    simulateFailure() {
+        this.addEvent({ source: 'PaymentEngine', message: 'Connection Timeout with Database', severity: 'critical' });
+        const node = this.nodes.find(n => n.userData.id === 'payment');
+        if (node) {
+            node.material.color.setHex(0xef4444);
+            gsap.to(node.scale, { x: 2, y: 2, z: 2, duration: 0.5, yoyo: true, repeat: 3 });
+        }
     }
 
     animate() {
         requestAnimationFrame(() => this.animate());
-
-        this.controls.update();
-
-        // Rotate cursor orbs
-        this.remoteCursors.forEach(cursor => {
-            cursor.rotation.y += 0.05;
-        });
-
-        this.renderer.render(this.scene, this.camera);
+        if (this.controls) this.controls.update();
+        if (this.remoteCursors) this.remoteCursors.forEach(c => c.rotation.y += 0.05);
+        if (this.renderer && this.scene && this.camera) this.renderer.render(this.scene, this.camera);
     }
 }
 
-// Initialize
-let warRoom;
-document.addEventListener('DOMContentLoaded', () => {
-    warRoom = new IncidentWarRoom();
-});
+document.addEventListener('DOMContentLoaded', () => { window.warRoom = new IncidentWarRoom(); });

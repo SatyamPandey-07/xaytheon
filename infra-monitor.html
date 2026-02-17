@@ -7,7 +7,7 @@
     <title>Infrastructure Health Monitor — XAYTHEON</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
-     <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=3">
     <link rel="stylesheet" href="infra-monitor.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
@@ -77,6 +77,38 @@
                         <p id="status-text">All systems operational</p>
                     </div>
                 </section>
+
+                <!-- Self-Healing Remediation Panel -->
+                <section class="ai-diagnosis">
+                    <div class="card remediation-card" id="remediation-panel" style="display: none;">
+                        <div class="card-header">
+                            <h3><i class="ri-tools-fill"></i> Auto-Fix Available</h3>
+                            <span class="confidence-badge" id="confidence-badge"></span>
+                        </div>
+                        <div class="remediation-body">
+                            <div class="root-cause">
+                                <h4>Root Cause</h4>
+                                <p id="root-cause-desc"></p>
+                                <div class="affected-files" id="affected-files"></div>
+                            </div>
+                            <div class="patch-preview">
+                                <h4>Suggested Fix</h4>
+                                <pre id="patch-code"></pre>
+                            </div>
+                            <div class="remediation-actions">
+                                <button id="apply-patch-btn" class="btn btn-primary">
+                                    <i class="ri-magic-fill"></i> Apply Auto-Fix
+                                </button>
+                                <button id="create-pr-btn" class="btn btn-outline">
+                                    <i class="ri-git-pull-request-fill"></i> Create PR
+                                </button>
+                                <button id="dismiss-remediation-btn" class="btn btn-text">
+                                    Dismiss
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </main>
     </div>
@@ -84,11 +116,8 @@
     <script src="theme.js"></script>
     <script src="infra-monitor.js"></script>
     <script src="boilerplate/boilerplate-loader.js"></script>
-    
-<div id="footer-placeholder"></div>
+
+    <div id="footer-placeholder"></div>
 
 
 </html>
-
-
-
