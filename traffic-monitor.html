@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XAYTHEON | Global Traffic Orchestrator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="traffic.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Inter:wght@400;600&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="dark-theme traffic-mode">
+    <nav id="navbar-placeholder"></nav>
+
+    <div class="traffic-interface">
+        <header class="traffic-header glass">
+            <div class="brand">
+                <span class="pulsing-dot"></span>
+                <h1>Global <span class="accent">Traffic Ops</span></h1>
+            </div>
+            <div class="global-stats">
+                <div class="stat">
+                    <span class="label">Total Ingress</span>
+                    <span id="total-traffic">--</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Auto-Healing</span>
+                    <span id="healing-status" class="status-active">ACTIVE</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="traffic-main">
+            <!-- Map Visualization -->
+            <div class="map-container glass">
+                <canvas id="traffic-map"></canvas>
+                <div class="map-overlay">
+                    <div id="region-na-east" class="region-marker" data-region="na-east">
+                        <div class="ping"></div>
+                        <span class="name">US-EAST</span>
+                        <span class="health">99%</span>
+                    </div>
+                    <div id="region-na-west" class="region-marker" data-region="na-west">
+                        <div class="ping"></div>
+                        <span class="name">US-WEST</span>
+                        <span class="health">100%</span>
+                    </div>
+                    <div id="region-eu-central" class="region-marker" data-region="eu-central">
+                        <div class="ping"></div>
+                        <span class="name">EU-CENTRAL</span>
+                        <span class="health">98%</span>
+                    </div>
+                    <div id="region-ap-south" class="region-marker" data-region="ap-south">
+                        <div class="ping"></div>
+                        <span class="name">AP-SOUTH</span>
+                        <span class="health">100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orchestration Sidebar -->
+            <aside class="orchestration-sidebar glass">
+                <div class="sidebar-section">
+                    <h3>Failover Dynamics</h3>
+                    <div id="failover-log" class="event-feed">
+                        <p class="empty">No failovers in last 10m</p>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Simulation Controls</h3>
+                    <p class="hint">Inject regional degradation to test autonomous rerouting.</p>
+                    <div class="control-grid">
+                        <button class="btn btn-fail" onclick="simulateFailure('na-east')">Fail US-EAST</button>
+                        <button class="btn btn-fail" onclick="simulateFailure('eu-central')">Fail EU-CENTRAL</button>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <footer class="traffic-footer glass">
+            <div id="active-routes" class="route-display">
+                <!-- Routes will be rendered here -->
+            </div>
+        </footer>
+    </div>
+
+    <script src="traffic-dashboard.js"></script>
+    <script>
+        fetch('navbar.html').then(r => r.text()).then(html => {
+            document.getElementById('navbar-placeholder').innerHTML = html;
+        });
+    </script>
+</body>
+
+</html>

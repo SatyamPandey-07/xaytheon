@@ -5,7 +5,6 @@ const WarRoomSocket = require("./war-room.socket");
 const globeController = require("../controllers/globe.controller");
 
 let io;
-let warRoomSocketHandler;
 const userSockets = new Map(); // userId -> Set of socket IDs
 const watchlistRooms = new Map(); // watchlistId -> Set of userIds
 
@@ -16,9 +15,6 @@ function initializeSocket(server) {
             credentials: true,
         },
     });
-
-    // Initialize War-Room socket handler
-   // warRoomSocketHandler = new WarRoomSocket(io);
 
     // Authentication middleware for main namespace
     io.use((socket, next) => {
@@ -45,7 +41,7 @@ function initializeSocket(server) {
         }
         userSockets.get(socket.userId).add(socket.id);
 
-        // Join collaboration room (e.g., specific watchlist or page)
+        // Join collaboration room
         socket.on("join_collab", ({ roomId, userMetadata }) => {
             socket.join(`collab:${roomId}`);
             socket.userMetadata = userMetadata || { name: `User ${socket.userId.slice(-4)}` };
@@ -55,16 +51,13 @@ function initializeSocket(server) {
             }
             watchlistRooms.get(roomId).add(socket.userId);
 
-            // Broadcast join with metadata
             socket.to(`collab:${roomId}`).emit("user_joined_collab", {
                 userId: socket.userId,
                 metadata: socket.userMetadata
             });
 
-            // Send current presence list to the new user
             const viewers = Array.from(watchlistRooms.get(roomId)).map(id => ({
                 userId: id,
-                // In a real app, you'd fetch metadata from a service/DB
                 metadata: { name: `User ${id.slice(-4)}` }
             }));
             socket.emit("presence_update", { roomId, viewers });
@@ -89,16 +82,6 @@ function initializeSocket(server) {
             });
         });
 
-        // Real-time Edits (Conflict Resolution Placeholder)
-        socket.on("edit_content", ({ roomId, change, version }) => {
-            // In a real app, apply OT/CRDT logic here via collabService
-            socket.to(`collab:${roomId}`).emit("content_synced", {
-                userId: socket.userId,
-                change,
-                version
-            });
-        });
-
         // Leave collaboration
         socket.on("leave_collab", (roomId) => {
             socket.leave(`collab:${roomId}`);
@@ -113,33 +96,9 @@ function initializeSocket(server) {
             const roomName = `war_room:${incidentId}`;
             socket.join(roomName);
             socket.currentWarRoom = incidentId;
-
             console.log(`🚨 User ${socket.userId} joined War Room: ${incidentId}`);
 
-            // Notify others of new participant
             socket.to(roomName).emit("war_room_user_joined", {
-                userId: socket.userId,
-                incidentId,
-                timestamp: Date.now()
-            });
-
-            // Send current participants
-            io.in(roomName).allSockets().then(sockets => {
-                socket.emit("war_room_participants", {
-                    incidentId,
-                    count: sockets.size,
-                    participants: Array.from(sockets)
-                });
-            });
-        });
-
-        // WAR ROOM: Leave war room
-        socket.on("leave_war_room", (incidentId) => {
-            const roomName = `war_room:${incidentId}`;
-            socket.leave(roomName);
-            socket.currentWarRoom = null;
-
-            socket.to(roomName).emit("war_room_user_left", {
                 userId: socket.userId,
                 incidentId,
                 timestamp: Date.now()
@@ -185,21 +144,7 @@ function initializeSocket(server) {
                     severity: data.severity || 'medium',
                     timestamp: Date.now()
                 };
-
-                // Broadcast to all in room (including sender)
                 io.to(roomName).emit("war_room_pin_created", pin);
-            }
-        });
-
-        // WAR ROOM: Remove incident pin
-        socket.on("war_room_remove_pin", (pinId) => {
-            if (socket.currentWarRoom) {
-                const roomName = `war_room:${socket.currentWarRoom}`;
-                io.to(roomName).emit("war_room_pin_removed", {
-                    pinId,
-                    userId: socket.userId,
-                    timestamp: Date.now()
-                });
             }
         });
 
@@ -216,11 +161,40 @@ function initializeSocket(server) {
             }
         });
 
+        // SECURITY WAR ROOM: Join security room
+        socket.on("join_security_warroom", () => {
+            socket.join("security_war_room");
+            console.log(`🛡️ User ${socket.userId} joined Security War Room`);
+        });
+
+        // SECURITY WAR ROOM: Broadcast threat detection
+        socket.on("security_broadcast", (threat) => {
+            io.to("security_war_room").emit("new_threat_detected", {
+                ...threat,
+                detectedBy: socket.userId,
+                timestamp: Date.now()
+            });
+        });
+
+        // TRAFFIC OPS: Join traffic monitoring
+        socket.on("join_traffic_ops", () => {
+            socket.join("traffic_ops_room");
+            console.log(`📡 User ${socket.userId} joined Global Traffic Ops`);
+        });
+
+        // TRAFFIC OPS: Broadcast orchestration shift
+        socket.on("traffic_shift_broadcast", (event) => {
+            io.to("traffic_ops_room").emit("global_traffic_rerouted", {
+                ...event,
+                orchestratedBy: 'AI_AUTONOMOUS_ENGINE',
+                timestamp: Date.now()
+            });
+        });
+
         // Handle disconnect
         socket.on("disconnect", () => {
             console.log(`❌ User ${socket.userId} disconnected: ${socket.id}`);
 
-            // Leave war room if in one
             if (socket.currentWarRoom) {
                 const roomName = `war_room:${socket.currentWarRoom}`;
                 socket.to(roomName).emit("war_room_user_left", {
@@ -237,7 +211,6 @@ function initializeSocket(server) {
                 }
             }
 
-            // Remove from all collaborative rooms
             watchlistRooms.forEach((viewers, roomId) => {
                 if (viewers.has(socket.userId)) {
                     viewers.delete(socket.userId);
@@ -248,13 +221,7 @@ function initializeSocket(server) {
     });
 
     console.log("🔌 WebSocket server initialized");
-
-    // Initialize globe services with Socket.IO
-    //globeController.initializeServices(io);
-
-    // Start analytics simulation
     startRealTimeSimulation(io);
-
     return io;
 }
 
@@ -265,7 +232,6 @@ function getIO() {
     return io;
 }
 
-// Emit notification to specific user
 function emitToUser(userId, event, data) {
     if (userSockets.has(userId)) {
         userSockets.get(userId).forEach((socketId) => {
@@ -274,14 +240,8 @@ function emitToUser(userId, event, data) {
     }
 }
 
-// Emit to all users in a watchlist
-function emitToWatchlist(watchlistId, event, data) {
-    io.to(`watchlist:${watchlistId}`).emit(event, data);
-}
-
 module.exports = {
     initializeSocket,
     getIO,
-    emitToUser,
-    emitToWatchlist,
+    emitToUser
 };
