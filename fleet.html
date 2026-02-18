@@ -6,17 +6,16 @@
     <meta name="description" content="Multi-Repository Fleet Dashboard with Cross-Repo Analytics for enterprise DevOps monitoring">
     <title>Fleet Dashboard — XAYTHEON</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="style.css?v=3">
     <link rel="stylesheet" href="analytics.css">
     <link rel="stylesheet" href="features_analytics.css">
     
     <!-- Chart.js for data visualization -->
-    <script src="boilerplate/boilerplate-loader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="boilerplate/boilerplate-loader.js" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
     <!-- Supabase SDK & auth bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js"></script>
     <script defer src="auth.js"></script>
 </head>
 <body class="eightgon-page">
@@ -37,11 +36,11 @@
                         </p>
                     </div>
                     <div class="header-actions">
-                        <button id="refresh-dashboard" class="btn btn-secondary">
+                        <button type="button" id="refresh-dashboard" class="btn btn-secondary">
                             <span class="btn-icon">🔄</span>
                             Refresh Data
                         </button>
-                        <button id="export-fleet" class="btn btn-primary" disabled>
+                        <button type="button" id="export-fleet" class="btn btn-primary" disabled aria-disabled="true">
                             <span class="btn-icon">📥</span>
                             Export Report
                         </button>
@@ -49,7 +48,7 @@
                 </header>
 
                 <!-- Loading State -->
-                <div id="loading-state" class="loading-overlay hidden">
+                <div id="loading-state" class="loading-overlay hidden" role="status" aria-live="polite" aria-busy="true">
                     <div class="loading-spinner"></div>
                     <p>Analyzing your repository fleet...</p>
                 </div>
@@ -67,7 +66,7 @@
                             <select id="fleet-template" class="form-select">
                                 <option value="">Select a template...</option>
                             </select>
-                            <button id="apply-template" class="btn btn-secondary" disabled>Apply Template</button>
+                            <button type="button" id="apply-template" class="btn btn-secondary" disabled aria-disabled="true">Apply Template</button>
                         </div>
                         
                         <div class="manual-add">
@@ -75,7 +74,7 @@
                             <div class="repo-input-group">
                                 <input type="text" id="repo-owner" placeholder="Owner/Organization" class="form-input">
                                 <input type="text" id="repo-name" placeholder="Repository Name" class="form-input">
-                                <button id="add-repo" class="btn btn-primary">Add Repository</button>
+                                <button type="button" id="add-repo" class="btn btn-primary">Add Repository</button>
                             </div>
                         </div>
                     </div>
@@ -86,11 +85,11 @@
                             <!-- Repositories will be added here dynamically -->
                         </div>
                         <div class="config-actions">
-                            <button id="save-config" class="btn btn-secondary" disabled>
+                            <button type="button" id="save-config" class="btn btn-secondary" disabled aria-disabled="true">
                                 <span class="btn-icon">💾</span>
                                 Save Configuration
                             </button>
-                            <button id="analyze-fleet" class="btn btn-primary btn-large" disabled>
+                            <button type="button" id="analyze-fleet" class="btn btn-primary btn-large" disabled aria-disabled="true">
                                 <span class="btn-icon">📊</span>
                                 Analyze Fleet
                             </button>
@@ -124,28 +123,28 @@
                     <!-- Fleet Summary Cards -->
                     <div class="summary-metrics-grid">
                         <div class="metric-card">
-                            <div class="metric-icon">⭐</div>
+                            <div class="metric-icon" aria-hidden="true">⭐</div>
                             <div class="metric-info">
                                 <h3>Total Stars</h3>
                                 <span id="total-stars" class="metric-value">0</span>
                             </div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-icon">👥</div>
+                            <div class="metric-icon" aria-hidden="true">👥</div>
                             <div class="metric-info">
                                 <h3>Active Contributors</h3>
                                 <span id="total-contributors" class="metric-value">0</span>
                             </div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-icon">📝</div>
+                            <div class="metric-icon" aria-hidden="true">📝</div>
                             <div class="metric-info">
                                 <h3>Total Commits</h3>
                                 <span id="total-commits" class="metric-value">0</span>
                             </div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-icon">⚡</div>
+                            <div class="metric-icon" aria-hidden="true">⚡</div>
                             <div class="metric-info">
                                 <h3>Top Performers</h3>
                                 <span id="top-performers" class="metric-value">-</span>
@@ -210,8 +209,8 @@
     <script src="fleet.js"></script>
 <div id="footer-placeholder"></div>
 
+</body>
 </html>
-
 
 
 
