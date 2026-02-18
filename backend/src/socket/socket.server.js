@@ -18,7 +18,7 @@ function initializeSocket(server) {
     });
 
     // Initialize War-Room socket handler
-   // warRoomSocketHandler = new WarRoomSocket(io);
+    // warRoomSocketHandler = new WarRoomSocket(io);
 
     // Authentication middleware for main namespace
     io.use((socket, next) => {
@@ -214,6 +214,21 @@ function initializeSocket(server) {
                     timestamp: Date.now()
                 });
             }
+        });
+
+        // SECURITY WAR ROOM: Join security room
+        socket.on("join_security_warroom", () => {
+            socket.join("security_war_room");
+            console.log(`🛡️ User ${socket.userId} joined Security War Room`);
+        });
+
+        // SECURITY WAR ROOM: Broadcast threat detection
+        socket.on("security_broadcast", (threat) => {
+            io.to("security_war_room").emit("new_threat_detected", {
+                ...threat,
+                detectedBy: socket.userId,
+                timestamp: Date.now()
+            });
         });
 
         // Handle disconnect

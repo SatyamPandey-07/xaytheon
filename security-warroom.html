@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XAYTHEON | AI Security War Room</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="security-warroom.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;600&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="dark-theme security-warroom">
+    <nav id="navbar-placeholder"></nav>
+
+    <main class="warroom-container">
+        <header class="warroom-header">
+            <div class="brand-security">
+                <span class="shield-icon">🛡️</span>
+                <h1>Security <span class="gradient-text">War Room</span></h1>
+            </div>
+            <div class="security-status-bar glass">
+                <div class="status-item">
+                    <span class="label">System Integrity</span>
+                    <span id="integrity-value" class="value status-good">99.8%</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">Predictive Confidence</span>
+                    <span class="value">0.96 resonance</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="ops-center">
+            <!-- Left: Live Threat Map / Viz -->
+            <div class="threat-visualization glass" id="threat-viz-container">
+                <div class="viz-placeholder">
+                    <div class="radar"></div>
+                    <p>AI ANALYZER SCANNING FLEET...</p>
+                </div>
+                <div class="viz-overlay">
+                    <div class="node-badge">AI ANALYZER ACTIVE</div>
+                    <div id="active-fuzz-target" class="fuzz-badge hidden">FUZZING TARGET: ...</div>
+                </div>
+            </div>
+
+            <!-- Right: Critical Threats Feed -->
+            <aside class="threat-sidebar glass">
+                <div class="sidebar-header">
+                    <h3>Critical Threat Feed</h3>
+                    <span id="threat-count-badge" class="badge">0</span>
+                </div>
+                <div id="threat-feed" class="feed-container">
+                    <div class="empty-feed">
+                        <p>No active threats detected by AI.</p>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <!-- Bottom: Control Center -->
+        <footer class="control-center glass">
+            <div class="action-grid">
+                <div class="action-card">
+                    <h4>Predictive Analysis</h4>
+                    <p>Trigger LLM-based pattern recognition on current traffic logs.</p>
+                    <button id="run-analysis-btn" class="btn btn-security">Analyze Logs</button>
+                </div>
+                <div class="action-card">
+                    <h4>Automated Security Fuzzing</h4>
+                    <p>Simulate exploit attempts on active endpoints.</p>
+                    <input type="text" id="fuzz-url" placeholder="Enter target endpoint URL"
+                        value="http://api.internal/v1/auth" class="sec-input">
+                    <button id="run-fuzz-btn" class="btn btn-fuzz">Execute Exploit Simulation</button>
+                </div>
+                <div class="action-card stats-mini">
+                    <canvas id="threat-type-chart"></canvas>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Detailed Threat Modal -->
+    <div id="threat-modal" class="modal hidden">
+        <div class="modal-content glass security-modal">
+            <header class="modal-header">
+                <h2 id="modal-threat-title">Threat Detail</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </header>
+            <div class="modal-body">
+                <div class="meta-strip">
+                    <span id="modal-severity" class="badge">--</span>
+                    <span id="modal-timestamp">--</span>
+                </div>
+                <p id="modal-description" class="desc">--</p>
+                <div class="remediation-step">
+                    <h5>Remediation Guide:</h5>
+                    <p id="modal-remediation">--</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="security-warroom.js"></script>
+    <script>
+        fetch('navbar.html').then(r => r.text()).then(html => {
+            document.getElementById('navbar-placeholder').innerHTML = html;
+        });
+    </script>
+</body>
+
+</html>

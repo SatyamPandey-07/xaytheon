@@ -1,0 +1,254 @@
+/* Xaytheon Security War Room Styles */
+
+:root {
+    --sec-red: #ef4444;
+    --sec-gold: #fbbf24;
+    --sec-purple: #a855f7;
+    --sec-glass: rgba(10, 10, 15, 0.85);
+    --sec-border: rgba(239, 68, 68, 0.2);
+}
+
+.security-warroom {
+    background-color: #050508;
+    color: #e2e8f0;
+    font-family: 'Inter', sans-serif;
+}
+
+.warroom-container {
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.warroom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.brand-security h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    margin: 0;
+    letter-spacing: 0.1em;
+}
+
+.security-status-bar {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    border-color: var(--sec-border);
+}
+
+.status-item .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #94a3b8;
+    display: block;
+}
+
+.status-item .value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.value.status-good {
+    color: #10b981;
+}
+
+/* Main Ops Grid */
+.ops-center {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.threat-visualization {
+    height: 600px;
+    position: relative;
+    background: radial-gradient(circle at center, #111827 0%, #050508 100%);
+    overflow: hidden;
+}
+
+.node-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid #10b981;
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.fuzz-badge {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--sec-red);
+    border: 1px solid var(--sec-red);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    animation: flash 1s infinite alternate;
+}
+
+@keyframes flash {
+    from {
+        opacity: 0.5;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Threat Sidebar */
+.threat-sidebar {
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.feed-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.threat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 4px solid #64748b;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.threat-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateX(-5px);
+}
+
+.threat-card.critical {
+    border-left-color: var(--sec-red);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.threat-card.high {
+    border-left-color: var(--sec-gold);
+}
+
+.threat-card .hdr {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.threat-card .type {
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: #fff;
+}
+
+.threat-card .sev {
+    font-size: 0.7rem;
+    font-weight: 900;
+}
+
+.threat-card .desc {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.4;
+}
+
+/* Control Center */
+.control-center {
+    padding: 2rem;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.action-card h4 {
+    margin-top: 0;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.action-card p {
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.sec-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: #fff;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.btn-security {
+    background: var(--sec-purple);
+    color: #fff;
+    border: none;
+    width: 100%;
+}
+
+.btn-fuzz {
+    background: var(--sec-red);
+    color: #fff;
+    border: none;
+    width: 100%;
+}
+
+/* Modal */
+.security-modal {
+    max-width: 600px;
+    border-color: var(--sec-red);
+}
+
+.meta-strip {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.badge.critical {
+    background: var(--sec-red);
+    color: #fff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 800;
+}
+
+.remediation-step {
+    background: rgba(16, 185, 129, 0.1);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.remediation-step h5 {
+    margin-top: 0;
+    color: #10b981;
+}
+
+.hidden {
+    display: none !important;
+}
