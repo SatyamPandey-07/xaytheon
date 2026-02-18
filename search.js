@@ -1,249 +1,162 @@
 /**
- * Smart Search Frontend Logic
- */
-/**
- * Smart Search Frontend Logic with Infinite Scroll & History
+ * XAYTHEON | Semantic Discovery Engine Dashboard Logic
+ * 
+ * Orchestrates smart searches, knowledge graph interaction,
+ * and multi-language discovery flows.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('search-input');
-    const searchBtn = document.getElementById('search-btn');
-    const resultsArea = document.getElementById('search-results');
-    const autocompletePanel = document.getElementById('autocomplete-results');
-    const resultsCount = document.getElementById('results-count');
-    const activeFiltersRow = document.getElementById('active-filters');
-    const loadMoreTrigger = document.getElementById('load-more-trigger');
+    // UI Elements
+    const searchInput = document.getElementById('smart-search-input');
+    const searchBtn = document.getElementById('search-trigger');
+    const langSelector = document.getElementById('lang-selector');
+    const resultsContainer = document.getElementById('search-results-list');
     const loadingState = document.getElementById('loading-state');
+    const intentBox = document.getElementById('intent-box');
+    const intentBadge = document.getElementById('detected-intent');
 
-    // Filters
-    const langFilter = document.getElementById('lang-filter');
-    const starsFilter = document.getElementById('stars-filter');
-    const updatedFilter = document.getElementById('updated-filter');
-    const applyFiltersBtn = document.getElementById('apply-filters');
+    // Graph Stats Elements
+    const statNodes = document.getElementById('stat-nodes');
+    const statEdges = document.getElementById('stat-edges');
+    const statDensity = document.getElementById('stat-density');
 
-    let currentFilters = {};
-    let currentPage = 1;
-    let hasMore = true;
-    let isLoading = false;
+    // Mini Graph Placeholder
+    const miniGraph = document.getElementById('mini-graph');
 
-    // ----------------------------
-    // --- Autocomplete Logic -----
-    // ----------------------------
-    let debounceTimer;
-    let selectedIndex = -1;
+    // Initial Load
+    fetchGraphStats();
 
-    searchInput.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        const query = searchInput.value.trim();
-        selectedIndex = -1;
-
-        if (query.length < 2) {
-            autocompletePanel.classList.add('hidden');
-            return;
-        }
-
-        debounceTimer = setTimeout(async () => {
-            try {
-                const res = await fetch(`/api/search/autocomplete?q=${encodeURIComponent(query)}`);
-                const data = await res.json();
-                renderAutocomplete(data.suggestions || []);
-            } catch (e) {
-                console.error('Autocomplete error:', e);
-                autocompletePanel.classList.add('hidden');
+    /**
+     * Fetch metadata about the Knowledge Graph
+     */
+    async function fetchGraphStats() {
+        try {
+            const res = await fetch('/api/search/graph-stats');
+            const data = await res.json();
+            if (data.success) {
+                statNodes.textContent = data.stats.nodes;
+                statEdges.textContent = data.stats.edges;
+                statDensity.textContent = (data.stats.density * 100).toFixed(2) + '%';
             }
-        }, 250);
-    });
-
-    function renderAutocomplete(suggestions) {
-        if (!suggestions.length) {
-            autocompletePanel.classList.add('hidden');
-            return;
+        } catch (err) {
+            console.error("Graph API unreachable.");
         }
-
-        autocompletePanel.innerHTML = suggestions
-            .map((s, i) => `<div class="autocomplete-item" data-index="${i}"><i class="ri-history-line"></i> ${s}</div>`)
-            .join('');
-        autocompletePanel.classList.remove('hidden');
     }
 
-    // Keyboard navigation for autocomplete
-    searchInput.addEventListener('keydown', (e) => {
-        const items = Array.from(autocompletePanel.querySelectorAll('.autocomplete-item'));
-        if (!items.length) return;
-
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            selectedIndex = (selectedIndex + 1) % items.length;
-            highlightAutocomplete(items);
-        }
-        if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-            highlightAutocomplete(items);
-        }
-        if (e.key === 'Enter') {
-            if (selectedIndex >= 0) {
-                e.preventDefault();
-                selectAutocomplete(items[selectedIndex]);
-            } else {
-                performSearch(true);
-            }
-        }
-    });
-
-    autocompletePanel.addEventListener('click', (e) => {
-        const item = e.target.closest('.autocomplete-item');
-        if (item) selectAutocomplete(item);
-    });
-
-    function highlightAutocomplete(items) {
-        items.forEach((item, i) => item.classList.toggle('highlighted', i === selectedIndex));
-        items[selectedIndex]?.scrollIntoView({ block: 'nearest' });
-    }
-
-    function selectAutocomplete(item) {
-        searchInput.value = item.textContent.trim();
-        autocompletePanel.classList.add('hidden');
-        performSearch(true);
-    }
-
-    // ----------------------------
-    // --- Search Logic ----------
-    // ----------------------------
-    searchBtn.addEventListener('click', () => performSearch(true));
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && selectedIndex === -1) performSearch(true);
-    });
-
-    async function performSearch(isNewSearch = false) {
+    /**
+     * Execute Semantic Search
+     */
+    async function performSearch() {
         const query = searchInput.value.trim();
-        if (!query || isLoading) return;
+        const lang = langSelector.value;
 
-        if (isNewSearch) {
-            currentPage = 1;
-            resultsArea.innerHTML = '';
-            resultsCount.textContent = 'Searching...';
-        }
+        if (!query) return;
 
-        isLoading = true;
+        // UI Feedback
         loadingState.classList.remove('hidden');
-        autocompletePanel.classList.add('hidden');
+        resultsContainer.innerHTML = '';
+        intentBox.classList.add('hidden');
 
         try {
-            const filterStr = JSON.stringify(currentFilters);
-            const res = await fetch(`/api/search/smart?q=${encodeURIComponent(query)}&filters=${encodeURIComponent(filterStr)}&page=${currentPage}`);
+            const res = await fetch(`/api/search/smart?q=${encodeURIComponent(query)}&lang=${lang}`);
             const data = await res.json();
 
             if (data.success) {
-                renderResults(data.data, isNewSearch);
-                renderActiveFilters(currentFilters);
-                hasMore = data.data.pagination.hasMore;
-                currentPage++;
-            } else if (isNewSearch) {
-                resultsArea.innerHTML = `<p class="error">No results found.</p>`;
+                renderResults(data.results);
+                intentBadge.textContent = data.intent;
+                intentBox.classList.remove('hidden');
             }
-        } catch (e) {
-            console.error(e);
-            if (isNewSearch) resultsArea.innerHTML = `<p class="error">Something went wrong.</p>`;
+        } catch (err) {
+            resultsContainer.innerHTML = '<p class="error">Semantic engine offline. Try again later.</p>';
         } finally {
-            isLoading = false;
             loadingState.classList.add('hidden');
         }
     }
 
-    function renderResults(data, isNewSearch) {
-        if (isNewSearch) {
-            resultsCount.textContent = `Found ${data.pagination.total.toLocaleString()} repositories in ${data.stats.responseTime}`;
-        }
-
-        if (!data.results.length && isNewSearch) {
-            resultsArea.innerHTML = `
-                <div class="empty-results">
-                    <i class="ri-search-eye-line"></i>
-                    <p>No results for "${data.query}". Try something like "React UI library".</p>
-                </div>`;
+    /**
+     * Render results with Resonance scoring and context
+     */
+    function renderResults(results) {
+        if (results.length === 0) {
+            resultsContainer.innerHTML = '<div class="empty-results"><h3>No resonance found.</h3><p>Try rephrasing your search or checking another language.</p></div>';
             return;
         }
 
-        const html = data.results.map(repo => `
-            <div class="repo-card animate-in">
-                <div class="repo-card-header">
-                    <a href="https://github.com/${repo.name}" target="_blank" class="repo-name">${repo.name}</a>
-                    <div class="repo-stats">
-                        <span><i class="ri-star-fill"></i> ${repo.stars.toLocaleString()}</span>
-                        <span><i class="ri-git-merge-line"></i> ${repo.forks.toLocaleString()}</span>
-                    </div>
+        resultsContainer.innerHTML = results.map(node => `
+            <div class="result-card" data-id="${node.id}">
+                <div class="result-header">
+                    <span class="result-type">${node.type}</span>
+                    <span class="resonance-score">Peak Resonance: ${node.totalScore.toFixed(2)}</span>
                 </div>
-                <p class="repo-description">${repo.desc}</p>
-                <div class="repo-tags">
-                    ${repo.lang ? `<span class="lang-tag">${repo.lang}</span>` : ''}
-                    ${repo.license ? `<span class="lang-tag">${repo.license}</span>` : ''}
+                <h4 class="result-name">${node.name}</h4>
+                <div class="result-tags">
+                    ${node.tags.map(t => `<span class="tag">#${t}</span>`).join('')}
                 </div>
             </div>
         `).join('');
 
-        if (isNewSearch) resultsArea.innerHTML = html;
-        else resultsArea.insertAdjacentHTML('beforeend', html);
-    }
+        // Add interaction listeners
+        document.querySelectorAll('.result-card').forEach(card => {
+            card.addEventListener('click', () => exploreNode(card.dataset.id, card.querySelector('.result-name').textContent));
+        });
 
-    // ----------------------------
-    // --- Active Filters ---------
-    // ----------------------------
-    function renderActiveFilters(filters) {
-        activeFiltersRow.innerHTML = '';
-        Object.entries(filters).forEach(([key, value]) => {
-            if (!value) return;
-            const chip = document.createElement('div');
-            chip.className = 'filter-chip';
-            chip.innerHTML = `${key}: ${value} <i class="ri-close-line" data-key="${key}"></i>`;
-            chip.querySelector('i').addEventListener('click', () => {
-                delete currentFilters[key];
-                performSearch(true);
-            });
-            activeFiltersRow.appendChild(chip);
+        // Animations
+        gsap.from('.result-card', {
+            opacity: 0,
+            x: -20,
+            stagger: 0.1,
+            duration: 0.5,
+            ease: 'power2.out'
         });
     }
 
-    // ----------------------------
-    // --- Infinite Scroll --------
-    // ----------------------------
-    const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
-            performSearch(false);
+    /**
+     * Traverse Knowledge Graph relationships for a selected node
+     */
+    async function exploreNode(nodeId, nodeName) {
+        miniGraph.innerHTML = `<p class="loading">Loading connections for ${nodeName}...</p>`;
+
+        try {
+            const res = await fetch(`/api/search/relationships/${nodeId}`);
+            const data = await res.json();
+
+            if (data.success && data.relationships.length > 0) {
+                renderMiniGraph(nodeName, data.relationships);
+            } else {
+                miniGraph.innerHTML = `<p class="placeholder">No direct relationships found for ${nodeName}.</p>`;
+            }
+        } catch (err) {
+            miniGraph.innerHTML = '<p class="error">Failed to fetch relationships.</p>';
         }
-    }, { threshold: 0.1 });
+    }
 
-    observer.observe(loadMoreTrigger);
+    function renderMiniGraph(rootName, relationships) {
+        miniGraph.innerHTML = `
+            <div class="resonance-map">
+                <div class="root-node">${rootName}</div>
+                <div class="connections">
+                    ${relationships.map(rel => `
+                        <div class="connected-node glass">
+                            <span class="rel-type">Link</span>
+                            <strong>${rel.name}</strong>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
 
-    // ----------------------------
-    // --- Filters ---------------
-    // ----------------------------
-    applyFiltersBtn.addEventListener('click', () => {
-        currentFilters = {};
-        if (langFilter.value) currentFilters.language = langFilter.value;
-        if (starsFilter.value) currentFilters.minStars = parseInt(starsFilter.value);
-        if (updatedFilter.value) currentFilters.updated = updatedFilter.value;
-        performSearch(true);
-    });
+        gsap.from('.connected-node', { scale: 0.5, opacity: 0, stagger: 0.1 });
+    }
 
-    document.querySelectorAll('.hint-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            searchInput.value = btn.textContent;
-            performSearch(true);
+    // Input Listeners
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', (e) => e.key === 'Enter' && performSearch());
+
+    // Hint interaction
+    document.querySelectorAll('.hint').forEach(hint => {
+        hint.addEventListener('click', () => {
+            searchInput.value = hint.textContent.replace(/"/g, '');
+            performSearch();
         });
     });
-
-    document.addEventListener('click', (e) => {
-        if (!autocompletePanel.contains(e.target) && e.target !== searchInput) {
-            autocompletePanel.classList.add('hidden');
-        }
-    });
-
-    // ----------------------------
-    // --- Initial Load ----------
-    // ----------------------------
-    if (!searchInput.value) {
-        searchInput.value = 'Popular projects';
-        performSearch(true);
-    }
 });
