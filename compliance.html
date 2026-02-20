@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XAYTHEON | Governance & Compliance Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="compliance.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+
+<body class="dark-theme">
+    <nav id="navbar-placeholder"></nav>
+
+    <main class="compliance-container">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Autonomous Governance <span class="accent">Auditor</span></h1>
+                <p>Real-time SOC2 & GDPR compliance monitoring for distributed repositories.</p>
+            </div>
+            <div class="header-actions">
+                <button id="run-audit-btn" class="btn btn-primary btn-glow">Execute Global Audit</button>
+            </div>
+        </header>
+
+        <section class="stats-overview">
+            <div class="stat-card glass">
+                <span class="label">Compliance Score</span>
+                <span id="global-score" class="value">--</span>
+                <div class="trend up">↑ 4% from last week</div>
+            </div>
+            <div class="stat-card glass">
+                <span class="label">Total Controls</span>
+                <span id="controls-count" class="value">24 Active</span>
+            </div>
+            <div class="stat-card glass">
+                <span class="label">Failed Checks</span>
+                <span id="failed-checks" class="value critical">0</span>
+            </div>
+            <div class="stat-card glass">
+                <span class="label">Audit Status</span>
+                <span id="audit-status" class="value status-compliant">IDLE</span>
+            </div>
+        </section>
+
+        <div class="dashboard-grid">
+            <!-- Left: Governance Controls -->
+            <aside class="controls-sidebar glass">
+                <h3>Active Frameworks</h3>
+                <div id="framework-list" class="framework-container">
+                    <div class="loading-spinner"></div>
+                </div>
+
+                <div class="repo-selector">
+                    <h3>Target Repository</h3>
+                    <input type="text" id="repo-path-input" placeholder="./path/to/repo" value="./" class="input-glass">
+                </div>
+            </aside>
+
+            <!-- Middle: Main Analysis -->
+            <section class="analysis-panel glass">
+                <div class="panel-tabs">
+                    <button class="tab-btn active" data-tab="live">Live Analysis</button>
+                    <button class="tab-btn" data-tab="history">Audit History</button>
+                </div>
+
+                <div id="live-tab" class="tab-content active">
+                    <div id="empty-state" class="empty-state">
+                        <div class="icon">🛡️</div>
+                        <h3>No Active Audit</h3>
+                        <p>Configure repo path and click "Execute Global Audit" to start scanning for compliance
+                            violations.</p>
+                    </div>
+
+                    <div id="audit-results" class="results-container hidden">
+                        <div class="audit-meta">
+                            <span id="report-id">ID: --</span>
+                            <span id="report-date">Time: --</span>
+                        </div>
+                        <div id="violations-list" class="violation-grid"></div>
+                    </div>
+                </div>
+
+                <div id="history-tab" class="tab-content">
+                    <div id="history-list" class="history-container">
+                        <p class="empty-msg">No historical audits found.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Visual Metrics -->
+            <aside class="metrics-sidebar glass">
+                <h3>Vulnerability Distribution</h3>
+                <canvas id="violation-chart"></canvas>
+
+                <div class="remediation-summary">
+                    <h3>AI Remediation Queue</h3>
+                    <div id="ai-remediation-list" class="remediation-list">
+                        <p class="empty-msg">Audit required for remediation queue.</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Modal for Detailed Report -->
+    <div id="report-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <header class="modal-header">
+                <h2>Certified Governance Disclosure</h2>
+                <button id="close-modal-btn" class="close-btn">&times;</button>
+            </header>
+            <div id="modal-body" class="modal-body"></div>
+            <footer class="modal-footer">
+                <button id="download-json-btn" class="btn btn-outline">Export JSON</button>
+                <button id="download-md-btn" class="btn btn-outline">Download Markdown</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="compliance.js"></script>
+    <script>
+        // Load navbar
+        fetch('navbar.html').then(r => r.text()).then(html => {
+            document.getElementById('navbar-placeholder').innerHTML = html;
+        });
+    </script>
+</body>
+
+</html>

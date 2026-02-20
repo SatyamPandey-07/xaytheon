@@ -31,10 +31,7 @@ const archaeologyRoutes = require("./routes/code-archaeology.routes");
 const refactorRoutes = require("./routes/refactor-safety.routes");
 const sprintRoutes = require("./routes/sprint.routes");
 const sprintForecasterRoutes = require("./routes/sprint-forecaster.routes");
-const securityRoutes = require("./routes/security.routes");
 const auditRoutes = require("./routes/audit.routes");
-const loadBalancerRoutes = require("./routes/load-balancer.routes");
-const gatewayMiddleware = require("./middleware/gateway.middleware");
 
 const app = express();
 
@@ -169,9 +166,7 @@ app.use("/api/time-travel", archaeologyRoutes);
 app.use("/api/refactor", refactorRoutes);
 app.use("/api/sprint", sprintRoutes);
 app.use("/api/sprint-forecaster", sprintForecasterRoutes);
-app.use("/api/security", securityRoutes);
 app.use("/api/audit", auditRoutes);
-app.use("/api/load-balancer", loadBalancerRoutes);
 
 app.use((err, req, res, next) => {
   console.error("Error:", err);
