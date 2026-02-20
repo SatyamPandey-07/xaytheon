@@ -1,0 +1,282 @@
+/* Xaytheon Compliance Dashboard CSS */
+
+:root {
+    --bg-dark: #0a0a0f;
+    --accent-primary: #6366f1;
+    --accent-glow: rgba(99, 102, 241, 0.4);
+    --critical: #ef4444;
+    --warning: #f59e0b;
+    --success: #10b981;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme {
+    background: var(--bg-dark);
+    color: #e2e8f0;
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.compliance-container {
+    padding: 2rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.header-content h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.header-content h1 .accent {
+    background: linear-gradient(90deg, #6366f1, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.header-content p {
+    color: #94a3b8;
+    margin-top: 0.5rem;
+}
+
+/* Glassmorphism Cards */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Stats Overview */
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-card .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.stat-card .value.critical {
+    color: var(--critical);
+}
+
+.stat-card .value.status-compliant {
+    color: var(--success);
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr 340px;
+    gap: 1.5rem;
+}
+
+/* Tabs */
+.panel-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 0.75rem;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+}
+
+.tab-btn.active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Violation Grid */
+.violation-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.violation-card {
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 4px solid #64748b;
+}
+
+.violation-card.sev-critical {
+    border-left-color: var(--critical);
+}
+
+.violation-card.sev-high {
+    border-left-color: var(--warning);
+}
+
+.violation-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.violation-header .framework {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--accent-primary);
+}
+
+.violation-header .control {
+    font-size: 0.7rem;
+    color: #94a3b8;
+}
+
+.violation-msg {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.remediation-box {
+    font-size: 0.8rem;
+    padding: 0.75rem;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 8px;
+    color: #cbd5e1;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 2rem;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: var(--accent-primary);
+    color: #fff;
+}
+
+.btn-glow {
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.btn-glow:hover {
+    box-shadow: 0 0 35px var(--accent-glow);
+    transform: scale(1.02);
+}
+
+.input-glass {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: #fff;
+    padding: 0.75rem;
+    width: 100%;
+    margin-top: 0.5rem;
+    box-sizing: border-box;
+}
+
+.loading-spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Framework items */
+.framework-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.framework-item .count {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--accent-primary);
+    padding: 0.1rem 0.5rem;
+    border-radius: 10px;
+}
