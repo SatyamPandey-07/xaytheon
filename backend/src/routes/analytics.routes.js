@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const analyticsController = require("../controllers/analytics.controller");
+const forensicController = require("../controllers/forensic.controller");
 const { verifyAccessToken } = require("../middleware/auth.middleware");
 
 // All analytics routes require authentication
@@ -28,6 +29,12 @@ router.get("/export", analyticsController.exportData);
 router.delete("/cleanup", analyticsController.cleanupOldSnapshots);
 
 // FORENSIC TIME-TRAVEL ENDPOINTS
+// FORENSIC TIME-TRAVEL ENDPOINTS (High-Granularity)
+router.get("/forensic/high-res/timeline", forensicController.getTimeline);
+router.get("/forensic/high-res/snapshot/:timestamp", forensicController.getSnapshotAtTime);
+router.get("/forensic/high-res/metrics/:nodeId", forensicController.getNodeMetrics);
+router.post("/forensic/high-res/simulate", forensicController.simulateTraffic);
+
 router.get("/forensic/timeline", analyticsController.getForensicTimeline);
 router.get("/forensic/at-time", analyticsController.getHealthAtTime);
 
